@@ -12,17 +12,40 @@ export interface RoomSnapshot {
   game: GameState | null
 }
 
-export type ClientMessage =
-  | { type: 'create' }
-  | { type: 'join'; code: string }
-  | { type: 'leave' }
-  | { type: 'move'; from: number; to: number; promotion?: PieceType }
-  | { type: 'use_card'; card: 'coronation'; square: number }
-  | { type: 'pick_card'; card: AugmentId }
-  | { type: 'rematch' }
+export type RematchFlags = { w: boolean; b: boolean }
 
-export type ServerMessage =
-  | { type: 'hello'; playerId: string }
-  | { type: 'room'; room: RoomSnapshot }
-  | { type: 'error'; message: string }
-  | { type: 'left' }
+/** 1:1 room messages (MQTT topic per code). `peer` is the sender id. */
+export type WireMessage =
+  | { type: 'host_ready'; peer: string }
+  | { type: 'hello'; peer: string }
+  | {
+      type: 'welcome'
+      peer: string
+      to: string
+      color: Color
+      code: string
+      ready: boolean
+      game: GameState
+      rematch: RematchFlags
+    }
+  | {
+      type: 'state' | 'rematch'
+      peer: string
+      code: string
+      ready: boolean
+      game: GameState
+      rematch: RematchFlags
+    }
+  | {
+      type: 'move'
+      peer: string
+      from: number
+      to: number
+      promotion?: PieceType
+    }
+  | { type: 'use_card'; peer: string; card: 'coronation'; square: number }
+  | { type: 'pick_card'; peer: string; card: AugmentId }
+  | { type: 'rematch_vote'; peer: string }
+  | { type: 'leave'; peer: string; role: 'host' | 'guest' }
+  | { type: 'peer_gone'; peer: string; role: 'host' | 'guest' }
+  | { type: 'error'; peer: string; to?: string; message: string }

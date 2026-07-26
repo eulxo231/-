@@ -2,23 +2,21 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import type { RoomSnapshot } from '../../shared/protocol'
 import type { AugmentId } from '../augments/catalog'
 import type { PieceType } from '../engine/types'
-import { connectSocket, type GameSocket } from './socket'
+import { connectPeer, type PeerNet } from './peerNet'
 
 export type ConnectionStatus = 'idle' | 'connecting' | 'connected' | 'disconnected'
 
 export function useOnlineGame() {
-  const socketRef = useRef<GameSocket | null>(null)
+  const netRef = useRef<PeerNet | null>(null)
   const [connection, setConnection] = useState<ConnectionStatus>('idle')
   const [room, setRoom] = useState<RoomSnapshot | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  const ensureSocket = useCallback(() => {
-    if (socketRef.current && socketRef.current.readyState <= WebSocket.OPEN) {
-      return socketRef.current
-    }
+  const ensureNet = useCallback(() => {
+    if (netRef.current) return netRef.current
 
     setConnection('connecting')
-    const socket = connectSocket({
+    const net = connectPeer({
       onOpen: () => {
         setConnection('connected')
         setError(null)
@@ -26,87 +24,83 @@ export function useOnlineGame() {
       onClose: () => {
         setConnection('disconnected')
         setRoom(null)
+        netRef.current = null
+      },
+      onRoom: (next) => {
+        setRoom(next)
+        setError(null)
+        setConnection('connected')
+      },
+      onLeft: () => {
+        setRoom(null)
+        netRef.current = null
       },
       onError: (message) => {
         setConnection('disconnected')
         setError(message)
-        socketRef.current = null
-      },
-      onMessage: (msg) => {
-        switch (msg.type) {
-          case 'room':
-            setRoom(msg.room)
-            setError(null)
-            break
-          case 'left':
-            setRoom(null)
-            break
-          case 'error':
-            setError(msg.message)
-            break
-          default:
-            break
-        }
+        netRef.current = null
       },
     })
-    socketRef.current = socket
-    return socket
+    netRef.current = net
+    return net
   }, [])
 
   useEffect(() => {
     return () => {
-      socketRef.current?.close()
-      socketRef.current = null
+      netRef.current?.close()
+      netRef.current = null
     }
   }, [])
 
   const createRoom = useCallback(() => {
     setError(null)
-    ensureSocket().send({ type: 'create' })
-  }, [ensureSocket])
+    ensureNet().create()
+  }, [ensureNet])
 
   const joinRoom = useCallback(
     (code: string) => {
       setError(null)
-      ensureSocket().send({ type: 'join', code })
+      ensureNet().join(code)
     },
-    [ensureSocket],
+    [ensureNet],
   )
 
   const leaveRoom = useCallback(() => {
     setError(null)
-    socketRef.current?.send({ type: 'leave' })
+    netRef.current?.leave()
+    netRef.current = null
     setRoom(null)
+    setConnection('idle')
   }, [])
 
   const sendMove = useCallback(
     (from: number, to: number, promotion?: PieceType) => {
       setError(null)
-      ensureSocket().send({ type: 'move', from, to, promotion })
+      ensureNet().move(from, to, promotion)
     },
-    [ensureSocket],
+    [ensureNet],
   )
 
   const sendUseCard = useCallback(
     (card: 'coronation', square: number) => {
       setError(null)
-      ensureSocket().send({ type: 'use_card', card, square })
+      ensureNet().useCard(card, square)
     },
-    [ensureSocket],
+    [ensureNet],
   )
 
   const sendPickCard = useCallback(
     (card: AugmentId) => {
       setError(null)
-      ensureSocket().send({ type: 'pick_card', card })
+      ensureNet().pickCard(card)
     },
-    [ensureSocket],
+    [ensureNet],
   )
 
   const rematch = useCallback(() => {
     setError(null)
-    ensureSocket().send({ type: 'rematch' })
-  }, [ensureSocket])
+    ensureNet().rematch()
+  }, [ensureNet])
 
   const clearError = useCallback(() => setError(null), [])
 
