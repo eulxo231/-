@@ -437,7 +437,8 @@ button {
 }
 
 .draft-overlay,
-.mode-select-overlay {
+.mode-select-overlay,
+.game-over-overlay {
   position: fixed;
   inset: 0;
   z-index: 60;
@@ -454,7 +455,8 @@ button {
 }
 
 .draft-modal,
-.mode-select-modal {
+.mode-select-modal,
+.game-over-modal {
   width: min(36rem, 100%);
   max-height: min(90vh, 100%);
   overflow: auto;
@@ -466,31 +468,49 @@ button {
   animation: pop 0.22s ease both;
 }
 
-.mode-select-modal {
+.mode-select-modal,
+.game-over-modal {
   width: min(22rem, 100%);
   text-align: center;
 }
 
-.mode-select-modal h2 {
+.mode-select-modal h2,
+.game-over-modal h2 {
   margin: 0;
   font-family: 'Fraunces', serif;
   font-size: 1.55rem;
   font-weight: 600;
 }
 
-.mode-select-modal > p {
+.mode-select-modal > p,
+.game-over-result,
+.game-over-hint {
   margin: 0.55rem 0 1.15rem;
   color: var(--muted);
   font-size: 0.92rem;
   line-height: 1.45;
 }
 
-.mode-select-actions {
+.game-over-result {
+  margin-bottom: 0.35rem;
+  color: var(--ink);
+  font-weight: 600;
+  font-size: 1.02rem;
+}
+
+.game-over-hint {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.mode-select-actions,
+.game-over-actions {
   display: grid;
   gap: 0.55rem;
 }
 
 .mode-select-actions button,
+.game-over-actions button,
 .menu-back {
   border: 1px solid var(--accent);
   background: var(--accent);
@@ -510,6 +530,11 @@ button {
 .mode-select-actions button.ghost:hover,
 .menu-back:hover {
   background: rgba(31, 122, 85, 0.08);
+}
+
+.game-over-actions button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 .draft-panel-head {

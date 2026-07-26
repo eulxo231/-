@@ -3,6 +3,7 @@ import type { AugmentId } from './augments/catalog'
 import { AugmentTray } from './components/AugmentTray'
 import { Board } from './components/Board'
 import { DraftPanel } from './components/DraftPanel'
+import { GameOverModal } from './components/GameOverModal'
 import { Lobby } from './components/Lobby'
 import { ModeSelect } from './components/ModeSelect'
 import { RulesPanel } from './components/RulesPanel'
@@ -346,13 +347,6 @@ export default function App() {
                 </p>
               )}
               {game &&
-                (mode === 'local' ||
-                  onlineReady ||
-                  online.room?.status === 'finished') &&
-                game.result && (
-                  <p className="result">{resultLabel(game.result)}</p>
-                )}
-              {game &&
                 (mode === 'local' || onlineReady) &&
                 !game.result &&
                 !inDraft && (
@@ -368,6 +362,7 @@ export default function App() {
                       : ''}
                   </p>
                 )}
+              {game?.result && <p className="result">Game over</p>}
             </div>
 
             {game && (
@@ -402,28 +397,8 @@ export default function App() {
               </dl>
             )}
 
-            <div className="actions">
-              {mode === 'local' ? (
-                <button type="button" onClick={resetLocal}>
-                  New game
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={online.rematch}
-                  disabled={
-                    !online.room ||
-                    !online.room.whitePresent ||
-                    !online.room.blackPresent ||
-                    (online.room.status === 'playing' && !game?.result)
-                  }
-                >
-                  {online.room && online.room.rematchVotes > 0
-                    ? `Rematch (${online.room.rematchVotes}/2)`
-                    : 'Rematch'}
-                </button>
-              )}
-              {mode === 'local' && (
+            {mode === 'local' && (
+              <div className="actions">
                 <button
                   type="button"
                   className="ghost"
@@ -431,8 +406,8 @@ export default function App() {
                 >
                   Flip board
                 </button>
-              )}
-            </div>
+              </div>
+            )}
           </footer>
         )}
       </main>
@@ -444,6 +419,31 @@ export default function App() {
           game={game}
           controller={draftController ?? null}
           onPick={onDraftPick}
+        />
+      )}
+
+      {game?.result && mode && (
+        <GameOverModal
+          message={resultLabel(game.result)}
+          retryLabel={
+            mode === 'local'
+              ? 'Retry'
+              : online.room && online.room.rematchVotes > 0
+                ? `Rematch (${online.room.rematchVotes}/2)`
+                : 'Retry'
+          }
+          retryDisabled={
+            mode === 'online' &&
+            (!online.room ||
+              !online.room.whitePresent ||
+              !online.room.blackPresent)
+          }
+          retryHint={
+            mode === 'online' && online.room && online.room.rematchVotes === 1
+              ? 'Waiting for opponent…'
+              : null
+          }
+          onRetry={mode === 'local' ? resetLocal : online.rematch}
         />
       )}
 
