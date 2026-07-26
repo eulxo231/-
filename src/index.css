@@ -821,8 +821,17 @@ button {
 }
 
 .rule-slots {
-  grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr));
-  max-width: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  grid-template-columns: none;
+}
+
+.rule-slots .augment-card {
+  width: 7.25rem;
+  flex: 0 0 7.25rem;
+  max-width: 7.25rem;
+  aspect-ratio: 3 / 4;
 }
 
 .board {
