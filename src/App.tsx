@@ -239,7 +239,30 @@ export default function App() {
     <div className="app">
       <header className="top-bar">
         <div className="top-bar-row">
-          <p className="brand">Augment Chess</p>
+          <div className="brand-cluster">
+            <p className="brand">Augment Chess</p>
+            {mode && game && !game.result && !inDraft && (mode === 'local' || onlineReady) && (
+              <p className="turn-badge" aria-live="polite">
+                <span className={`turn-dot ${game.turn}`} />
+                {turnLabel} to move
+                {actionLabel}
+                {mode === 'online' && myColor && game.turn === myColor
+                  ? ' — you'
+                  : ''}
+                {mode === 'online' && myColor && game.turn !== myColor
+                  ? ' — opponent'
+                  : ''}
+              </p>
+            )}
+            {mode && game?.result && (
+              <p className="turn-badge result">Game over</p>
+            )}
+            {mode && inDraft && (mode === 'local' || onlineSession) && game && (
+              <p className="turn-badge" aria-live="polite">
+                Draft — {game.draft?.picker === 'w' ? 'White' : 'Black'}
+              </p>
+            )}
+          </div>
           {mode && (
             <button type="button" className="ghost menu-back" onClick={backToMenu}>
               Change mode
@@ -340,29 +363,6 @@ export default function App() {
               {waitingOnline && (
                 <p>Share your code — game starts when both seats fill.</p>
               )}
-              {inDraft && (mode === 'local' || onlineSession) && game && (
-                <p>
-                  Card draft —{' '}
-                  {game.draft?.picker === 'w' ? 'White' : 'Black'} to pick
-                </p>
-              )}
-              {game &&
-                (mode === 'local' || onlineReady) &&
-                !game.result &&
-                !inDraft && (
-                  <p>
-                    <span className={`turn-dot ${game.turn}`} />
-                    {turnLabel} to move
-                    {actionLabel}
-                    {mode === 'online' && myColor && game.turn === myColor
-                      ? ' — your turn'
-                      : ''}
-                    {mode === 'online' && myColor && game.turn !== myColor
-                      ? ' — opponent'
-                      : ''}
-                  </p>
-                )}
-              {game?.result && <p className="result">Game over</p>}
             </div>
 
             {game && (
