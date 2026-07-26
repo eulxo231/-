@@ -1,3 +1,4 @@
+import mqtt, { type MqttClient } from 'mqtt'
 import type { RematchFlags, RoomSnapshot, RoomStatus, WireMessage } from '../../shared/protocol'
 import {
   createGame,
@@ -9,13 +10,9 @@ import {
 import type { AugmentId, Color, GameState, PieceType } from '../engine/types'
 
 const CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
-/** Public HTTP pub/sub (SSE + POST). Keep traffic low — ntfy rate-limits bursts. */
-const HTTP_BASE = 'https://ntfy.sh'
-const TOPIC_PREFIX = 'augmentchess_'
-const HELLO_RETRY_MS = 12_000
-const JOIN_TIMEOUT_MS = 36_000
-const RATE_LIMIT_MSG =
-  'Online channel is busy (rate limited). Wait about a minute, then try again.'
+/** Same public broker pattern as omok_s — reliable on GitHub Pages. */
+const BROKER = 'wss://broker.emqx.io:8084/mqtt'
+const TOPIC_PREFIX = 'augment_chess/v1/'
 
 type Role = 'host' | 'guest'
 
@@ -55,7 +52,6 @@ function statusOf(ready: boolean, game: GameState | null): RoomStatus {
   return 'playing'
 }
 
-/** Drop history so HTTP payloads stay under ntfy size limits. */
 function wireGame(game: GameState): GameState {
   return { ...game, history: [] }
 }
@@ -79,11 +75,11 @@ function toSnapshot(
 }
 
 /**
- * Host-authoritative 1:1 rooms over HTTP (EventSource + POST).
+ * Host-authoritative 1:1 rooms over a public MQTT broker (omok_s style).
  * Host = White, guest = Black.
  */
 export function connectPeer(handlers: PeerHandlers) {
-  let source: EventSource | null = null
+  let client: MqttClient | null = null
   let peerId: string | null = null
   let role: Role | null = null
   let code: string | null = null
@@ -92,18 +88,11 @@ export function connectPeer(handlers: PeerHandlers) {
   let ready = false
   let guestPeer: string | null = null
   let busy = false
-  let joinTimer: ReturnType<typeof setTimeout> | null = null
-  let helloTimer: ReturnType<typeof setInterval> | null = null
-  let reconnectTimer: ReturnType<typeof setTimeout> | null = null
-  let live = false
-  let closed = false
-  let publishBlockedUntil = 0
-  let lastWelcomeAt = 0
   let greeted = false
+  let joinTimer: ReturnType<typeof setTimeout> | null = null
 
   function markGuestJoined() {
     clearJoinTimer()
-    clearHelloTimer()
     busy = false
     ready = true
     greeted = true
@@ -121,48 +110,15 @@ export function connectPeer(handlers: PeerHandlers) {
     }
   }
 
-  function clearHelloTimer() {
-    if (helloTimer) {
-      clearInterval(helloTimer)
-      helloTimer = null
-    }
+  function publish(payload: WireMessage, opts?: { retain?: boolean; qos?: 0 | 1 | 2 }) {
+    if (!client || !topic || !client.connected) return
+    client.publish(topic, JSON.stringify(payload), opts ?? { qos: 0 })
   }
 
-  function clearReconnectTimer() {
-    if (reconnectTimer) {
-      clearTimeout(reconnectTimer)
-      reconnectTimer = null
-    }
-  }
-
-  async function publish(payload: WireMessage): Promise<boolean> {
-    if (!topic || !live || closed) return false
-    if (Date.now() < publishBlockedUntil) return false
+  function clearRetain() {
+    if (!client || !topic) return
     try {
-      const res = await fetch(`${HTTP_BASE}/${topic}`, {
-        method: 'POST',
-        body: JSON.stringify(payload),
-      })
-      if (res.status === 429) {
-        publishBlockedUntil = Date.now() + 60_000
-        fail(RATE_LIMIT_MSG)
-        return false
-      }
-      return res.ok
-    } catch {
-      return false
-    }
-  }
-
-  function publishLeaveBeacon() {
-    if (!topic || !peerId || !role) return
-    const body = JSON.stringify({
-      type: 'leave',
-      peer: peerId,
-      role,
-    } satisfies WireMessage)
-    try {
-      navigator.sendBeacon(`${HTTP_BASE}/${topic}`, body)
+      client.publish(topic, '', { retain: true, qos: 0 })
     } catch {
       // ignore
     }
@@ -175,16 +131,11 @@ export function connectPeer(handlers: PeerHandlers) {
   }
 
   function teardown() {
-    closed = true
     clearJoinTimer()
-    clearHelloTimer()
-    clearReconnectTimer()
-    window.removeEventListener('pagehide', onPageHide)
     busy = false
-    live = false
     greeted = false
-    const old = source
-    source = null
+    const old = client
+    client = null
     peerId = null
     role = null
     code = null
@@ -194,15 +145,11 @@ export function connectPeer(handlers: PeerHandlers) {
     guestPeer = null
     if (old) {
       try {
-        old.close()
+        old.end(true)
       } catch {
         // ignore
       }
     }
-  }
-
-  function onPageHide() {
-    publishLeaveBeacon()
   }
 
   function emitHostRoom() {
@@ -214,7 +161,7 @@ export function connectPeer(handlers: PeerHandlers) {
 
   function broadcastState(type: 'state' | 'rematch') {
     if (!room || !code || !peerId) return
-    void publish({
+    publish({
       type,
       peer: peerId,
       code,
@@ -238,15 +185,12 @@ export function connectPeer(handlers: PeerHandlers) {
 
   function reject(to: string, message: string) {
     if (!peerId) return
-    void publish({ type: 'error', peer: peerId, to, message })
+    publish({ type: 'error', peer: peerId, to, message })
   }
 
   function sendWelcome(to: string) {
     if (!room || !peerId || !code) return
-    const now = Date.now()
-    if (now - lastWelcomeAt < 8_000) return
-    lastWelcomeAt = now
-    void publish({
+    publish({
       type: 'welcome',
       peer: peerId,
       to,
@@ -349,8 +293,6 @@ export function connectPeer(handlers: PeerHandlers) {
         guestPeer = null
         room.game = createGame()
         clearRematch()
-        // Single ping so a late joiner can find the open seat — no spam loop
-        if (peerId) void publish({ type: 'host_ready', peer: peerId })
         emitHostRoom()
         break
       }
@@ -365,9 +307,9 @@ export function connectPeer(handlers: PeerHandlers) {
 
     switch (msg.type) {
       case 'host_ready': {
-        if (!ready && !greeted && peerId) {
+        if (!greeted && !ready && peerId) {
           greeted = true
-          void publish({ type: 'hello', peer: peerId })
+          publish({ type: 'hello', peer: peerId })
         }
         break
       }
@@ -395,7 +337,6 @@ export function connectPeer(handlers: PeerHandlers) {
         if (ready) return
         busy = false
         clearJoinTimer()
-        clearHelloTimer()
         fail(msg.message || 'Something went wrong.')
         teardown()
         break
@@ -405,91 +346,40 @@ export function connectPeer(handlers: PeerHandlers) {
     }
   }
 
-  function handleEnvelope(raw: string) {
-    let envelope: { event?: string; message?: string }
-    try {
-      envelope = JSON.parse(raw) as { event?: string; message?: string }
-    } catch {
-      return
-    }
-    if (envelope.event && envelope.event !== 'message') return
-    if (!envelope.message) return
-
+  function handleMessage(raw: Buffer | string) {
     let msg: WireMessage
     try {
-      msg = JSON.parse(envelope.message) as WireMessage
+      msg = JSON.parse(String(raw)) as WireMessage
     } catch {
       return
     }
-
     if (role === 'host') onHostMessage(msg)
     else if (role === 'guest') onGuestMessage(msg)
   }
 
-  function attachSource(onReady: () => void) {
-    if (!topic || closed) return
-
-    const es = new EventSource(`${HTTP_BASE}/${topic}/sse`)
-    source = es
-
-    const connectTimer = setTimeout(() => {
-      if (!live && !closed) {
-        fail(RATE_LIMIT_MSG)
-        teardown()
-      }
-    }, 15_000)
-
-    es.onopen = () => {
-      clearTimeout(connectTimer)
-      live = true
-      handlers.onOpen?.()
-      onReady()
-    }
-
-    es.onerror = () => {
-      // Stop the browser's aggressive reconnect loop (it triggers 429s).
-      try {
-        es.close()
-      } catch {
-        // ignore
-      }
-      if (source === es) source = null
-
-      if (closed) return
-
-      if (!live) {
-        clearTimeout(connectTimer)
-        fail(RATE_LIMIT_MSG)
-        teardown()
-        return
-      }
-
-      // Dropped mid-session: wait, then reconnect once slowly
-      live = false
-      clearReconnectTimer()
-      reconnectTimer = setTimeout(() => {
-        if (closed || !topic) return
-        attachSource(() => {
-          if (role === 'host' && !ready && peerId) {
-            void publish({ type: 'host_ready', peer: peerId })
-          }
-          if (role === 'guest' && !ready && peerId) {
-            void publish({ type: 'hello', peer: peerId })
-          }
-        })
-      }, 20_000)
-    }
-
-    es.onmessage = (event) => {
-      handleEnvelope(String(event.data))
-    }
-  }
-
-  function openChannel(onReady: () => void) {
+  function startClient(willRole: Role) {
     peerId = makeId()
-    closed = false
-    window.addEventListener('pagehide', onPageHide)
-    attachSource(onReady)
+    client = mqtt.connect(BROKER, {
+      clientId: peerId,
+      clean: true,
+      reconnectPeriod: 0,
+      connectTimeout: 12_000,
+      will: {
+        topic: topic!,
+        payload: JSON.stringify({
+          type: 'peer_gone',
+          peer: peerId,
+          role: willRole,
+        } satisfies WireMessage),
+        qos: 0,
+        retain: false,
+      },
+    })
+
+    client.on('message', (_t, payload) => handleMessage(payload))
+    client.on('error', () => {
+      /* connect timeout covers user-facing errors */
+    })
   }
 
   return {
@@ -497,7 +387,6 @@ export function connectPeer(handlers: PeerHandlers) {
       if (busy) return
       teardown()
       busy = true
-      closed = false
 
       code = makeCode()
       topic = TOPIC_PREFIX + code
@@ -505,11 +394,31 @@ export function connectPeer(handlers: PeerHandlers) {
       role = 'host'
       ready = false
 
-      openChannel(() => {
-        busy = false
-        // One announce only — guests send hello; host answers with welcome
-        void publish({ type: 'host_ready', peer: peerId! })
-        emitHostRoom()
+      startClient('host')
+      handlers.onOpen?.()
+
+      const createTimer = setTimeout(() => {
+        if (busy && role === 'host') {
+          fail('Could not create room. Try again.')
+          teardown()
+        }
+      }, 12_000)
+
+      client!.on('connect', () => {
+        clearTimeout(createTimer)
+        client!.subscribe(topic!, { qos: 0 }, (err) => {
+          if (err) {
+            fail('Could not create room. Try again.')
+            teardown()
+            return
+          }
+          publish(
+            { type: 'host_ready', peer: peerId! },
+            { retain: true, qos: 0 },
+          )
+          busy = false
+          emitHostRoom()
+        })
       })
     },
 
@@ -525,7 +434,6 @@ export function connectPeer(handlers: PeerHandlers) {
 
       teardown()
       busy = true
-      closed = false
       greeted = false
       code = normalized
       topic = TOPIC_PREFIX + code
@@ -533,19 +441,31 @@ export function connectPeer(handlers: PeerHandlers) {
       ready = false
       room = null
 
-      openChannel(() => {
-        const sendHello = () => {
-          if (!ready && peerId) void publish({ type: 'hello', peer: peerId })
+      startClient('guest')
+      handlers.onOpen?.()
+
+      const joinConnectTimer = setTimeout(() => {
+        if (busy && !ready && role === 'guest') {
+          fail('Could not join room. Try again.')
+          teardown()
         }
-        sendHello()
-        // Slow retries only — ntfy allows ~1 request / 5s after a burst
-        helloTimer = setInterval(sendHello, HELLO_RETRY_MS)
-        joinTimer = setTimeout(() => {
-          if (!ready) {
-            fail('Room not found. Check the code and try again.')
+      }, 12_000)
+
+      client!.on('connect', () => {
+        clearTimeout(joinConnectTimer)
+        client!.subscribe(topic!, { qos: 0 }, (err) => {
+          if (err) {
+            fail('Could not join room. Try again.')
             teardown()
+            return
           }
-        }, JOIN_TIMEOUT_MS)
+          joinTimer = setTimeout(() => {
+            if (!ready) {
+              fail('Room not found. Check the code and try again.')
+              teardown()
+            }
+          }, 8_000)
+        })
       })
     },
 
@@ -555,7 +475,7 @@ export function connectPeer(handlers: PeerHandlers) {
         return
       }
       if (!peerId) return
-      void publish({ type: 'move', peer: peerId, from, to, promotion })
+      publish({ type: 'move', peer: peerId, from, to, promotion })
     },
 
     useCard(card: 'coronation', square: number) {
@@ -564,7 +484,7 @@ export function connectPeer(handlers: PeerHandlers) {
         return
       }
       if (!peerId) return
-      void publish({ type: 'use_card', peer: peerId, card, square })
+      publish({ type: 'use_card', peer: peerId, card, square })
     },
 
     pickCard(card: AugmentId) {
@@ -573,7 +493,7 @@ export function connectPeer(handlers: PeerHandlers) {
         return
       }
       if (!peerId) return
-      void publish({ type: 'pick_card', peer: peerId, card })
+      publish({ type: 'pick_card', peer: peerId, card })
     },
 
     rematch() {
@@ -585,12 +505,13 @@ export function connectPeer(handlers: PeerHandlers) {
         return
       }
       if (!peerId) return
-      void publish({ type: 'rematch_vote', peer: peerId })
+      publish({ type: 'rematch_vote', peer: peerId })
     },
 
     leave() {
-      if (live && peerId && role) {
-        void publish({ type: 'leave', peer: peerId, role })
+      if (client && topic && client.connected && peerId) {
+        publish({ type: 'leave', peer: peerId, role: role ?? 'guest' })
+        if (role === 'host') clearRetain()
       }
       handlers.onLeft()
       teardown()
