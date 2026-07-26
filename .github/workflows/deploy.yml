@@ -27,6 +27,8 @@ jobs:
       - run: npm run build
         env:
           GITHUB_ACTIONS: true
+          # Set repo secret VITE_WS_URL to your hosted server, e.g. wss://augment-chess-ws.onrender.com
+          VITE_WS_URL: ${{ secrets.VITE_WS_URL }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

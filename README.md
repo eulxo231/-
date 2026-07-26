@@ -1,32 +1,37 @@
-# React + TypeScript + Vite
+# Augment Chess
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Vite + React chess variant with card draft and online rooms.
 
-Currently, two official plugins are available:
+## Local
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+- Client: http://localhost:5173/
+- WebSocket server: `ws://localhost:3001`
+
+**Local** mode is hotseat (no server). **Online** needs the WebSocket server (`npm run dev` starts both).
+
+## Online on GitHub Pages
+
+GitHub Pages only hosts the static client. Online rooms need a separate WebSocket host.
+
+### 1. Deploy the game server (Render)
+
+1. Open [https://render.com](https://render.com) and connect this repo.
+2. Create a **Web Service** from `render.yaml` (or use Blueprint).
+3. After deploy, copy the service URL and switch `https://` → `wss://`  
+   Example: `wss://augment-chess-ws.onrender.com`
+
+Free Render services sleep when idle; the first connect after sleep can take ~30–60s.
+
+### 2. Point the Pages build at that server
+
+In the GitHub repo: **Settings → Secrets and variables → Actions**
+
+- Name: `VITE_WS_URL`
+- Value: `wss://your-service.onrender.com` (no trailing slash)
+
+Push to `master` (or re-run the Deploy workflow). The client will use that URL for Online mode.

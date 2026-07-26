@@ -54,6 +54,8 @@ export function Lobby({
             <>
               <p className="online-copy">
                 Create a room and share the code, or join a friend’s game.
+                {connection === 'connecting' &&
+                  ' First connect can take a minute if the server was asleep.'}
               </p>
               <div className="online-actions">
                 <button type="button" onClick={onCreate}>

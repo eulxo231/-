@@ -1,3 +1,4 @@
+import { createServer } from 'node:http'
 import { randomUUID } from 'node:crypto'
 import { WebSocketServer } from 'ws'
 import type { ClientMessage, ServerMessage } from '../shared/protocol.ts'
@@ -17,7 +18,13 @@ import {
 } from './rooms.ts'
 
 const PORT = Number(process.env.PORT ?? 3001)
-const wss = new WebSocketServer({ port: PORT })
+
+const server = createServer((_req, res) => {
+  res.writeHead(200, { 'Content-Type': 'text/plain' })
+  res.end('ok')
+})
+
+const wss = new WebSocketServer({ server })
 
 function send(socket: PlayerSocket, message: ServerMessage) {
   if (socket.readyState === socket.OPEN) {
@@ -115,4 +122,6 @@ wss.on('connection', (raw) => {
   })
 })
 
-console.log(`Augment Chess WebSocket server on ws://localhost:${PORT}`)
+server.listen(PORT, () => {
+  console.log(`Augment Chess WebSocket server on port ${PORT}`)
+})

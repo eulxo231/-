@@ -19,12 +19,19 @@ export function useOnlineGame() {
 
     setConnection('connecting')
     const socket = connectSocket({
-      onOpen: () => setConnection('connected'),
+      onOpen: () => {
+        setConnection('connected')
+        setError(null)
+      },
       onClose: () => {
         setConnection('disconnected')
         setRoom(null)
       },
-      onError: () => setError('Could not reach the game server'),
+      onError: (message) => {
+        setConnection('disconnected')
+        setError(message)
+        socketRef.current = null
+      },
       onMessage: (msg) => {
         switch (msg.type) {
           case 'room':
