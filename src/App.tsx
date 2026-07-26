@@ -4,6 +4,7 @@ import { AugmentTray } from './components/AugmentTray'
 import { Board } from './components/Board'
 import { DraftPanel } from './components/DraftPanel'
 import { Lobby } from './components/Lobby'
+import { ModeSelect } from './components/ModeSelect'
 import { RulesPanel } from './components/RulesPanel'
 import {
   createGame,
@@ -16,6 +17,8 @@ import {
 import type { GameState, Move, PieceType } from './engine/types'
 import { useOnlineGame } from './online/useOnlineGame'
 
+type PlayMode = 'local' | 'online'
+
 function needsPromotion(state: GameState, from: number, to: number): boolean {
   const piece = state.board[from]
   if (!piece || piece.type !== 'p') return false
@@ -26,8 +29,8 @@ function needsPromotion(state: GameState, from: number, to: number): boolean {
 }
 
 export default function App() {
-  const [mode, setMode] = useState<'local' | 'online'>('local')
-  const [localGame, setLocalGame] = useState<GameState>(() => createGame())
+  const [mode, setMode] = useState<PlayMode | null>(null)
+  const [localGame, setLocalGame] = useState<GameState | null>(null)
   const [selected, setSelected] = useState<number | null>(null)
   const [flipped, setFlipped] = useState(false)
   const [pendingPromotion, setPendingPromotion] = useState<{
@@ -39,9 +42,15 @@ export default function App() {
 
   const online = useOnlineGame()
 
-  const game = mode === 'online' ? (online.room?.game ?? createGame()) : localGame
+  const game =
+    mode === 'online'
+      ? (online.room?.game ?? null)
+      : mode === 'local'
+        ? localGame
+        : null
+
   const myColor = mode === 'online' ? online.room?.you : null
-  const inDraft = game.phase === 'draft'
+  const inDraft = !!game && game.phase === 'draft'
   const onlineSession =
     mode === 'online' &&
     !!online.room &&
@@ -56,15 +65,15 @@ export default function App() {
   const draftController: 'w' | 'b' | null =
     mode === 'online'
       ? (myColor ?? null)
-      : inDraft
-        ? (game.draft?.picker ?? null)
+      : mode === 'local' && inDraft
+        ? (game?.draft?.picker ?? null)
         : null
 
   const showDraftModal =
-    (mode === 'local' || onlineSession) && inDraft
+    mode !== null && (mode === 'local' || onlineSession) && inDraft
 
   const legal = useMemo(() => {
-    if (inDraft || selected === null) return [] as Move[]
+    if (!game || inDraft || selected === null) return [] as Move[]
     if (mode === 'online' && myColor && game.turn !== myColor) return []
     return getLegalMoves(game, selected)
   }, [game, selected, mode, myColor, inDraft])
@@ -78,15 +87,17 @@ export default function App() {
     setSelected(null)
     setPendingPromotion(null)
     setPendingCard(null)
-  }, [game.turn, mode, online.room?.code, game.phase, game.draft?.picker])
+  }, [game?.turn, mode, online.room?.code, game?.phase, game?.draft?.picker])
 
   const canInteract =
+    !!game &&
     !inDraft &&
     (mode === 'local'
       ? !game.result
       : onlineReady && !!myColor && game.turn === myColor && !game.result)
 
   const tryMove = (from: number, to: number, promotion?: PieceType) => {
+    if (!game) return
     if (mode === 'online') {
       if (!canInteract) return
       if (needsPromotion(game, from, to) && !promotion) {
@@ -116,7 +127,7 @@ export default function App() {
   }
 
   const tryCoronation = (square: number) => {
-    if (!canInteract) return
+    if (!game || !canInteract) return
     if (mode === 'online') {
       online.sendUseCard('coronation', square)
       setPendingCard(null)
@@ -135,6 +146,7 @@ export default function App() {
       online.sendPickCard(card)
       return
     }
+    if (!game) return
     const picker = game.draft?.picker
     if (!picker) return
     const next = pickDraftCard(game, picker, card)
@@ -143,7 +155,7 @@ export default function App() {
   }
 
   const onSelect = (sq: number) => {
-    if (!canInteract) return
+    if (!game || !canInteract) return
 
     if (pendingCard === 'coronation') {
       tryCoronation(sq)
@@ -179,13 +191,26 @@ export default function App() {
     setPendingCard(null)
   }
 
-  const handleModeChange = (next: 'local' | 'online') => {
-    if (next === mode) return
+  const chooseMode = (next: PlayMode) => {
     if (mode === 'online' && online.room) online.leaveRoom()
     setSelected(null)
     setPendingPromotion(null)
     setPendingCard(null)
+    if (next === 'local') {
+      setLocalGame(createGame())
+    } else {
+      setLocalGame(null)
+    }
     setMode(next)
+  }
+
+  const backToMenu = () => {
+    if (mode === 'online' && online.room) online.leaveRoom()
+    setSelected(null)
+    setPendingPromotion(null)
+    setPendingCard(null)
+    setLocalGame(null)
+    setMode(null)
   }
 
   const onCardClick = (id: AugmentId) => {
@@ -195,44 +220,35 @@ export default function App() {
     setSelected(null)
   }
 
-  const turnLabel = game.turn === 'w' ? 'White' : 'Black'
+  const turnLabel = game?.turn === 'w' ? 'White' : 'Black'
   const waitingOnline =
     mode === 'online' && online.room && online.room.status === 'waiting'
   const doubleActions =
-    (game.rules ?? []).includes('acceleration') && game.fullMove >= 3
-  const actionsLeft = game.actionsRemaining ?? (doubleActions ? 2 : 1)
+    !!game &&
+    (game.rules ?? []).includes('acceleration') &&
+    game.fullMove >= 3
+  const actionsLeft = game?.actionsRemaining ?? (doubleActions ? 2 : 1)
   const actionLabel = doubleActions
     ? ` · action ${actionsLeft === 2 ? 1 : 2}/2`
     : ''
 
-  const showBoard = mode === 'local' || !!online.room
-
-  const lobbyProps = {
-    mode,
-    onModeChange: handleModeChange,
-    connection: online.connection,
-    room: online.room,
-    error: online.error,
-    onCreate: online.createRoom,
-    onJoin: online.joinRoom,
-    onLeave: () => {
-      online.leaveRoom()
-      setSelected(null)
-      setPendingPromotion(null)
-    },
-  }
+  const showBoard = (mode === 'local' && !!localGame) || !!online.room
 
   return (
     <div className="app">
       <header className="top-bar">
         <div className="top-bar-row">
           <p className="brand">Augment Chess</p>
-          <Lobby {...lobbyProps} modeOnly />
+          {mode && (
+            <button type="button" className="ghost menu-back" onClick={backToMenu}>
+              Change mode
+            </button>
+          )}
         </div>
       </header>
 
       <main className="stage">
-        {showBoard ? (
+        {showBoard && game ? (
           <Board
             board={game.board}
             turn={game.turn}
@@ -256,7 +272,7 @@ export default function App() {
           <div className="board-placeholder" aria-hidden="true" />
         )}
 
-        {showBoard && (
+        {showBoard && game && (
           <div className="below-board">
             <div className="below-board-tools">
               <button
@@ -296,104 +312,134 @@ export default function App() {
           </div>
         )}
 
-        {mode === 'online' && <Lobby {...lobbyProps} panelOnly />}
+        {mode === 'online' && (
+          <Lobby
+            mode="online"
+            onModeChange={chooseMode}
+            connection={online.connection}
+            room={online.room}
+            error={online.error}
+            onCreate={online.createRoom}
+            onJoin={online.joinRoom}
+            onLeave={() => {
+              online.leaveRoom()
+              setSelected(null)
+              setPendingPromotion(null)
+            }}
+            panelOnly
+          />
+        )}
 
-        <footer className="turn-bar">
-          <div className="status">
-            {mode === 'online' && !online.room && (
-              <p>Create or join a room to play online.</p>
-            )}
-            {waitingOnline && (
-              <p>Share your code — game starts when both seats fill.</p>
-            )}
-            {inDraft && (mode === 'local' || onlineSession) && (
-              <p>
-                Card draft —{' '}
-                {game.draft?.picker === 'w' ? 'White' : 'Black'} to pick
-              </p>
-            )}
-            {(mode === 'local' ||
-              onlineReady ||
-              online.room?.status === 'finished') &&
-              game.result && (
-                <p className="result">{resultLabel(game.result)}</p>
+        {mode && (
+          <footer className="turn-bar">
+            <div className="status">
+              {mode === 'online' && !online.room && (
+                <p>Create or join a room to play online.</p>
               )}
-            {(mode === 'local' || onlineReady) && !game.result && !inDraft && (
-              <p>
-                <span className={`turn-dot ${game.turn}`} />
-                {turnLabel} to move
-                {actionLabel}
-                {mode === 'online' && myColor && game.turn === myColor
-                  ? ' — your turn'
-                  : ''}
-                {mode === 'online' && myColor && game.turn !== myColor
-                  ? ' — opponent'
-                  : ''}
-              </p>
-            )}
-          </div>
+              {waitingOnline && (
+                <p>Share your code — game starts when both seats fill.</p>
+              )}
+              {inDraft && (mode === 'local' || onlineSession) && game && (
+                <p>
+                  Card draft —{' '}
+                  {game.draft?.picker === 'w' ? 'White' : 'Black'} to pick
+                </p>
+              )}
+              {game &&
+                (mode === 'local' ||
+                  onlineReady ||
+                  online.room?.status === 'finished') &&
+                game.result && (
+                  <p className="result">{resultLabel(game.result)}</p>
+                )}
+              {game &&
+                (mode === 'local' || onlineReady) &&
+                !game.result &&
+                !inDraft && (
+                  <p>
+                    <span className={`turn-dot ${game.turn}`} />
+                    {turnLabel} to move
+                    {actionLabel}
+                    {mode === 'online' && myColor && game.turn === myColor
+                      ? ' — your turn'
+                      : ''}
+                    {mode === 'online' && myColor && game.turn !== myColor
+                      ? ' — opponent'
+                      : ''}
+                  </p>
+                )}
+            </div>
 
-          <dl className="meta">
-            <div>
-              <dt>Move</dt>
-              <dd>{game.fullMove}</dd>
-            </div>
-            <div>
-              <dt>Phase</dt>
-              <dd>{game.inOvertime ? 'Overtime' : 'Main'}</dd>
-            </div>
-            {mode === 'online' ? (
-              <div>
-                <dt>You</dt>
-                <dd>
-                  {myColor === 'w' ? 'White' : myColor === 'b' ? 'Black' : '—'}
-                </dd>
-              </div>
-            ) : (
-              game.inOvertime && (
+            {game && (
+              <dl className="meta">
                 <div>
-                  <dt>Idle</dt>
-                  <dd>{game.overtimeIdle}/10</dd>
+                  <dt>Move</dt>
+                  <dd>{game.fullMove}</dd>
                 </div>
-              )
+                <div>
+                  <dt>Phase</dt>
+                  <dd>{game.inOvertime ? 'Overtime' : 'Main'}</dd>
+                </div>
+                {mode === 'online' ? (
+                  <div>
+                    <dt>You</dt>
+                    <dd>
+                      {myColor === 'w'
+                        ? 'White'
+                        : myColor === 'b'
+                          ? 'Black'
+                          : '—'}
+                    </dd>
+                  </div>
+                ) : (
+                  game.inOvertime && (
+                    <div>
+                      <dt>Idle</dt>
+                      <dd>{game.overtimeIdle}/10</dd>
+                    </div>
+                  )
+                )}
+              </dl>
             )}
-          </dl>
 
-          <div className="actions">
-            {mode === 'local' ? (
-              <button type="button" onClick={resetLocal}>
-                New game
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={online.rematch}
-                disabled={
-                  !online.room ||
-                  !online.room.whitePresent ||
-                  !online.room.blackPresent ||
-                  (online.room.status === 'playing' && !game.result)
-                }
-              >
-                {online.room && online.room.rematchVotes > 0
-                  ? `Rematch (${online.room.rematchVotes}/2)`
-                  : 'Rematch'}
-              </button>
-            )}
-            {mode === 'local' && (
-              <button
-                type="button"
-                className="ghost"
-                onClick={() => setFlipped((f) => !f)}
-              >
-                Flip board
-              </button>
-            )}
-          </div>
-        </footer>
+            <div className="actions">
+              {mode === 'local' ? (
+                <button type="button" onClick={resetLocal}>
+                  New game
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={online.rematch}
+                  disabled={
+                    !online.room ||
+                    !online.room.whitePresent ||
+                    !online.room.blackPresent ||
+                    (online.room.status === 'playing' && !game?.result)
+                  }
+                >
+                  {online.room && online.room.rematchVotes > 0
+                    ? `Rematch (${online.room.rematchVotes}/2)`
+                    : 'Rematch'}
+                </button>
+              )}
+              {mode === 'local' && (
+                <button
+                  type="button"
+                  className="ghost"
+                  onClick={() => setFlipped((f) => !f)}
+                >
+                  Flip board
+                </button>
+              )}
+            </div>
+          </footer>
+        )}
       </main>
 
-      {showDraftModal && (
+      {mode === null && <ModeSelect onChoose={chooseMode} />}
+
+      {showDraftModal && game && (
         <DraftPanel
           game={game}
           controller={draftController ?? null}

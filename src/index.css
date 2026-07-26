@@ -436,7 +436,8 @@ button {
   gap: 0.75rem;
 }
 
-.draft-overlay {
+.draft-overlay,
+.mode-select-overlay {
   position: fixed;
   inset: 0;
   z-index: 60;
@@ -452,7 +453,8 @@ button {
   animation: fade 0.18s ease both;
 }
 
-.draft-modal {
+.draft-modal,
+.mode-select-modal {
   width: min(36rem, 100%);
   max-height: min(90vh, 100%);
   overflow: auto;
@@ -462,6 +464,52 @@ button {
   padding: 1rem 1.1rem 1.2rem;
   box-shadow: var(--shadow);
   animation: pop 0.22s ease both;
+}
+
+.mode-select-modal {
+  width: min(22rem, 100%);
+  text-align: center;
+}
+
+.mode-select-modal h2 {
+  margin: 0;
+  font-family: 'Fraunces', serif;
+  font-size: 1.55rem;
+  font-weight: 600;
+}
+
+.mode-select-modal > p {
+  margin: 0.55rem 0 1.15rem;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.mode-select-actions {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.mode-select-actions button,
+.menu-back {
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: white;
+  padding: 0.7rem 0.9rem;
+  border-radius: 4px;
+  font-weight: 600;
+  min-height: 44px;
+}
+
+.mode-select-actions button.ghost,
+.menu-back {
+  background: transparent;
+  color: var(--accent-deep);
+}
+
+.mode-select-actions button.ghost:hover,
+.menu-back:hover {
+  background: rgba(31, 122, 85, 0.08);
 }
 
 .draft-panel-head {
