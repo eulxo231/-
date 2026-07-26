@@ -2,6 +2,8 @@ import { randomUUID } from 'node:crypto'
 import { WebSocketServer } from 'ws'
 import type { ClientMessage, ServerMessage } from '../shared/protocol.ts'
 import {
+  applyPlayerCard,
+  applyPlayerDraftPick,
   applyPlayerMove,
   createRoom,
   getRoom,
@@ -68,6 +70,24 @@ wss.on('connection', (raw) => {
           const room = getRoom(code)
           if (!room) throw new Error('Room not found')
           applyPlayerMove(room, socket.playerId, msg.from, msg.to, msg.promotion)
+          broadcastRoom(room)
+          break
+        }
+        case 'use_card': {
+          const code = socket.roomCode
+          if (!code) throw new Error('You are not in a room')
+          const room = getRoom(code)
+          if (!room) throw new Error('Room not found')
+          applyPlayerCard(room, socket.playerId, msg.card, msg.square)
+          broadcastRoom(room)
+          break
+        }
+        case 'pick_card': {
+          const code = socket.roomCode
+          if (!code) throw new Error('You are not in a room')
+          const room = getRoom(code)
+          if (!room) throw new Error('Room not found')
+          applyPlayerDraftPick(room, socket.playerId, msg.card)
           broadcastRoom(room)
           break
         }

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { RoomSnapshot } from '../../shared/protocol'
+import type { AugmentId } from '../augments/catalog'
 import type { PieceType } from '../engine/types'
 import { connectSocket, type GameSocket } from './socket'
 
@@ -79,6 +80,22 @@ export function useOnlineGame() {
     [ensureSocket],
   )
 
+  const sendUseCard = useCallback(
+    (card: 'coronation', square: number) => {
+      setError(null)
+      ensureSocket().send({ type: 'use_card', card, square })
+    },
+    [ensureSocket],
+  )
+
+  const sendPickCard = useCallback(
+    (card: AugmentId) => {
+      setError(null)
+      ensureSocket().send({ type: 'pick_card', card })
+    },
+    [ensureSocket],
+  )
+
   const rematch = useCallback(() => {
     setError(null)
     ensureSocket().send({ type: 'rematch' })
@@ -95,6 +112,8 @@ export function useOnlineGame() {
     joinRoom,
     leaveRoom,
     sendMove,
+    sendUseCard,
+    sendPickCard,
     rematch,
   }
 }

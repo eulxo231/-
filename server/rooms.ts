@@ -1,6 +1,12 @@
 import type { WebSocket } from 'ws'
-import { createGame, getLegalMoves, makeMove } from '../src/engine/game.ts'
-import type { Color, GameState, PieceType } from '../src/engine/types.ts'
+import {
+  createGame,
+  getLegalMoves,
+  makeMove,
+  pickDraftCard,
+  useCoronation,
+} from '../src/engine/game.ts'
+import type { AugmentId, Color, GameState, PieceType } from '../src/engine/types.ts'
 import type { RoomSnapshot, RoomStatus } from '../shared/protocol.ts'
 
 export interface PlayerSocket extends WebSocket {
@@ -142,6 +148,7 @@ export function applyPlayerMove(
   if (!color) throw new Error('You are not in this room')
   if (room.game.turn !== color) throw new Error('Not your turn')
   if (room.game.result) throw new Error('Game is already over')
+  if (room.game.phase !== 'playing') throw new Error('Finish the draft first')
 
   const legal = getLegalMoves(room.game, from).find(
     (m) => m.to === to && (m.promotion ?? undefined) === promotion,
@@ -153,6 +160,50 @@ export function applyPlayerMove(
 
   room.game = next
   if (next.result) room.status = 'finished'
+  return next
+}
+
+export function applyPlayerCard(
+  room: Room,
+  playerId: string,
+  card: 'coronation',
+  square: number,
+): GameState {
+  if (!room.game) throw new Error('Game has not started')
+  if (!room.white || !room.black) throw new Error('Waiting for opponent')
+  if (room.status !== 'playing') throw new Error('Game is paused')
+  if (room.game.phase !== 'playing') throw new Error('Finish the draft first')
+
+  const color = colorOf(room, playerId)
+  if (!color) throw new Error('You are not in this room')
+  if (room.game.turn !== color) throw new Error('Not your turn')
+  if (room.game.result) throw new Error('Game is already over')
+
+  if (card !== 'coronation') throw new Error('Unknown card')
+  const next = useCoronation(room.game, square)
+  if (!next) throw new Error('Cannot use Coronation on that piece')
+
+  room.game = next
+  if (next.result) room.status = 'finished'
+  return next
+}
+
+export function applyPlayerDraftPick(
+  room: Room,
+  playerId: string,
+  card: AugmentId,
+): GameState {
+  if (!room.game) throw new Error('Game has not started')
+  if (!room.white || !room.black) throw new Error('Waiting for opponent')
+  if (room.game.phase !== 'draft') throw new Error('Draft is over')
+
+  const color = colorOf(room, playerId)
+  if (!color) throw new Error('You are not in this room')
+
+  const next = pickDraftCard(room.game, color, card)
+  if (!next) throw new Error('Illegal draft pick')
+
+  room.game = next
   return next
 }
 

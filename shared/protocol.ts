@@ -1,4 +1,4 @@
-import type { Color, GameState, PieceType } from '../src/engine/types'
+import type { AugmentId, Color, GameState, PieceType } from '../src/engine/types'
 
 export type RoomStatus = 'waiting' | 'playing' | 'finished'
 
@@ -17,6 +17,8 @@ export type ClientMessage =
   | { type: 'join'; code: string }
   | { type: 'leave' }
   | { type: 'move'; from: number; to: number; promotion?: PieceType }
+  | { type: 'use_card'; card: 'coronation'; square: number }
+  | { type: 'pick_card'; card: AugmentId }
   | { type: 'rematch' }
 
 export type ServerMessage =

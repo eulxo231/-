@@ -1,5 +1,13 @@
+import { hasAugment, hasRule, type AugmentId } from '../augments/catalog'
 import type { Color, Move, Piece, PieceType } from './types'
 import { opposite } from './types'
+
+const ORTHO_DELTAS = [
+  [-1, 0],
+  [1, 0],
+  [0, -1],
+  [0, 1],
+]
 
 const KNIGHT_DELTAS = [
   [-2, -1],
@@ -76,11 +84,26 @@ function slide(
   return moves
 }
 
+function moveKey(m: Move): string {
+  return `${m.from}-${m.to}-${m.promotion ?? ''}-${m.enPassant ? 'e' : ''}-${m.castle ?? ''}-${m.doublePawn ? 'd' : ''}`
+}
+
+function dedupeMoves(moves: Move[]): Move[] {
+  const seen = new Set<string>()
+  return moves.filter((m) => {
+    const key = moveKey(m)
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+}
+
 function pawnMoves(
   board: (Piece | null)[],
   from: number,
   color: Color,
   epSquare: number | null,
+  owned: readonly AugmentId[],
 ): Move[] {
   const moves: Move[] = []
   const fr = Math.floor(from / 8)
@@ -126,7 +149,22 @@ function pawnMoves(
     }
   }
 
-  return moves
+  if (hasAugment(owned, 'omni-pawn')) {
+    for (const [dr, dc] of ORTHO_DELTAS) {
+      const r = fr + dr
+      const c = fc + dc
+      if (!onBoard(r, c)) continue
+      const to = idx(r, c)
+      const target = board[to]
+      if (!target) {
+        pushPromo(to)
+      } else if (target.color !== color) {
+        pushPromo(to, target)
+      }
+    }
+  }
+
+  return dedupeMoves(moves)
 }
 
 function kingMoves(
@@ -175,21 +213,68 @@ function kingMoves(
   return moves
 }
 
+function highwayFileMoves(
+  board: (Piece | null)[],
+  from: number,
+  color: Color,
+  pieceType: PieceType,
+): Move[] {
+  const fc = from % 8
+  if (fc !== 1 && fc !== 6) return []
+
+  const moves: Move[] = []
+  const fr = Math.floor(from / 8)
+  const promoRank = color === 'w' ? 0 : 7
+  const promotions: PieceType[] = ['q', 'r', 'b', 'n']
+
+  const push = (to: number, captured?: Piece) => {
+    const toRank = Math.floor(to / 8)
+    if (pieceType === 'p' && toRank === promoRank) {
+      for (const promotion of promotions) {
+        moves.push({ from, to, promotion, captured })
+      }
+    } else {
+      moves.push({ from, to, captured })
+    }
+  }
+
+  for (const dr of [-1, 1]) {
+    let r = fr + dr
+    while (onBoard(r, fc)) {
+      const to = idx(r, fc)
+      const target = board[to]
+      if (!target) {
+        push(to)
+      } else {
+        if (target.color !== color) push(to, target)
+        break
+      }
+      r += dr
+    }
+  }
+
+  return moves
+}
+
 export function generateMoves(
   board: (Piece | null)[],
   from: number,
   turn: Color,
   castlingRights: { wK: boolean; wQ: boolean; bK: boolean; bQ: boolean },
   epSquare: number | null,
+  owned: readonly AugmentId[] = [],
+  rules: readonly AugmentId[] = [],
 ): Move[] {
   const piece = board[from]
   if (!piece || piece.color !== turn) return []
 
+  let moves: Move[]
   switch (piece.type) {
     case 'p':
-      return pawnMoves(board, from, turn, epSquare)
+      moves = pawnMoves(board, from, turn, epSquare, owned)
+      break
     case 'n': {
-      const moves: Move[] = []
+      moves = []
       const fr = Math.floor(from / 8)
       const fc = from % 8
       for (const [dr, dc] of KNIGHT_DELTAS) {
@@ -202,22 +287,35 @@ export function generateMoves(
           moves.push({ from, to, captured: target ?? undefined })
         }
       }
-      return moves
+      break
     }
     case 'b':
-      return slide(board, from, turn, BISHOP_DIRS)
+      moves = slide(board, from, turn, BISHOP_DIRS)
+      break
     case 'r':
-      return slide(board, from, turn, ROOK_DIRS)
+      moves = slide(board, from, turn, ROOK_DIRS)
+      break
     case 'q':
-      return slide(board, from, turn, [...BISHOP_DIRS, ...ROOK_DIRS])
+      moves = slide(board, from, turn, [...BISHOP_DIRS, ...ROOK_DIRS])
+      break
     case 'k':
-      return kingMoves(board, from, turn, {
+      moves = kingMoves(board, from, turn, {
         K: turn === 'w' ? castlingRights.wK : castlingRights.bK,
         Q: turn === 'w' ? castlingRights.wQ : castlingRights.bQ,
       })
+      break
     default:
       return []
   }
+
+  if (hasRule(rules, 'highway')) {
+    moves = dedupeMoves([
+      ...moves,
+      ...highwayFileMoves(board, from, turn, piece.type),
+    ])
+  }
+
+  return moves
 }
 
 export function generateAllMoves(
@@ -225,11 +323,23 @@ export function generateAllMoves(
   turn: Color,
   castlingRights: { wK: boolean; wQ: boolean; bK: boolean; bQ: boolean },
   epSquare: number | null,
+  owned: readonly AugmentId[] = [],
+  rules: readonly AugmentId[] = [],
 ): Move[] {
   const moves: Move[] = []
   for (let sq = 0; sq < 64; sq++) {
     if (board[sq]?.color === turn) {
-      moves.push(...generateMoves(board, sq, turn, castlingRights, epSquare))
+      moves.push(
+        ...generateMoves(
+          board,
+          sq,
+          turn,
+          castlingRights,
+          epSquare,
+          owned,
+          rules,
+        ),
+      )
     }
   }
   return moves
@@ -239,6 +349,8 @@ export function isSquareAttacked(
   board: (Piece | null)[],
   square: number,
   by: Color,
+  owned: readonly AugmentId[] = [],
+  rules: readonly AugmentId[] = [],
 ): boolean {
   // Attack detection for UI hints only — not used to filter legality.
   const moves = generateAllMoves(
@@ -246,6 +358,8 @@ export function isSquareAttacked(
     by,
     { wK: false, wQ: false, bK: false, bQ: false },
     null,
+    owned,
+    rules,
   )
   return moves.some((m) => m.to === square)
 }

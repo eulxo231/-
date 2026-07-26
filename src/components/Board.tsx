@@ -15,6 +15,7 @@ interface BoardProps {
   legalTargets: Set<number>
   flipped?: boolean
   disabled?: boolean
+  highway?: boolean
   onSelect: (square: number) => void
   onMove: (from: number, to: number) => void
   pendingPromotion: { from: number; to: number } | null
@@ -41,6 +42,7 @@ export function Board({
   legalTargets,
   flipped = false,
   disabled = false,
+  highway = false,
   onSelect,
   onMove,
   pendingPromotion,
@@ -144,6 +146,7 @@ export function Board({
     const isLegal = legalTargets.has(sq)
     const isHighlight = highlights.has(sq)
     const isCapture = isLegal && !!piece
+    const isHighway = highway && (sq % 8 === 1 || sq % 8 === 6)
 
     return (
       <button
@@ -155,6 +158,7 @@ export function Board({
           isSelected ? 'selected' : '',
           isLast ? 'last-move' : '',
           isHighlight ? 'marked' : '',
+          isHighway ? 'highway' : '',
         ]
           .filter(Boolean)
           .join(' ')}

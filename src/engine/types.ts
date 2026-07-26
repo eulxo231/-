@@ -1,5 +1,14 @@
+import type { AugmentId } from '../augments/catalog'
+
 export type Color = 'w' | 'b'
 export type PieceType = 'k' | 'q' | 'r' | 'b' | 'n' | 'p'
+
+export type { AugmentId }
+
+export interface SideAugments {
+  w: AugmentId[]
+  b: AugmentId[]
+}
 
 export interface Piece {
   type: PieceType
@@ -40,6 +49,11 @@ export interface AnnotationArrow {
   color: string
 }
 
+export interface DraftState {
+  picker: Color
+  picksLeft: { w: number; b: number }
+}
+
 export interface GameState {
   board: (Piece | null)[]
   turn: Color
@@ -52,6 +66,16 @@ export interface GameState {
   history: string[]
   lastMove: Move | null
   result: GameResult | null
+  augments: SideAugments
+  /** Active RULE cards (game-wide). */
+  rules: AugmentId[]
+  /** Actions left for the side to move (2 under Acceleration from turn 3). */
+  actionsRemaining: number
+  /** Pre-game card draft, then playing. */
+  phase: 'draft' | 'playing'
+  draft: DraftState | null
+  /** Whether each side has made their first move (for OPENING cards). */
+  hasMoved: { w: boolean; b: boolean }
 }
 
 export const FILES = 'abcdefgh'
