@@ -612,9 +612,10 @@ button {
 }
 
 .draft-options {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 0.55rem;
+  justify-content: center;
 }
 
 .draft-card {
@@ -629,7 +630,9 @@ button {
   font: inherit;
   color: inherit;
   cursor: pointer;
-  min-height: 0;
+  width: 7.25rem;
+  flex: 0 0 7.25rem;
+  max-width: 7.25rem;
   aspect-ratio: 3 / 4;
 }
 
