@@ -63,6 +63,12 @@ button {
   min-height: 100vh;
 }
 
+@media (min-width: 900px) {
+  .app {
+    max-width: 1100px;
+  }
+}
+
 .top-bar {
   margin-bottom: 0.65rem;
   animation: rise 0.55s ease both;
@@ -435,6 +441,13 @@ button {
   animation: rise 0.65s ease 0.05s both;
 }
 
+/* Mobile: board on top, cards below */
+.play-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
 .board-wrap {
   width: 100%;
   max-width: min(100%, 72vh);
@@ -442,15 +455,51 @@ button {
   container-type: inline-size;
 }
 
-.below-board {
+.card-rail {
   display: flex;
   flex-direction: column;
   gap: 0.65rem;
+  min-width: 0;
 }
 
 .below-board-tools {
   display: flex;
   justify-content: flex-end;
+}
+
+/* Desktop: board left, RULE + augments right */
+@media (min-width: 900px) {
+  .play-layout.has-board {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(260px, 340px);
+    align-items: start;
+    gap: 1.25rem;
+  }
+
+  .play-layout.has-board .board-wrap,
+  .play-layout.has-board .board-placeholder {
+    max-width: min(100%, 72vh);
+    width: 100%;
+    margin: 0;
+  }
+
+  .play-layout.has-board .card-rail {
+    position: sticky;
+    top: 0.75rem;
+  }
+
+  .play-layout.has-board .augment-slots:not(.rule-slots) {
+    display: flex;
+    flex-wrap: wrap;
+    grid-template-columns: none;
+  }
+
+  .play-layout.has-board .augment-slots:not(.rule-slots) .augment-card,
+  .play-layout.has-board .augment-slots:not(.rule-slots) .augment-slot {
+    width: 7.25rem;
+    flex: 0 0 7.25rem;
+    max-width: 7.25rem;
+  }
 }
 
 .turn-bar {

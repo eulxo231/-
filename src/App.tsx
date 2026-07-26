@@ -279,69 +279,71 @@ export default function App() {
       </header>
 
       <main className="stage">
-        {showBoard && game ? (
-          <Board
-            board={game.board}
-            turn={game.turn}
-            lastMove={game.lastMove}
-            selected={selected}
-            legalTargets={legalTargets}
-            flipped={boardFlipped}
-            disabled={
-              inDraft ||
-              (mode === 'online'
-                ? !onlineReady || !!game.result || game.turn !== myColor
-                : !!game.result)
-            }
-            onSelect={onSelect}
-            onMove={onMove}
-            pendingPromotion={pendingPromotion}
-            onPromote={onPromote}
-            highway={(game.rules ?? []).includes('highway')}
-          />
-        ) : (
-          <div className="board-placeholder" aria-hidden="true" />
-        )}
-
-        {showBoard && game && (
-          <div className="below-board">
-            <div className="below-board-tools">
-              <button
-                type="button"
-                className={`rules-inline${rulesOpen ? ' active' : ''}`}
-                aria-expanded={rulesOpen}
-                aria-controls="rules-drawer"
-                onClick={() => setRulesOpen(true)}
-              >
-                Rules
-              </button>
-            </div>
-            <AugmentTray
-              cards={
-                mode === 'online' && myColor
-                  ? (game.augments?.[myColor] ?? [])
-                  : inDraft
-                    ? (game.augments?.[game.draft?.picker ?? 'w'] ?? [])
-                    : (game.augments?.[game.turn] ?? [])
+        <div className={`play-layout${showBoard && game ? ' has-board' : ''}`}>
+          {showBoard && game ? (
+            <Board
+              board={game.board}
+              turn={game.turn}
+              lastMove={game.lastMove}
+              selected={selected}
+              legalTargets={legalTargets}
+              flipped={boardFlipped}
+              disabled={
+                inDraft ||
+                (mode === 'online'
+                  ? !onlineReady || !!game.result || game.turn !== myColor
+                  : !!game.result)
               }
-              rules={game.rules ?? []}
-              activeCard={pendingCard}
-              usable={canInteract}
-              onCardClick={onCardClick}
-              label={
-                inDraft
-                  ? 'Drafting…'
-                  : mode === 'online'
-                    ? myColor === 'w'
-                      ? 'Your augments · White'
-                      : myColor === 'b'
-                        ? 'Your augments · Black'
-                        : 'Augments'
-                    : `${game.turn === 'w' ? 'White' : 'Black'} · to move`
-              }
+              onSelect={onSelect}
+              onMove={onMove}
+              pendingPromotion={pendingPromotion}
+              onPromote={onPromote}
+              highway={(game.rules ?? []).includes('highway')}
             />
-          </div>
-        )}
+          ) : (
+            <div className="board-placeholder" aria-hidden="true" />
+          )}
+
+          {showBoard && game && (
+            <aside className="card-rail">
+              <div className="below-board-tools">
+                <button
+                  type="button"
+                  className={`rules-inline${rulesOpen ? ' active' : ''}`}
+                  aria-expanded={rulesOpen}
+                  aria-controls="rules-drawer"
+                  onClick={() => setRulesOpen(true)}
+                >
+                  Rules
+                </button>
+              </div>
+              <AugmentTray
+                cards={
+                  mode === 'online' && myColor
+                    ? (game.augments?.[myColor] ?? [])
+                    : inDraft
+                      ? (game.augments?.[game.draft?.picker ?? 'w'] ?? [])
+                      : (game.augments?.[game.turn] ?? [])
+                }
+                rules={game.rules ?? []}
+                activeCard={pendingCard}
+                usable={canInteract}
+                onCardClick={onCardClick}
+                label={
+                  inDraft
+                    ? 'Drafting…'
+                    : mode === 'online'
+                      ? myColor === 'w'
+                        ? 'Your augments · White'
+                        : myColor === 'b'
+                          ? 'Your augments · Black'
+                          : 'Augments'
+                      : `${game.turn === 'w' ? 'White' : 'Black'} · to move`
+                }
+              />
+            </aside>
+          )}
+        </div>
 
         {mode === 'online' && (
           <Lobby
