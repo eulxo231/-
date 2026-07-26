@@ -1,14 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { AugmentId } from './augments/catalog'
 import { AugmentTray } from './components/AugmentTray'
 import { Board } from './components/Board'
 import { DraftPanel } from './components/DraftPanel'
 import { Lobby } from './components/Lobby'
-import {
-  formatMoveNotation,
-  PositionsPanel,
-  type LoggedMove,
-} from './components/PositionsPanel'
 import { RulesPanel } from './components/RulesPanel'
 import {
   createGame,
@@ -39,14 +34,12 @@ export default function App() {
     from: number
     to: number
   } | null>(null)
-  const [moveLog, setMoveLog] = useState<LoggedMove[]>([])
   const [rulesOpen, setRulesOpen] = useState(false)
   const [pendingCard, setPendingCard] = useState<AugmentId | null>(null)
-  const lastSeenMove = useRef<Move | null>(null)
 
   const online = useOnlineGame()
 
-  const game = mode === 'online' ? online.room?.game ?? createGame() : localGame
+  const game = mode === 'online' ? (online.room?.game ?? createGame()) : localGame
   const myColor = mode === 'online' ? online.room?.you : null
   const inDraft = game.phase === 'draft'
   const onlineSession =
@@ -56,9 +49,7 @@ export default function App() {
     online.room.blackPresent &&
     !!online.room.game
   const onlineReady =
-    onlineSession &&
-    online.room!.status === 'playing' &&
-    !inDraft
+    onlineSession && online.room!.status === 'playing' && !inDraft
 
   const boardFlipped = mode === 'online' ? myColor === 'b' : flipped
 
@@ -68,6 +59,9 @@ export default function App() {
       : inDraft
         ? (game.draft?.picker ?? null)
         : null
+
+  const showDraftModal =
+    (mode === 'local' || onlineSession) && inDraft
 
   const legal = useMemo(() => {
     if (inDraft || selected === null) return [] as Move[]
@@ -85,39 +79,6 @@ export default function App() {
     setPendingPromotion(null)
     setPendingCard(null)
   }, [game.turn, mode, online.room?.code, game.phase, game.draft?.picker])
-
-  useEffect(() => {
-    setMoveLog([])
-    lastSeenMove.current = null
-  }, [mode, online.room?.code])
-
-  useEffect(() => {
-    if (game.history.length === 0 && !game.lastMove) {
-      setMoveLog([])
-      lastSeenMove.current = null
-      return
-    }
-    if (!game.lastMove) return
-
-    const move = game.lastMove
-    const prev = lastSeenMove.current
-    if (
-      prev &&
-      prev.from === move.from &&
-      prev.to === move.to &&
-      prev.promotion === move.promotion &&
-      prev.castle === move.castle
-    ) {
-      return
-    }
-    lastSeenMove.current = move
-    setMoveLog((log) => {
-      if (game.history.length <= 1) {
-        return [{ move, notation: formatMoveNotation(move) }]
-      }
-      return [...log, { move, notation: formatMoveNotation(move) }]
-    })
-  }, [game.lastMove, game.history.length])
 
   const canInteract =
     !inDraft &&
@@ -167,13 +128,6 @@ export default function App() {
     setLocalGame(next)
     setPendingCard(null)
     setSelected(null)
-    setMoveLog((log) => [
-      ...log,
-      {
-        move: { from: square, to: square, promotion: 'q' },
-        notation: `${String.fromCharCode(97 + (square % 8))}${8 - Math.floor(square / 8)}=Q*`,
-      },
-    ])
   }
 
   const onDraftPick = (card: AugmentId) => {
@@ -223,8 +177,6 @@ export default function App() {
     setSelected(null)
     setPendingPromotion(null)
     setPendingCard(null)
-    setMoveLog([])
-    lastSeenMove.current = null
   }
 
   const handleModeChange = (next: 'local' | 'online') => {
@@ -253,49 +205,34 @@ export default function App() {
     ? ` · action ${actionsLeft === 2 ? 1 : 2}/2`
     : ''
 
+  const showBoard = mode === 'local' || !!online.room
+
+  const lobbyProps = {
+    mode,
+    onModeChange: handleModeChange,
+    connection: online.connection,
+    room: online.room,
+    error: online.error,
+    onCreate: online.createRoom,
+    onJoin: online.joinRoom,
+    onLeave: () => {
+      online.leaveRoom()
+      setSelected(null)
+      setPendingPromotion(null)
+    },
+  }
+
   return (
     <div className="app">
-      <button
-        type="button"
-        className={`rules-tab${rulesOpen ? ' active' : ''}`}
-        aria-expanded={rulesOpen}
-        aria-controls="rules-drawer"
-        onClick={() => setRulesOpen(true)}
-      >
-        Rules
-      </button>
-
-      <RulesPanel open={rulesOpen} onClose={() => setRulesOpen(false)} />
-
-      <header className="hero">
-        <p className="brand">Augment Chess</p>
-        <h1>King capture. No checkmate.</h1>
+      <header className="top-bar">
+        <div className="top-bar-row">
+          <p className="brand">Augment Chess</p>
+          <Lobby {...lobbyProps} modeOnly />
+        </div>
       </header>
 
-      <Lobby
-        mode={mode}
-        onModeChange={handleModeChange}
-        connection={online.connection}
-        room={online.room}
-        error={online.error}
-        onCreate={online.createRoom}
-        onJoin={online.joinRoom}
-        onLeave={() => {
-          online.leaveRoom()
-          setSelected(null)
-          setPendingPromotion(null)
-        }}
-      />
-
       <main className="stage">
-        <div className="play-column">
-          {(mode === 'local' || onlineSession) && inDraft && (
-            <DraftPanel
-              game={game}
-              controller={draftController ?? null}
-              onPick={onDraftPick}
-            />
-          )}
+        {showBoard ? (
           <Board
             board={game.board}
             turn={game.turn}
@@ -315,34 +252,53 @@ export default function App() {
             onPromote={onPromote}
             highway={(game.rules ?? []).includes('highway')}
           />
-          <AugmentTray
-            cards={
-              mode === 'online' && myColor
-                ? (game.augments?.[myColor] ?? [])
-                : inDraft
-                  ? (game.augments?.[game.draft?.picker ?? 'w'] ?? [])
-                  : (game.augments?.[game.turn] ?? [])
-            }
-            rules={game.rules ?? []}
-            activeCard={pendingCard}
-            usable={canInteract}
-            onCardClick={onCardClick}
-            label={
-              inDraft
-                ? 'Drafting…'
-                : mode === 'online'
-                  ? myColor === 'w'
-                    ? 'Your augments · White'
-                    : myColor === 'b'
-                      ? 'Your augments · Black'
-                      : 'Augments'
-                  : `${game.turn === 'w' ? 'White' : 'Black'} · to move`
-            }
-          />
-          <PositionsPanel moves={moveLog} />
-        </div>
+        ) : (
+          <div className="board-placeholder" aria-hidden="true" />
+        )}
 
-        <aside className="panel">
+        {showBoard && (
+          <div className="below-board">
+            <div className="below-board-tools">
+              <button
+                type="button"
+                className={`rules-inline${rulesOpen ? ' active' : ''}`}
+                aria-expanded={rulesOpen}
+                aria-controls="rules-drawer"
+                onClick={() => setRulesOpen(true)}
+              >
+                Rules
+              </button>
+            </div>
+            <AugmentTray
+              cards={
+                mode === 'online' && myColor
+                  ? (game.augments?.[myColor] ?? [])
+                  : inDraft
+                    ? (game.augments?.[game.draft?.picker ?? 'w'] ?? [])
+                    : (game.augments?.[game.turn] ?? [])
+              }
+              rules={game.rules ?? []}
+              activeCard={pendingCard}
+              usable={canInteract}
+              onCardClick={onCardClick}
+              label={
+                inDraft
+                  ? 'Drafting…'
+                  : mode === 'online'
+                    ? myColor === 'w'
+                      ? 'Your augments · White'
+                      : myColor === 'b'
+                        ? 'Your augments · Black'
+                        : 'Augments'
+                    : `${game.turn === 'w' ? 'White' : 'Black'} · to move`
+              }
+            />
+          </div>
+        )}
+
+        {mode === 'online' && <Lobby {...lobbyProps} panelOnly />}
+
+        <footer className="turn-bar">
           <div className="status">
             {mode === 'online' && !online.room && (
               <p>Create or join a room to play online.</p>
@@ -356,8 +312,12 @@ export default function App() {
                 {game.draft?.picker === 'w' ? 'White' : 'Black'} to pick
               </p>
             )}
-            {(mode === 'local' || onlineReady || online.room?.status === 'finished') &&
-              game.result && <p className="result">{resultLabel(game.result)}</p>}
+            {(mode === 'local' ||
+              onlineReady ||
+              online.room?.status === 'finished') &&
+              game.result && (
+                <p className="result">{resultLabel(game.result)}</p>
+              )}
             {(mode === 'local' || onlineReady) && !game.result && !inDraft && (
               <p>
                 <span className={`turn-dot ${game.turn}`} />
@@ -385,7 +345,9 @@ export default function App() {
             {mode === 'online' ? (
               <div>
                 <dt>You</dt>
-                <dd>{myColor === 'w' ? 'White' : myColor === 'b' ? 'Black' : '—'}</dd>
+                <dd>
+                  {myColor === 'w' ? 'White' : myColor === 'b' ? 'Black' : '—'}
+                </dd>
               </div>
             ) : (
               game.inOvertime && (
@@ -428,8 +390,18 @@ export default function App() {
               </button>
             )}
           </div>
-        </aside>
+        </footer>
       </main>
+
+      {showDraftModal && (
+        <DraftPanel
+          game={game}
+          controller={draftController ?? null}
+          onPick={onDraftPick}
+        />
+      )}
+
+      <RulesPanel open={rulesOpen} onClose={() => setRulesOpen(false)} />
     </div>
   )
 }

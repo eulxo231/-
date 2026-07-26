@@ -11,6 +11,10 @@ interface LobbyProps {
   onCreate: () => void
   onJoin: (code: string) => void
   onLeave: () => void
+  /** When true, only the Local/Online toggle is shown. */
+  modeOnly?: boolean
+  /** When true, only the online room panel is shown (no mode toggle). */
+  panelOnly?: boolean
 }
 
 export function Lobby({
@@ -22,33 +26,39 @@ export function Lobby({
   onCreate,
   onJoin,
   onLeave,
+  modeOnly = false,
+  panelOnly = false,
 }: LobbyProps) {
   const [code, setCode] = useState('')
 
   return (
-    <section className="lobby">
-      <div className="mode-toggle" role="tablist" aria-label="Play mode">
-        <button
-          type="button"
-          role="tab"
-          aria-selected={mode === 'local'}
-          className={mode === 'local' ? 'active' : ''}
-          onClick={() => onModeChange('local')}
-        >
-          Local
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={mode === 'online'}
-          className={mode === 'online' ? 'active' : ''}
-          onClick={() => onModeChange('online')}
-        >
-          Online
-        </button>
-      </div>
+    <section
+      className={`lobby${modeOnly ? ' mode-only' : ''}${panelOnly ? ' panel-only' : ''}`}
+    >
+      {!panelOnly && (
+        <div className="mode-toggle" role="tablist" aria-label="Play mode">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={mode === 'local'}
+            className={mode === 'local' ? 'active' : ''}
+            onClick={() => onModeChange('local')}
+          >
+            Local
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={mode === 'online'}
+            className={mode === 'online' ? 'active' : ''}
+            onClick={() => onModeChange('online')}
+          >
+            Online
+          </button>
+        </div>
+      )}
 
-      {mode === 'online' && (
+      {!modeOnly && mode === 'online' && (
         <div className="online-panel">
           {!room ? (
             <>
