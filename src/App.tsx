@@ -98,14 +98,13 @@ export default function App() {
       : onlineReady && !!myColor && game.turn === myColor && !game.result)
 
   const tryMove = (from: number, to: number, promotion?: PieceType) => {
-    if (!game) return
-    if (mode === 'online') {
-      if (!canInteract) return
-      if (needsPromotion(game, from, to) && !promotion) {
-        setPendingPromotion({ from, to })
-        return
-      }
-      online.sendMove(from, to, promotion)
+    if (!game || !canInteract) return
+
+    const candidate =
+      getLegalMoves(game, from).find(
+        (m) => m.to === to && (m.promotion ?? undefined) === promotion,
+      ) ?? null
+    if (!candidate) {
       setSelected(null)
       setPendingPromotion(null)
       return
@@ -115,11 +114,14 @@ export default function App() {
       setPendingPromotion({ from, to })
       return
     }
-    const candidate =
-      getLegalMoves(game, from).find(
-        (m) => m.to === to && (m.promotion ?? undefined) === promotion,
-      ) ?? null
-    if (!candidate) return
+
+    if (mode === 'online') {
+      online.sendMove(from, to, promotion)
+      setSelected(null)
+      setPendingPromotion(null)
+      return
+    }
+
     const next = makeMove(game, candidate)
     if (!next) return
     setLocalGame(next)
@@ -166,6 +168,11 @@ export default function App() {
     const piece = game.board[sq]
     const allowedColor = mode === 'online' ? myColor : game.turn
     if (piece && piece.color === allowedColor && game.turn === piece.color) {
+      // Only select pieces that can actually move this turn
+      if (getLegalMoves(game, sq).length === 0) {
+        setSelected(null)
+        return
+      }
       setSelected(sq)
       return
     }

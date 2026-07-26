@@ -77,6 +77,7 @@ export function Board({
   const handleClick = (sq: number) => {
     if (disabled || pendingPromotion) return
     clearMarks()
+    // Only legal destinations complete a move — illegal clicks never “premove”
     if (selected !== null && legalTargets.has(sq)) {
       onMove(selected, sq)
       return
@@ -89,7 +90,7 @@ export function Board({
   }
 
   const handlePointerDown = (e: React.PointerEvent) => {
-    if (e.button !== 2) return
+    if (disabled || e.button !== 2) return
     e.preventDefault()
     const sq = squareFromEvent(e)
     if (sq === null) return
@@ -98,14 +99,14 @@ export function Board({
   }
 
   const handlePointerMove = (e: React.PointerEvent) => {
-    if (dragFrom.current === null) return
+    if (disabled || dragFrom.current === null) return
     const sq = squareFromEvent(e)
     if (sq === null) return
     setDraftArrow({ from: dragFrom.current, to: sq })
   }
 
   const handlePointerUp = (e: React.PointerEvent) => {
-    if (e.button !== 2 || dragFrom.current === null) return
+    if (disabled || e.button !== 2 || dragFrom.current === null) return
     const sq = squareFromEvent(e)
     const from = dragFrom.current
     dragFrom.current = null
@@ -199,30 +200,38 @@ export function Board({
           <defs>
             <marker
               id="arrowhead"
-              markerWidth="6"
-              markerHeight="6"
-              refX="4"
-              refY="3"
+              markerWidth="3.5"
+              markerHeight="3.5"
+              refX="3"
+              refY="1.75"
               orient="auto"
+              markerUnits="strokeWidth"
             >
-              <path d="M0,0 L6,3 L0,6 Z" fill={ARROW_COLOR} />
+              <path d="M0,0 L3.5,1.75 L0,3.5 Z" fill={ARROW_COLOR} />
             </marker>
           </defs>
           {allArrows.map((a) => {
             const s = squareCenter(a.from, flipped, size)
             const t = squareCenter(a.to, flipped, size)
+            // Shorten so the head sits inside the target square
+            const dx = t.x - s.x
+            const dy = t.y - s.y
+            const len = Math.hypot(dx, dy) || 1
+            const cut = Math.min(18, len * 0.22)
+            const x2 = t.x - (dx / len) * cut
+            const y2 = t.y - (dy / len) * cut
             return (
               <line
                 key={`${a.from}-${a.to}`}
                 x1={s.x}
                 y1={s.y}
-                x2={t.x}
-                y2={t.y}
+                x2={x2}
+                y2={y2}
                 stroke={ARROW_COLOR}
-                strokeWidth={14}
+                strokeWidth={4.5}
                 strokeLinecap="round"
                 markerEnd="url(#arrowhead)"
-                opacity={0.9}
+                opacity={0.88}
               />
             )
           })}
