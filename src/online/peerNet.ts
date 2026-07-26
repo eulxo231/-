@@ -86,11 +86,19 @@ export function connectPeer(handlers: PeerHandlers) {
   let topic: string | null = null
   let room: HostRoom | null = null
   let ready = false
+  let guestPeer: string | null = null
   let busy = false
   let joinTimer: ReturnType<typeof setTimeout> | null = null
   let helloTimer: ReturnType<typeof setInterval> | null = null
   let readyTimer: ReturnType<typeof setInterval> | null = null
   let live = false
+
+  function markGuestJoined() {
+    clearJoinTimer()
+    clearHelloTimer()
+    busy = false
+    ready = true
+  }
 
   function fail(message: string) {
     busy = false
@@ -165,6 +173,7 @@ export function connectPeer(handlers: PeerHandlers) {
     topic = null
     room = null
     ready = false
+    guestPeer = null
     if (old) {
       try {
         old.close()
@@ -257,11 +266,26 @@ export function connectPeer(handlers: PeerHandlers) {
 
     switch (msg.type) {
       case 'hello': {
+        // Same guest retrying hello after a missed welcome — resend snapshot
+        if (ready && guestPeer === msg.peer) {
+          void publish({
+            type: 'welcome',
+            peer: peerId,
+            to: msg.peer,
+            color: 'b',
+            code,
+            ready: true,
+            game: wireGame(room.game),
+            rematch: rematchOf(room),
+          })
+          return
+        }
         if (ready) {
           reject(msg.peer, 'Room is full.')
           return
         }
         ready = true
+        guestPeer = msg.peer
         clearReadyTimer()
         room.game = createGame()
         clearRematch()
@@ -307,6 +331,7 @@ export function connectPeer(handlers: PeerHandlers) {
       case 'peer_gone': {
         if (!ready) return
         ready = false
+        guestPeer = null
         room.game = createGame()
         clearRematch()
         // Resume advertising the open seat
@@ -335,15 +360,15 @@ export function connectPeer(handlers: PeerHandlers) {
         break
       }
       case 'welcome': {
-        clearJoinTimer()
-        clearHelloTimer()
-        busy = false
-        ready = true
+        markGuestJoined()
         handlers.onRoom(toSnapshot(msg.code, true, 'b', msg.game, msg.rematch))
         break
       }
       case 'state':
       case 'rematch': {
+        // State can arrive before welcome (or if welcome was dropped).
+        // Always treat a room snapshot as a successful join.
+        if (msg.ready) markGuestJoined()
         handlers.onRoom(
           toSnapshot(msg.code, msg.ready, 'b', msg.game, msg.rematch),
         )
@@ -357,6 +382,8 @@ export function connectPeer(handlers: PeerHandlers) {
         break
       }
       case 'error': {
+        // Ignore stale "Room is full" from hello retries after we already joined
+        if (ready) return
         busy = false
         clearJoinTimer()
         clearHelloTimer()
