@@ -12,7 +12,7 @@ export function ModeSelect({ onChoose }: ModeSelectProps) {
         aria-labelledby="mode-select-title"
       >
         <h2 id="mode-select-title">How do you want to play?</h2>
-        <p>Pick a mode to start. Local begins with the card draft.</p>
+        <p>Pick a mode to start. Each side drafts one card every 5 moves.</p>
         <div className="mode-select-actions">
           <button type="button" onClick={() => onChoose('local')}>
             Local

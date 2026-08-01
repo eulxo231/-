@@ -1,7 +1,5 @@
 import { getAugment, type AugmentId } from '../augments/catalog'
 
-const SLOT_COUNT = 6
-
 const TARGET_HINTS: Partial<Record<AugmentId, string>> = {
   coronation: 'Select one of your pieces to crown as queen.',
   swap: 'Select two of your non-king pieces to swap.',
@@ -93,11 +91,6 @@ export function AugmentTray({
   usable = false,
   onCardClick,
 }: AugmentTrayProps) {
-  const slots: (AugmentId | null)[] = Array.from(
-    { length: SLOT_COUNT },
-    (_, i) => cards[i] ?? null,
-  )
-
   const hint = activeCard ? TARGET_HINTS[activeCard] : null
 
   return (
@@ -122,15 +115,12 @@ export function AugmentTray({
       </div>
       {hint && <p className="augment-targeting">{hint}</p>}
       <div className="augment-slots">
-        {slots.map((id, i) => {
-          if (!id) {
-            return (
-              <div key={`empty-${i}`} className="augment-slot empty" aria-hidden="true">
-                <span className="augment-slot-label">Empty</span>
-              </div>
-            )
-          }
-          return (
+        {cards.length === 0 ? (
+          <div className="augment-slot empty" aria-hidden="true">
+            <span className="augment-slot-label">Empty</span>
+          </div>
+        ) : (
+          cards.map((id, i) => (
             <CardView
               key={`${id}-${i}`}
               id={id}
@@ -138,8 +128,8 @@ export function AugmentTray({
               usable={usable}
               onClick={onCardClick ? () => onCardClick(id) : undefined}
             />
-          )
-        })}
+          ))
+        )}
       </div>
     </section>
   )

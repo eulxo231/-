@@ -23,10 +23,11 @@ const RULES = [
     ],
   },
   {
-    title: 'Coming later',
+    title: 'Augments',
     items: [
-      'Augmentation cards, drafts, RULE cards, and variant pieces are not in yet.',
-      'Online rooms use a 4-character code; the server validates every move.',
+      'After every 5 full moves, each player drafts one card (White, then Black).',
+      'Piece and active cards go to your tray; RULE cards affect both sides; openings resolve when gained (or after your first move if earlier).',
+      'Online rooms use a 4-character code; the host validates every move.',
     ],
   },
 ]

@@ -31,46 +31,10 @@ export function DraftPanel({ game, controller, onPick }: DraftPanelProps) {
         <div className="draft-panel-head">
           <h2 id="draft-title">Draft</h2>
           <p>
-            {picker === 'w' ? 'White' : 'Black'} picks
+            After move {game.fullMove - 1}:{' '}
+            {picker === 'w' ? 'White' : 'Black'} picks one card
             {canPick ? ' — your turn' : ' — waiting'}
-            {' · '}
-            White {game.draft.picksLeft.w} left · Black {game.draft.picksLeft.b}{' '}
-            left
           </p>
-        </div>
-
-        <div className="draft-sides">
-          <div>
-            <h3>White</h3>
-            <ul>
-              {game.augments.w.length === 0 && (
-                <li className="muted">No cards yet</li>
-              )}
-              {game.augments.w.map((id) => (
-                <li key={`w-${id}`}>{getAugment(id).name}</li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <h3>Black</h3>
-            <ul>
-              {game.augments.b.length === 0 && (
-                <li className="muted">No cards yet</li>
-              )}
-              {game.augments.b.map((id) => (
-                <li key={`b-${id}`}>{getAugment(id).name}</li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <h3>RULE</h3>
-            <ul>
-              {game.rules.length === 0 && <li className="muted">None</li>}
-              {game.rules.map((id) => (
-                <li key={`r-${id}`}>{getAugment(id).name}</li>
-              ))}
-            </ul>
-          </div>
         </div>
 
         <div className="draft-options">

@@ -435,7 +435,7 @@ export default function App() {
             )}
             {mode && inDraft && (mode === 'local' || onlineSession) && game && (
               <p className="turn-badge" aria-live="polite">
-                Draft — {game.draft?.picker === 'w' ? 'White' : 'Black'}
+                Draft — {game.draft?.picker === 'w' ? 'White' : 'Black'} picks
               </p>
             )}
           </div>
