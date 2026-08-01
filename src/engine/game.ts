@@ -1,5 +1,4 @@
 import {
-  DRAFT_EVERY_MOVES,
   DRAFT_PICKS_PER_PLAYER,
   draftOptionsFor,
   getAugment,
@@ -26,29 +25,10 @@ function actionsForTurn(fullMove: number, rules: readonly AugmentId[]): number {
   return hasRule(rules, 'acceleration') && fullMove >= 3 ? 2 : 1
 }
 
-function startDraftRound(): DraftState {
+function initialDraft(): DraftState {
   return {
     picker: 'w',
     picksLeft: { w: DRAFT_PICKS_PER_PLAYER, b: DRAFT_PICKS_PER_PLAYER },
-  }
-}
-
-/** After Black completes full-moves 5, 10, 15… pause for one card each. */
-function maybeEnterDraft(prev: GameState, next: GameState): GameState {
-  if (next.result) return next
-  if (next.phase === 'draft') return next
-  const blackFinishedFullMove =
-    prev.turn === 'b' &&
-    next.turn === 'w' &&
-    prev.fullMove > 0 &&
-    prev.fullMove % DRAFT_EVERY_MOVES === 0 &&
-    next.fullMove === prev.fullMove + 1
-  if (!blackFinishedFullMove) return next
-  if (draftOptionsFor(next).length === 0) return next
-  return {
-    ...next,
-    phase: 'draft',
-    draft: startDraftRound(),
   }
 }
 
@@ -391,8 +371,8 @@ export function createGame(): GameState {
     augments: { w: [], b: [] },
     rules: [],
     actionsRemaining: 1,
-    phase: 'playing',
-    draft: null,
+    phase: 'draft',
+    draft: initialDraft(),
     hasMoved: { w: false, b: false },
     ...emptyExtras(),
   }
@@ -935,7 +915,7 @@ export function makeMove(state: GameState, move: Move): GameState | null {
     return next
   }
 
-  return maybeEnterDraft(state, resolveEndConditions(next))
+  return resolveEndConditions(next)
 }
 
 export interface UseCardOpts {
@@ -1189,7 +1169,7 @@ export function useCoronation(
   return useActiveCard(state, 'coronation', { square })
 }
 
-/** Mid-game draft: picker claims a card; White then Black each pick once. */
+/** Pre-game draft: picker claims a card, then turn passes. */
 export function pickDraftCard(
   state: GameState,
   by: Color,
@@ -1203,9 +1183,7 @@ export function pickDraftCard(
   if (!options.includes(cardId)) return null
 
   const card = getAugment(cardId)
-  let board = state.board.map((p) => (p ? { ...p } : null))
-  let castling = { ...state.castling }
-  let augments = {
+  const augments = {
     w: [...(state.augments?.w ?? [])],
     b: [...(state.augments?.b ?? [])],
   }
@@ -1217,13 +1195,6 @@ export function pickDraftCard(
   } else {
     if (augments[by].includes(cardId)) return null
     augments[by].push(cardId)
-    // Openings picked after you've already moved resolve immediately.
-    if (card.kind === 'opening' && (state.hasMoved?.[by] ?? false)) {
-      const opened = triggerOpeningCards(by, board, augments, castling)
-      board = opened.board
-      augments = opened.augments
-      castling = opened.castling
-    }
   }
 
   const picksLeft = {
@@ -1253,12 +1224,14 @@ export function pickDraftCard(
 
   return {
     ...cloneState(state),
-    board,
-    castling,
     augments,
     rules,
     phase,
     draft,
+    actionsRemaining:
+      phase === 'playing'
+        ? actionsForTurn(state.fullMove, rules)
+        : state.actionsRemaining,
   }
 }
 

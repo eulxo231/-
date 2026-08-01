@@ -25,8 +25,8 @@ const RULES = [
   {
     title: 'Augments',
     items: [
-      'After every 5 full moves, each player drafts one card (White, then Black).',
-      'Piece and active cards go to your tray; RULE cards affect both sides; openings resolve when gained (or after your first move if earlier).',
+      'Before the game, each player drafts two cards (White and Black alternate).',
+      'Piece and active cards go to your tray; RULE cards affect both sides; openings resolve after your first move.',
       'Online rooms use a 4-character code; the host validates every move.',
     ],
   },

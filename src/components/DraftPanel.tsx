@@ -31,9 +31,10 @@ export function DraftPanel({ game, controller, onPick }: DraftPanelProps) {
         <div className="draft-panel-head">
           <h2 id="draft-title">Draft</h2>
           <p>
-            After move {game.fullMove - 1}:{' '}
-            {picker === 'w' ? 'White' : 'Black'} picks one card
+            {picker === 'w' ? 'White' : 'Black'} picks
             {canPick ? ' — your turn' : ' — waiting'}
+            {' · '}
+            {game.draft.picksLeft.w + game.draft.picksLeft.b} picks left
           </p>
         </div>
 
