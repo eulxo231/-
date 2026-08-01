@@ -1,5 +1,7 @@
 import {
-  DRAFT_PICKS_PER_PLAYER,
+  DRAFT_EVERY_MOVES,
+  DRAFT_PICKS_AT_START,
+  DRAFT_PICKS_TOTAL,
   draftOptionsFor,
   getAugment,
   hasAugment,
@@ -25,10 +27,55 @@ function actionsForTurn(fullMove: number, rules: readonly AugmentId[]): number {
   return hasRule(rules, 'acceleration') && fullMove >= 3 ? 2 : 1
 }
 
+function picksStillNeeded(state: Pick<GameState, 'picksMade'>): {
+  w: number
+  b: number
+} {
+  return {
+    w: Math.max(0, DRAFT_PICKS_TOTAL - (state.picksMade?.w ?? 0)),
+    b: Math.max(0, DRAFT_PICKS_TOTAL - (state.picksMade?.b ?? 0)),
+  }
+}
+
+/** One card each for players who still need cards (White first). */
+function draftRoundFor(state: Pick<GameState, 'picksMade'>): DraftState | null {
+  const need = picksStillNeeded(state)
+  const picksLeft = {
+    w: need.w > 0 ? 1 : 0,
+    b: need.b > 0 ? 1 : 0,
+  }
+  if (picksLeft.w === 0 && picksLeft.b === 0) return null
+  return {
+    picker: picksLeft.w > 0 ? 'w' : 'b',
+    picksLeft,
+  }
+}
+
 function initialDraft(): DraftState {
   return {
     picker: 'w',
-    picksLeft: { w: DRAFT_PICKS_PER_PLAYER, b: DRAFT_PICKS_PER_PLAYER },
+    picksLeft: { w: DRAFT_PICKS_AT_START, b: DRAFT_PICKS_AT_START },
+  }
+}
+
+/** After Black completes full-moves 5, 10, … pause for one card each until both have 3. */
+function maybeEnterDraft(prev: GameState, next: GameState): GameState {
+  if (next.result) return next
+  if (next.phase === 'draft') return next
+  const blackFinishedFullMove =
+    prev.turn === 'b' &&
+    next.turn === 'w' &&
+    prev.fullMove > 0 &&
+    prev.fullMove % DRAFT_EVERY_MOVES === 0 &&
+    next.fullMove === prev.fullMove + 1
+  if (!blackFinishedFullMove) return next
+  const draft = draftRoundFor(next)
+  if (!draft) return next
+  if (draftOptionsFor(next).length === 0) return next
+  return {
+    ...next,
+    phase: 'draft',
+    draft,
   }
 }
 
@@ -373,6 +420,7 @@ export function createGame(): GameState {
     actionsRemaining: 1,
     phase: 'draft',
     draft: initialDraft(),
+    picksMade: { w: 0, b: 0 },
     hasMoved: { w: false, b: false },
     ...emptyExtras(),
   }
@@ -417,6 +465,10 @@ export function cloneState(state: GameState): GameState {
           picksLeft: { ...state.draft.picksLeft },
         }
       : null,
+    picksMade: {
+      w: state.picksMade?.w ?? 0,
+      b: state.picksMade?.b ?? 0,
+    },
     hasMoved: { ...(state.hasMoved ?? { w: false, b: false }) },
     lastMovedTo: state.lastMovedTo ?? null,
     eclipse: state.eclipse ? { ...state.eclipse } : null,
@@ -724,7 +776,7 @@ function finishCardUse(
     ...clock,
     ...extra,
   }
-  return resolveEndConditions(next)
+  return maybeEnterDraft(state, resolveEndConditions(next))
 }
 
 /** Apply a legal move. Returns null if illegal / game already over. */
@@ -890,6 +942,10 @@ export function makeMove(state: GameState, move: Move): GameState | null {
     rules,
     phase: 'playing',
     draft: null,
+    picksMade: {
+      w: state.picksMade?.w ?? 0,
+      b: state.picksMade?.b ?? 0,
+    },
     hasMoved: {
       w: (state.hasMoved?.w ?? false) || mover === 'w',
       b: (state.hasMoved?.b ?? false) || mover === 'b',
@@ -915,7 +971,7 @@ export function makeMove(state: GameState, move: Move): GameState | null {
     return next
   }
 
-  return resolveEndConditions(next)
+  return maybeEnterDraft(state, resolveEndConditions(next))
 }
 
 export interface UseCardOpts {
@@ -1169,7 +1225,7 @@ export function useCoronation(
   return useActiveCard(state, 'coronation', { square })
 }
 
-/** Pre-game draft: picker claims a card, then turn passes. */
+/** Draft pick: one card for the current picker, then the other side (if needed). */
 export function pickDraftCard(
   state: GameState,
   by: Color,
@@ -1183,11 +1239,17 @@ export function pickDraftCard(
   if (!options.includes(cardId)) return null
 
   const card = getAugment(cardId)
-  const augments = {
+  let board = state.board.map((p) => (p ? { ...p } : null))
+  let castling = { ...state.castling }
+  let augments = {
     w: [...(state.augments?.w ?? [])],
     b: [...(state.augments?.b ?? [])],
   }
   const rules = [...(state.rules ?? [])]
+  const picksMade = {
+    w: state.picksMade?.w ?? 0,
+    b: state.picksMade?.b ?? 0,
+  }
 
   if (card.kind === 'rule') {
     if (rules.includes(cardId)) return null
@@ -1195,7 +1257,16 @@ export function pickDraftCard(
   } else {
     if (augments[by].includes(cardId)) return null
     augments[by].push(cardId)
+    // Openings gained mid-game resolve immediately if you've already moved.
+    if (card.kind === 'opening' && (state.hasMoved?.[by] ?? false)) {
+      const opened = triggerOpeningCards(by, board, augments, castling)
+      board = opened.board
+      augments = opened.augments
+      castling = opened.castling
+    }
   }
+
+  picksMade[by] += 1
 
   const picksLeft = {
     w: state.draft.picksLeft.w,
@@ -1211,11 +1282,11 @@ export function pickDraftCard(
   if (picksLeft.w <= 0 && picksLeft.b <= 0) {
     phase = 'playing'
     draft = null
-  } else if (picksLeft[other] > 0) {
-    picker = other
-    draft = { picker, picksLeft }
   } else if (picksLeft[by] > 0) {
     picker = by
+    draft = { picker, picksLeft }
+  } else if (picksLeft[other] > 0) {
+    picker = other
     draft = { picker, picksLeft }
   } else {
     phase = 'playing'
@@ -1224,12 +1295,16 @@ export function pickDraftCard(
 
   return {
     ...cloneState(state),
+    board,
+    castling,
     augments,
     rules,
+    picksMade,
     phase,
     draft,
+    // Only reset the action clock when leaving the opening draft into play.
     actionsRemaining:
-      phase === 'playing'
+      phase === 'playing' && !state.lastMove
         ? actionsForTurn(state.fullMove, rules)
         : state.actionsRemaining,
   }

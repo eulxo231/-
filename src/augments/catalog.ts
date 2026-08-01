@@ -550,11 +550,17 @@ export function isHighwaySquare(
   return file === 1 || file === 6
 }
 
-/** Cards players may pick during the pre-game draft. */
+/** Cards players may pick during draft rounds. */
 export const DRAFT_CATALOG: AugmentId[] = Object.keys(AUGMENTS) as AugmentId[]
 
-/** Each player picks this many cards before the game starts. */
-export const DRAFT_PICKS_PER_PLAYER = 2
+/** Cards each player picks before the game starts. */
+export const DRAFT_PICKS_AT_START = 1
+
+/** Total cards each player ends up with (start + mid-game picks). */
+export const DRAFT_PICKS_TOTAL = 3
+
+/** Full-move interval between mid-game draft rounds (5 each side = 10 turns). */
+export const DRAFT_EVERY_MOVES = 5
 
 /** How many face-up options each draft pick shows. */
 export const DRAFT_OFFER_COUNT = 6
@@ -562,6 +568,8 @@ export const DRAFT_OFFER_COUNT = 6
 export function draftOptionsFor(state: {
   augments: { w: AugmentId[]; b: AugmentId[] }
   rules: AugmentId[]
+  fullMove?: number
+  picksMade?: { w: number; b: number }
 }): AugmentId[] {
   const taken = new Set<AugmentId>([
     ...state.augments.w,
@@ -571,8 +579,13 @@ export function draftOptionsFor(state: {
   const remaining = DRAFT_CATALOG.filter((id) => !taken.has(id))
   if (remaining.length <= DRAFT_OFFER_COUNT) return remaining
 
-  // Deterministic offer from position — stable across host/guest.
-  const seed = [...taken].join('|').length + remaining.length * 17
+  // Deterministic offer — stable across host/guest; changes each round.
+  const picks = state.picksMade
+  const seed =
+    [...taken].join('|').length +
+    remaining.length * 17 +
+    (state.fullMove ?? 1) * 41 +
+    ((picks?.w ?? 0) + (picks?.b ?? 0)) * 13
   const shuffled = [...remaining]
   let s = seed + 1
   for (let i = shuffled.length - 1; i > 0; i--) {

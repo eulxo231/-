@@ -97,6 +97,8 @@ export interface GameState {
   actionsRemaining: number
   phase: 'draft' | 'playing'
   draft: DraftState | null
+  /** How many draft picks each side has made (target: 3). */
+  picksMade: { w: number; b: number }
   hasMoved: { w: boolean; b: boolean }
   /** Square a piece moved to last action (Fog). */
   lastMovedTo: number | null

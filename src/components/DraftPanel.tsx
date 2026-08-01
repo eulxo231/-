@@ -1,4 +1,5 @@
 import {
+  DRAFT_PICKS_TOTAL,
   draftOptionsFor,
   getAugment,
   type AugmentId,
@@ -18,6 +19,9 @@ export function DraftPanel({ game, controller, onPick }: DraftPanelProps) {
   const picker = game.draft.picker
   const options = draftOptionsFor(game)
   const canPick = controller === picker
+  const side = picker === 'w' ? 'White' : 'Black'
+  const made = game.picksMade?.[picker] ?? 0
+  const opening = !(game.hasMoved?.w || game.hasMoved?.b) && !game.lastMove
 
   return (
     <div className="draft-overlay" role="presentation">
@@ -29,12 +33,12 @@ export function DraftPanel({ game, controller, onPick }: DraftPanelProps) {
         aria-label="Card draft"
       >
         <div className="draft-panel-head">
-          <h2 id="draft-title">Draft</h2>
+          <h2 id="draft-title">{opening ? 'Opening draft' : 'Draft'}</h2>
           <p>
-            {picker === 'w' ? 'White' : 'Black'} picks
+            {side} picks 1 card
             {canPick ? ' — your turn' : ' — waiting'}
             {' · '}
-            {game.draft.picksLeft.w + game.draft.picksLeft.b} picks left
+            {made}/{DRAFT_PICKS_TOTAL} cards
           </p>
         </div>
 
