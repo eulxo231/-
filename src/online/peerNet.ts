@@ -5,7 +5,8 @@ import {
   getLegalMoves,
   makeMove,
   pickDraftCard,
-  useCoronation,
+  useActiveCard,
+  type UseCardOpts,
 } from '../engine/game'
 import type { AugmentId, Color, GameState, PieceType } from '../engine/types'
 
@@ -218,11 +219,11 @@ export function connectPeer(handlers: PeerHandlers) {
     return true
   }
 
-  function applyCard(square: number, as: Color) {
+  function applyCard(card: AugmentId, opts: UseCardOpts, as: Color) {
     if (!room || !ready) return false
     if (room.game.turn !== as || room.game.result) return false
     if (room.game.phase !== 'playing') return false
-    const next = useCoronation(room.game, square)
+    const next = useActiveCard(room.game, card, opts)
     if (!next) return false
     room.game = next
     clearRematch()
@@ -268,7 +269,17 @@ export function connectPeer(handlers: PeerHandlers) {
         break
       }
       case 'use_card': {
-        if (!applyCard(msg.square, 'b')) {
+        if (
+          !applyCard(
+            msg.card,
+            {
+              square: msg.square,
+              square2: msg.square2,
+              promotion: msg.promotion,
+            },
+            'b',
+          )
+        ) {
           reject(msg.peer, 'Cannot use that card.')
         }
         break
@@ -478,13 +489,20 @@ export function connectPeer(handlers: PeerHandlers) {
       publish({ type: 'move', peer: peerId, from, to, promotion })
     },
 
-    useCard(card: 'coronation', square: number) {
+    useCard(card: AugmentId, opts: UseCardOpts = {}) {
       if (role === 'host') {
-        applyCard(square, 'w')
+        applyCard(card, opts, 'w')
         return
       }
       if (!peerId) return
-      publish({ type: 'use_card', peer: peerId, card, square })
+      publish({
+        type: 'use_card',
+        peer: peerId,
+        card,
+        square: opts.square,
+        square2: opts.square2,
+        promotion: opts.promotion,
+      })
     },
 
     pickCard(card: AugmentId) {

@@ -82,9 +82,12 @@ export function useOnlineGame() {
   )
 
   const sendUseCard = useCallback(
-    (card: 'coronation', square: number) => {
+    (
+      card: AugmentId,
+      opts: { square?: number; square2?: number; promotion?: PieceType } = {},
+    ) => {
       setError(null)
-      ensureNet().useCard(card, square)
+      ensureNet().useCard(card, opts)
     },
     [ensureNet],
   )

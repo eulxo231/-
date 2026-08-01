@@ -43,7 +43,14 @@ export type WireMessage =
       to: number
       promotion?: PieceType
     }
-  | { type: 'use_card'; peer: string; card: 'coronation'; square: number }
+  | {
+      type: 'use_card'
+      peer: string
+      card: AugmentId
+      square?: number
+      square2?: number
+      promotion?: PieceType
+    }
   | { type: 'pick_card'; peer: string; card: AugmentId }
   | { type: 'rematch_vote'; peer: string }
   | { type: 'leave'; peer: string; role: 'host' | 'guest' }

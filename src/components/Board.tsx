@@ -20,6 +20,8 @@ interface BoardProps {
   onMove: (from: number, to: number) => void
   pendingPromotion: { from: number; to: number } | null
   onPromote: (type: PieceType) => void
+  /** Override promotion piece choices (e.g. Promote Now: n/b/r). */
+  promoteChoices?: PieceType[]
 }
 
 const ARROW_COLOR = 'rgba(42, 140, 98, 0.85)'
@@ -47,6 +49,7 @@ export function Board({
   onMove,
   pendingPromotion,
   onPromote,
+  promoteChoices = ['q', 'r', 'b', 'n'],
 }: BoardProps) {
   const boardRef = useRef<HTMLDivElement>(null)
   const [highlights, setHighlights] = useState<Set<number>>(new Set())
@@ -242,7 +245,7 @@ export function Board({
             <div className="promo-panel">
               <p>Promote pawn</p>
               <div className="promo-choices">
-                {(['q', 'r', 'b', 'n'] as PieceType[]).map((t) => {
+                {promoteChoices.map((t) => {
                   const color = board[pendingPromotion.from]?.color ?? turn
                   return (
                     <button

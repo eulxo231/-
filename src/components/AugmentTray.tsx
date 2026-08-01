@@ -1,6 +1,20 @@
 import { getAugment, type AugmentId } from '../augments/catalog'
 
-const SLOT_COUNT = 3
+const SLOT_COUNT = 6
+
+const TARGET_HINTS: Partial<Record<AugmentId, string>> = {
+  coronation: 'Select one of your pieces to crown as queen.',
+  swap: 'Select two of your non-king pieces to swap.',
+  recall: 'Select one of your pieces to recall home.',
+  bomb: 'Select an enemy non-king piece to remove.',
+  'promote-now': 'Select one of your pawns, then choose knight, bishop, or rook.',
+  eclipse: 'Select an enemy non-king piece to freeze.',
+  smuggle: 'Select your piece, then an empty square on your back two ranks.',
+  duel: 'Select your piece, then an adjacent enemy piece (not kings).',
+  'crown-split': 'Select your queen to split into two knights.',
+  poltergeist: 'Select an enemy piece, then a quiet square it can step to.',
+  bargain: 'Select one of your pawns to sacrifice for an extra action.',
+}
 
 interface AugmentTrayProps {
   cards: AugmentId[]
@@ -84,6 +98,8 @@ export function AugmentTray({
     (_, i) => cards[i] ?? null,
   )
 
+  const hint = activeCard ? TARGET_HINTS[activeCard] : null
+
   return (
     <section className="augment-tray" aria-label="Augmentation cards">
       {rules.length > 0 && (
@@ -104,9 +120,7 @@ export function AugmentTray({
         <h2>Augments</h2>
         <span>{label}</span>
       </div>
-      {activeCard === 'coronation' && (
-        <p className="augment-targeting">Select one of your pieces to crown as queen.</p>
-      )}
+      {hint && <p className="augment-targeting">{hint}</p>}
       <div className="augment-slots">
         {slots.map((id, i) => {
           if (!id) {

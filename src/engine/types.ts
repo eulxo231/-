@@ -13,6 +13,8 @@ export interface SideAugments {
 export interface Piece {
   type: PieceType
   color: Color
+  /** Embassy envoy pawn — capturing it grants an extra action. */
+  envoy?: boolean
 }
 
 export interface CastlingRights {
@@ -28,8 +30,12 @@ export interface Move {
   promotion?: PieceType
   captured?: Piece
   castle?: 'K' | 'Q'
+  /** Rook square for castling (supports Longcastle). */
+  castleRookFrom?: number
   enPassant?: boolean
   doublePawn?: boolean
+  /** Extra king-step after Crooked Knight. */
+  crookedStep?: boolean
 }
 
 export type EndReason =
@@ -37,6 +43,7 @@ export type EndReason =
   | 'no-moves'
   | 'threefold'
   | 'overtime'
+  | 'sudden-death'
 
 export interface GameResult {
   winner: Color | 'draw'
@@ -54,6 +61,25 @@ export interface DraftState {
   picksLeft: { w: number; b: number }
 }
 
+/** Snapshot used by Rewind. */
+export interface BoardSnapshot {
+  board: (Piece | null)[]
+  castling: CastlingRights
+  epSquare: number | null
+  turn: Color
+  fullMove: number
+  actionsRemaining: number
+  lastMove: Move | null
+  hasMoved: { w: boolean; b: boolean }
+  lastMovedTo: number | null
+  eclipse: { square: number; until: Color } | null
+  echoSquare: number | null
+  echoFor: Color | null
+  crookedFrom: number | null
+  sharedPoolUsed: boolean
+  borrowedTimeUsed: { w: boolean; b: boolean }
+}
+
 export interface GameState {
   board: (Piece | null)[]
   turn: Color
@@ -67,15 +93,25 @@ export interface GameState {
   lastMove: Move | null
   result: GameResult | null
   augments: SideAugments
-  /** Active RULE cards (game-wide). */
   rules: AugmentId[]
-  /** Actions left for the side to move (2 under Acceleration from turn 3). */
   actionsRemaining: number
-  /** Pre-game card draft, then playing. */
   phase: 'draft' | 'playing'
   draft: DraftState | null
-  /** Whether each side has made their first move (for OPENING cards). */
   hasMoved: { w: boolean; b: boolean }
+  /** Square a piece moved to last action (Fog). */
+  lastMovedTo: number | null
+  /** Frozen enemy piece until `until`'s turn begins. */
+  eclipse: { square: number; until: Color } | null
+  /** Echo Lane blocker; blocks slides for `echoFor`'s opponent. */
+  echoSquare: number | null
+  echoFor: Color | null
+  /** Crooked Knight bonus from this square. */
+  crookedFrom: number | null
+  /** Shared Pool extra already granted this turn. */
+  sharedPoolUsed: boolean
+  borrowedTimeUsed: { w: boolean; b: boolean }
+  /** Previous position for Rewind. */
+  prev: BoardSnapshot | null
 }
 
 export const FILES = 'abcdefgh'
@@ -93,4 +129,23 @@ export function coordToSquare(coord: string): number {
 
 export function opposite(color: Color): Color {
   return color === 'w' ? 'b' : 'w'
+}
+
+export const START_SQUARES: Record<Color, Partial<Record<PieceType, number[]>>> = {
+  w: {
+    r: [56, 63],
+    n: [57, 62],
+    b: [58, 61],
+    q: [59],
+    k: [60],
+    p: [48, 49, 50, 51, 52, 53, 54, 55],
+  },
+  b: {
+    r: [0, 7],
+    n: [1, 6],
+    b: [2, 5],
+    q: [3],
+    k: [4],
+    p: [8, 9, 10, 11, 12, 13, 14, 15],
+  },
 }

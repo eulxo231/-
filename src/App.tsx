@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import type { AugmentId } from './augments/catalog'
+import { getAugment, type AugmentId } from './augments/catalog'
 import { AugmentTray } from './components/AugmentTray'
 import { Board } from './components/Board'
 import { DraftPanel } from './components/DraftPanel'
@@ -12,8 +12,10 @@ import {
   getLegalMoves,
   makeMove,
   pickDraftCard,
+  poltergeistTargets,
   resultLabel,
-  useCoronation,
+  smuggleTargets,
+  useActiveCard,
 } from './engine/game'
 import type { GameState, Move, PieceType } from './engine/types'
 import { useOnlineGame } from './online/useOnlineGame'
@@ -40,6 +42,8 @@ export default function App() {
   } | null>(null)
   const [rulesOpen, setRulesOpen] = useState(false)
   const [pendingCard, setPendingCard] = useState<AugmentId | null>(null)
+  const [cardPick, setCardPick] = useState<number | null>(null)
+  const [promoteCardSq, setPromoteCardSq] = useState<number | null>(null)
 
   const online = useOnlineGame()
 
@@ -73,21 +77,35 @@ export default function App() {
   const showDraftModal =
     mode !== null && (mode === 'local' || onlineSession) && inDraft
 
+  const cardTargets = useMemo(() => {
+    if (!game || !pendingCard || cardPick == null) return new Set<number>()
+    if (pendingCard === 'smuggle') {
+      return new Set(smuggleTargets(game, cardPick))
+    }
+    if (pendingCard === 'poltergeist') {
+      return new Set(poltergeistTargets(game, cardPick))
+    }
+    return new Set<number>()
+  }, [game, pendingCard, cardPick])
+
   const legal = useMemo(() => {
     if (!game || inDraft || selected === null) return [] as Move[]
+    if (pendingCard) return []
     if (mode === 'online' && myColor && game.turn !== myColor) return []
     return getLegalMoves(game, selected)
-  }, [game, selected, mode, myColor, inDraft])
+  }, [game, selected, mode, myColor, inDraft, pendingCard])
 
-  const legalTargets = useMemo(
-    () => new Set(legal.map((m) => m.to)),
-    [legal],
-  )
+  const legalTargets = useMemo(() => {
+    if (cardTargets.size) return cardTargets
+    return new Set(legal.map((m) => m.to))
+  }, [legal, cardTargets])
 
   useEffect(() => {
     setSelected(null)
     setPendingPromotion(null)
     setPendingCard(null)
+    setCardPick(null)
+    setPromoteCardSq(null)
   }, [game?.turn, mode, online.room?.code, game?.phase, game?.draft?.picker])
 
   const canInteract =
@@ -96,6 +114,29 @@ export default function App() {
     (mode === 'local'
       ? !game.result
       : onlineReady && !!myColor && game.turn === myColor && !game.result)
+
+  const clearCardUi = () => {
+    setPendingCard(null)
+    setCardPick(null)
+    setPromoteCardSq(null)
+    setSelected(null)
+  }
+
+  const applyCard = (
+    card: AugmentId,
+    opts: { square?: number; square2?: number; promotion?: PieceType },
+  ) => {
+    if (!game || !canInteract) return
+    if (mode === 'online') {
+      online.sendUseCard(card, opts)
+      clearCardUi()
+      return
+    }
+    const next = useActiveCard(game, card, opts)
+    if (!next) return
+    setLocalGame(next)
+    clearCardUi()
+  }
 
   const tryMove = (from: number, to: number, promotion?: PieceType) => {
     if (!game || !canInteract) return
@@ -129,21 +170,6 @@ export default function App() {
     setPendingPromotion(null)
   }
 
-  const tryCoronation = (square: number) => {
-    if (!game || !canInteract) return
-    if (mode === 'online') {
-      online.sendUseCard('coronation', square)
-      setPendingCard(null)
-      setSelected(null)
-      return
-    }
-    const next = useCoronation(game, square)
-    if (!next) return
-    setLocalGame(next)
-    setPendingCard(null)
-    setSelected(null)
-  }
-
   const onDraftPick = (card: AugmentId) => {
     if (mode === 'online') {
       online.sendPickCard(card)
@@ -157,18 +183,140 @@ export default function App() {
     setLocalGame(next)
   }
 
+  const handleCardTarget = (sq: number) => {
+    if (!game || !pendingCard) return
+    const target = getAugment(pendingCard).target
+    const piece = game.board[sq]
+    const me = game.turn
+
+    switch (target) {
+      case 'none':
+        return
+
+      case 'own-non-king': {
+        if (pendingCard === 'smuggle') {
+          if (cardPick == null) {
+            if (piece && piece.color === me && piece.type !== 'k') {
+              setCardPick(sq)
+              setSelected(sq)
+            }
+            return
+          }
+          if (cardTargets.has(sq)) {
+            applyCard(pendingCard, { square: cardPick, square2: sq })
+          } else if (piece && piece.color === me && piece.type !== 'k') {
+            setCardPick(sq)
+            setSelected(sq)
+          }
+          return
+        }
+        if (piece && piece.color === me && piece.type !== 'k') {
+          applyCard(pendingCard, { square: sq })
+        }
+        return
+      }
+
+      case 'own-piece': {
+        if (piece && piece.color === me) {
+          applyCard(pendingCard, { square: sq })
+        }
+        return
+      }
+
+      case 'own-pawn': {
+        if (piece && piece.color === me && piece.type === 'p') {
+          applyCard(pendingCard, { square: sq })
+        }
+        return
+      }
+
+      case 'own-queen': {
+        if (piece && piece.color === me && piece.type === 'q') {
+          applyCard(pendingCard, { square: sq })
+        }
+        return
+      }
+
+      case 'enemy-non-king': {
+        if (pendingCard === 'poltergeist') {
+          if (cardPick == null) {
+            if (piece && piece.color !== me && piece.type !== 'k') {
+              setCardPick(sq)
+              setSelected(sq)
+            }
+            return
+          }
+          if (cardTargets.has(sq)) {
+            applyCard(pendingCard, { square: cardPick, square2: sq })
+          } else if (piece && piece.color !== me && piece.type !== 'k') {
+            setCardPick(sq)
+            setSelected(sq)
+          }
+          return
+        }
+        if (piece && piece.color !== me && piece.type !== 'k') {
+          applyCard(pendingCard, { square: sq })
+        }
+        return
+      }
+
+      case 'two-own-non-king': {
+        if (!piece || piece.color !== me || piece.type === 'k') return
+        if (cardPick == null) {
+          setCardPick(sq)
+          setSelected(sq)
+          return
+        }
+        if (cardPick === sq) return
+        applyCard(pendingCard, { square: cardPick, square2: sq })
+        return
+      }
+
+      case 'duel-pair': {
+        if (cardPick == null) {
+          if (piece && piece.color === me && piece.type !== 'k') {
+            setCardPick(sq)
+            setSelected(sq)
+          }
+          return
+        }
+        if (
+          piece &&
+          piece.color !== me &&
+          piece.type !== 'k'
+        ) {
+          applyCard(pendingCard, { square: cardPick, square2: sq })
+        } else if (piece && piece.color === me && piece.type !== 'k') {
+          setCardPick(sq)
+          setSelected(sq)
+        }
+        return
+      }
+
+      case 'promote-pawn': {
+        if (piece && piece.color === me && piece.type === 'p') {
+          setPromoteCardSq(sq)
+          setSelected(sq)
+        }
+        return
+      }
+
+      default:
+        return
+    }
+  }
+
   const onSelect = (sq: number) => {
     if (!game || !canInteract) return
 
-    if (pendingCard === 'coronation') {
-      tryCoronation(sq)
+    if (pendingCard) {
+      handleCardTarget(sq)
       return
     }
 
     const piece = game.board[sq]
     const allowedColor = mode === 'online' ? myColor : game.turn
     if (piece && piece.color === allowedColor && game.turn === piece.color) {
-      // Only select pieces that can actually move this turn
       if (getLegalMoves(game, sq).length === 0) {
         setSelected(null)
         return
@@ -184,26 +332,29 @@ export default function App() {
   }
 
   const onMove = (from: number, to: number) => {
+    if (pendingCard) return
     tryMove(from, to)
   }
 
   const onPromote = (type: PieceType) => {
+    if (promoteCardSq != null && pendingCard === 'promote-now') {
+      applyCard('promote-now', { square: promoteCardSq, promotion: type })
+      return
+    }
     if (!pendingPromotion) return
     tryMove(pendingPromotion.from, pendingPromotion.to, type)
   }
 
   const resetLocal = () => {
     setLocalGame(createGame())
-    setSelected(null)
+    clearCardUi()
     setPendingPromotion(null)
-    setPendingCard(null)
   }
 
   const chooseMode = (next: PlayMode) => {
     if (mode === 'online' && online.room) online.leaveRoom()
-    setSelected(null)
+    clearCardUi()
     setPendingPromotion(null)
-    setPendingCard(null)
     if (next === 'local') {
       setLocalGame(createGame())
     } else {
@@ -214,17 +365,30 @@ export default function App() {
 
   const backToMenu = () => {
     if (mode === 'online' && online.room) online.leaveRoom()
-    setSelected(null)
+    clearCardUi()
     setPendingPromotion(null)
-    setPendingCard(null)
     setLocalGame(null)
     setMode(null)
   }
 
   const onCardClick = (id: AugmentId) => {
     if (!canInteract) return
-    if (id !== 'coronation') return
-    setPendingCard((cur) => (cur === id ? null : id))
+    const card = getAugment(id)
+    if (card.kind !== 'active') return
+
+    if (pendingCard === id) {
+      clearCardUi()
+      return
+    }
+
+    if (card.target === 'none') {
+      applyCard(id, {})
+      return
+    }
+
+    setPendingCard(id)
+    setCardPick(null)
+    setPromoteCardSq(null)
     setSelected(null)
   }
 
@@ -241,6 +405,11 @@ export default function App() {
     : ''
 
   const showBoard = (mode === 'local' && !!localGame) || !!online.room
+
+  const boardPendingPromotion =
+    promoteCardSq != null && pendingCard === 'promote-now'
+      ? { from: promoteCardSq, to: promoteCardSq }
+      : pendingPromotion
 
   return (
     <div className="app">
@@ -296,9 +465,14 @@ export default function App() {
               }
               onSelect={onSelect}
               onMove={onMove}
-              pendingPromotion={pendingPromotion}
+              pendingPromotion={boardPendingPromotion}
               onPromote={onPromote}
               highway={(game.rules ?? []).includes('highway')}
+              promoteChoices={
+                promoteCardSq != null && pendingCard === 'promote-now'
+                  ? (['n', 'b', 'r'] as PieceType[])
+                  : undefined
+              }
             />
           ) : (
             <div className="board-placeholder" aria-hidden="true" />
