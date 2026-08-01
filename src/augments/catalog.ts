@@ -17,6 +17,9 @@ export type AugmentId =
   | 'anchor-rook'
   | 'seed-bishop'
   | 'echo-lane'
+  | 'hopping-bishop'
+  | 'twin-knights'
+  | 'militia'
   // Active
   | 'swap'
   | 'recall'
@@ -30,6 +33,9 @@ export type AugmentId =
   | 'crown-split'
   | 'poltergeist'
   | 'bargain'
+  | 'recruit'
+  | 'teleport'
+  | 'castle-now'
   // RULE
   | 'fog'
   | 'mirror'
@@ -42,6 +48,9 @@ export type AugmentId =
   | 'symmetry-tax'
   | 'borrowed-time'
   | 'inkblot'
+  | 'quiet-hours'
+  | 'gravity'
+  | 'king-hunt'
   // OPENING
   | 'castle-siege'
   | 'queens-gambit-denied'
@@ -53,6 +62,9 @@ export type AugmentId =
   | 'embassy'
   | 'ash-start'
   | 'cuckoo'
+  | 'fianchetto-both'
+  | 'knight-out'
+  | 'king-walk'
 
 export type AugmentKind = 'piece' | 'rule' | 'active' | 'opening'
 
@@ -62,8 +74,11 @@ export type ActiveTarget =
   | 'own-non-king'
   | 'own-pawn'
   | 'own-queen'
+  | 'own-rook'
   | 'enemy-non-king'
   | 'empty'
+  | 'empty-second-rank'
+  | 'empty-back-rank'
   | 'two-own-non-king'
   | 'duel-pair'
   | 'promote-pawn'
@@ -222,6 +237,31 @@ export const AUGMENTS: Record<AugmentId, AugmentCard> = {
       'After you slide a rook, bishop, or queen, leave an echo on the square you left that blocks enemy slides until your next turn.',
     art: 'black',
   },
+  'hopping-bishop': {
+    id: 'hopping-bishop',
+    name: 'Hopping Bishop',
+    kind: 'piece',
+    stars: 2,
+    summary: 'Your bishops may jump over exactly one piece per move.',
+    art: 'black',
+  },
+  'twin-knights': {
+    id: 'twin-knights',
+    name: 'Twin Knights',
+    kind: 'piece',
+    stars: 2,
+    summary:
+      'After you move a knight, your other knight may make one non-capturing knight-hop this turn.',
+    art: 'black',
+  },
+  militia: {
+    id: 'militia',
+    name: 'Militia',
+    kind: 'piece',
+    stars: 1,
+    summary: 'Your knights may also capture one square diagonally forward.',
+    art: 'black',
+  },
 
   swap: {
     id: 'swap',
@@ -337,6 +377,34 @@ export const AUGMENTS: Record<AugmentId, AugmentCard> = {
     art: 'black',
     target: 'own-pawn',
   },
+  recruit: {
+    id: 'recruit',
+    name: 'Recruit',
+    kind: 'active',
+    stars: 2,
+    summary: 'Place a pawn on an empty square of your second rank. Once.',
+    art: 'black',
+    target: 'empty-second-rank',
+  },
+  teleport: {
+    id: 'teleport',
+    name: 'Teleport',
+    kind: 'active',
+    stars: 3,
+    summary: 'Move your king to any empty square on your back rank. Once.',
+    art: 'black',
+    target: 'empty-back-rank',
+  },
+  'castle-now': {
+    id: 'castle-now',
+    name: 'Castle Now',
+    kind: 'active',
+    stars: 2,
+    summary:
+      'Instantly castle with one of your rooks if the path is empty (ignores prior moves). Once.',
+    art: 'black',
+    target: 'own-rook',
+  },
 
   fog: {
     id: 'fog',
@@ -431,6 +499,32 @@ export const AUGMENTS: Record<AugmentId, AugmentCard> = {
       'You cannot move onto a square whose opposite corner twin (a1↔h8) is occupied.',
     art: 'black',
   },
+  'quiet-hours': {
+    id: 'quiet-hours',
+    name: 'Quiet Hours',
+    kind: 'rule',
+    stars: 0,
+    summary: 'No captures are allowed on odd full-moves.',
+    art: 'black',
+  },
+  gravity: {
+    id: 'gravity',
+    name: 'Gravity',
+    kind: 'rule',
+    stars: 0,
+    summary:
+      'Pieces may not move backward toward their own back rank (except knights and kings).',
+    art: 'black',
+  },
+  'king-hunt': {
+    id: 'king-hunt',
+    name: 'King Hunt',
+    kind: 'rule',
+    stars: 0,
+    summary:
+      'Capturing a piece adjacent to the enemy king grants an extra action (once per turn).',
+    art: 'black',
+  },
 
   'castle-siege': {
     id: 'castle-siege',
@@ -519,6 +613,33 @@ export const AUGMENTS: Record<AugmentId, AugmentCard> = {
     stars: 4,
     summary:
       'After your first move: replace your king with a queen and place the king on a random empty back-rank square.',
+    art: 'black',
+  },
+  'fianchetto-both': {
+    id: 'fianchetto-both',
+    name: 'Fianchetto Both',
+    kind: 'opening',
+    stars: 3,
+    summary:
+      'After your first move: clear b2/g2 (or b7/g7) and place your bishops there if empty.',
+    art: 'black',
+  },
+  'knight-out': {
+    id: 'knight-out',
+    name: 'Knight Out',
+    kind: 'opening',
+    stars: 2,
+    summary:
+      'After your first move: place your knights on c3/f3 (or c6/f6) if those squares are empty.',
+    art: 'black',
+  },
+  'king-walk': {
+    id: 'king-walk',
+    name: 'King Walk',
+    kind: 'opening',
+    stars: 3,
+    summary:
+      'After your first move: move king to f1/f8 and a rook to e1/e8 (artificial castle).',
     art: 'black',
   },
 }

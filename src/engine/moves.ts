@@ -54,6 +54,7 @@ export interface MoveGenOpts {
   echoSquare?: number | null
   echoFor?: Color | null
   crookedFrom?: number | null
+  twinFrom?: number | null
   fullMove?: number
 }
 
@@ -108,6 +109,7 @@ function slide(
   dirs: number[][],
   opts: {
     passFriendlyOnce?: boolean
+    hopAnyOnce?: boolean
     blockSquare?: number | null
   } = {},
 ): Move[] {
@@ -119,14 +121,17 @@ function slide(
     let r = fr + dr
     let c = fc + dc
     let passedFriendly = false
+    let hopped = false
     while (onBoard(r, c)) {
       const to = idx(r, c)
       if (opts.blockSquare === to) break
       const target = board[to]
       if (!target) {
         moves.push({ from, to })
+      } else if (opts.hopAnyOnce && !hopped) {
+        hopped = true
       } else if (target.color === color) {
-        if (opts.passFriendlyOnce && !passedFriendly) {
+        if (opts.passFriendlyOnce && !passedFriendly && !hopped) {
           passedFriendly = true
         } else {
           break
@@ -143,7 +148,7 @@ function slide(
 }
 
 function moveKey(m: Move): string {
-  return `${m.from}-${m.to}-${m.promotion ?? ''}-${m.enPassant ? 'e' : ''}-${m.castle ?? ''}-${m.doublePawn ? 'd' : ''}-${m.castleRookFrom ?? ''}-${m.crookedStep ? 'c' : ''}`
+  return `${m.from}-${m.to}-${m.promotion ?? ''}-${m.enPassant ? 'e' : ''}-${m.castle ?? ''}-${m.doublePawn ? 'd' : ''}-${m.castleRookFrom ?? ''}-${m.crookedStep ? 'c' : ''}-${m.twinStep ? 't' : ''}`
 }
 
 function dedupeMoves(moves: Move[]): Move[] {
@@ -470,6 +475,22 @@ function filterRuleConstraints(
     })
   }
 
+  if (hasRule(rules, 'quiet-hours') && fullMove % 2 === 1) {
+    out = out.filter((m) => !m.captured)
+  }
+
+  if (hasRule(rules, 'gravity')) {
+    out = out.filter((m) => {
+      const p = board[m.from]
+      if (!p || p.type === 'n' || p.type === 'k') return true
+      const fromR = Math.floor(m.from / 8)
+      const toR = Math.floor(m.to / 8)
+      // White back is row 7 (backward = higher row); black back is row 0.
+      if (turn === 'w') return toR <= fromR
+      return toR >= fromR
+    })
+  }
+
   return out
 }
 
@@ -510,6 +531,7 @@ export function generateMoves(
   const echoSquare = options.echoSquare ?? null
   const echoFor = options.echoFor ?? null
   const crookedFrom = options.crookedFrom ?? null
+  const twinFrom = options.twinFrom ?? null
   const fullMove = options.fullMove ?? 1
 
   const piece = board[from]
@@ -529,6 +551,23 @@ export function generateMoves(
       const to = idx(r, c)
       if (!board[to]) {
         steps.push({ from, to, crookedStep: true })
+      }
+    }
+    return filterRuleConstraints(board, turn, steps, rules, fullMove, lastMovedTo)
+  }
+
+  // Twin Knights bonus: quiet knight-hops from the other knight.
+  if (twinFrom === from && hasAugment(owned, 'twin-knights')) {
+    const fr = Math.floor(from / 8)
+    const fc = from % 8
+    const steps: Move[] = []
+    for (const [dr, dc] of KNIGHT_DELTAS) {
+      const r = fr + dr
+      const c = fc + dc
+      if (!onBoard(r, c)) continue
+      const to = idx(r, c)
+      if (!board[to]) {
+        steps.push({ from, to, twinStep: true })
       }
     }
     return filterRuleConstraints(board, turn, steps, rules, fullMove, lastMovedTo)
@@ -570,11 +609,25 @@ export function generateMoves(
           }
         }
       }
+      if (hasAugment(owned, 'militia')) {
+        const dir = turn === 'w' ? -1 : 1
+        for (const dc of [-1, 1]) {
+          const r = fr + dir
+          const c = fc + dc
+          if (!onBoard(r, c)) continue
+          const to = idx(r, c)
+          const target = board[to]
+          if (target && target.color !== turn) {
+            moves.push({ from, to, captured: target })
+          }
+        }
+      }
       break
     }
     case 'b':
       moves = slide(board, from, turn, BISHOP_DIRS, {
         passFriendlyOnce: hasAugment(owned, 'slippery-bishop'),
+        hopAnyOnce: hasAugment(owned, 'hopping-bishop'),
         blockSquare: echoBlocks,
       })
       break

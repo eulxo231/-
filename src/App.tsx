@@ -301,6 +301,29 @@ export default function App() {
         return
       }
 
+      case 'empty-second-rank': {
+        if (piece) return
+        const rank = Math.floor(sq / 8)
+        const second = me === 'w' ? 6 : 1
+        if (rank === second) applyCard(pendingCard, { square: sq })
+        return
+      }
+
+      case 'empty-back-rank': {
+        if (piece) return
+        const rank = Math.floor(sq / 8)
+        const back = me === 'w' ? 7 : 0
+        if (rank === back) applyCard(pendingCard, { square: sq })
+        return
+      }
+
+      case 'own-rook': {
+        if (piece && piece.color === me && piece.type === 'r') {
+          applyCard(pendingCard, { square: sq })
+        }
+        return
+      }
+
       default:
         return
     }

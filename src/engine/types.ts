@@ -36,6 +36,8 @@ export interface Move {
   doublePawn?: boolean
   /** Extra king-step after Crooked Knight. */
   crookedStep?: boolean
+  /** Extra quiet knight-hop after Twin Knights. */
+  twinStep?: boolean
 }
 
 export type EndReason =
@@ -76,7 +78,9 @@ export interface BoardSnapshot {
   echoSquare: number | null
   echoFor: Color | null
   crookedFrom: number | null
+  twinFrom: number | null
   sharedPoolUsed: boolean
+  kingHuntUsed: boolean
   borrowedTimeUsed: { w: boolean; b: boolean }
 }
 
@@ -109,8 +113,12 @@ export interface GameState {
   echoFor: Color | null
   /** Crooked Knight bonus from this square. */
   crookedFrom: number | null
+  /** Twin Knights bonus from the other knight's square. */
+  twinFrom: number | null
   /** Shared Pool extra already granted this turn. */
   sharedPoolUsed: boolean
+  /** King Hunt extra already granted this turn. */
+  kingHuntUsed: boolean
   borrowedTimeUsed: { w: boolean; b: boolean }
   /** Previous position for Rewind. */
   prev: BoardSnapshot | null

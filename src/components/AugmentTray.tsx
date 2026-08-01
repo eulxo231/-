@@ -12,6 +12,9 @@ const TARGET_HINTS: Partial<Record<AugmentId, string>> = {
   'crown-split': 'Select your queen to split into two knights.',
   poltergeist: 'Select an enemy piece, then a quiet square it can step to.',
   bargain: 'Select one of your pawns to sacrifice for an extra action.',
+  recruit: 'Select an empty square on your second rank to place a pawn.',
+  teleport: 'Select an empty square on your back rank to teleport your king.',
+  'castle-now': 'Select one of your rooks to castle with instantly.',
 }
 
 interface AugmentTrayProps {

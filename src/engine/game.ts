@@ -110,7 +110,9 @@ function emptyExtras(): Pick<
   | 'echoSquare'
   | 'echoFor'
   | 'crookedFrom'
+  | 'twinFrom'
   | 'sharedPoolUsed'
+  | 'kingHuntUsed'
   | 'borrowedTimeUsed'
   | 'prev'
 > {
@@ -120,7 +122,9 @@ function emptyExtras(): Pick<
     echoSquare: null,
     echoFor: null,
     crookedFrom: null,
+    twinFrom: null,
     sharedPoolUsed: false,
+    kingHuntUsed: false,
     borrowedTimeUsed: { w: false, b: false },
     prev: null,
   }
@@ -365,6 +369,82 @@ function applyOpening(
       break
     }
 
+    case 'fianchetto-both': {
+      const wingRank = color === 'w' ? 6 : 1
+      const bishops: Piece[] = []
+      for (let sq = 0; sq < 64; sq++) {
+        const p = next[sq]
+        if (p?.color === color && p.type === 'b') {
+          bishops.push({ ...p })
+          next[sq] = null
+        }
+      }
+      for (const file of [1, 6]) {
+        next[wingRank * 8 + file] = null
+      }
+      if (!next[wingRank * 8 + 1]) {
+        next[wingRank * 8 + 1] = bishops[0] ?? { type: 'b', color }
+      }
+      if (!next[wingRank * 8 + 6]) {
+        next[wingRank * 8 + 6] = bishops[1] ?? bishops[0] ?? { type: 'b', color }
+      }
+      break
+    }
+
+    case 'knight-out': {
+      const destRank = color === 'w' ? 5 : 2
+      const knights: Piece[] = []
+      for (let sq = 0; sq < 64; sq++) {
+        const p = next[sq]
+        if (p?.color === color && p.type === 'n') {
+          knights.push({ ...p })
+          next[sq] = null
+        }
+      }
+      let i = 0
+      for (const file of [2, 5]) {
+        const sq = destRank * 8 + file
+        if (!next[sq] && knights[i]) {
+          next[sq] = knights[i]
+          i += 1
+        }
+      }
+      // Put leftovers back on original-style home squares if destinations blocked.
+      for (; i < knights.length; i++) {
+        const home = color === 'w' ? (i === 0 ? 57 : 62) : i === 0 ? 1 : 6
+        if (!next[home]) next[home] = knights[i]
+      }
+      break
+    }
+
+    case 'king-walk': {
+      let kingSq = -1
+      const rookSqs: number[] = []
+      for (let sq = 0; sq < 64; sq++) {
+        const p = next[sq]
+        if (!p || p.color !== color) continue
+        if (p.type === 'k') kingSq = sq
+        if (p.type === 'r') rookSqs.push(sq)
+      }
+      const kingTo = back * 8 + 5 // f-file
+      const rookTo = back * 8 + 4 // e-file
+      if (kingSq >= 0 && rookSqs.length) {
+        const rookFrom = rookSqs.includes(back * 8 + 7)
+          ? back * 8 + 7
+          : rookSqs[0]
+        const king = next[kingSq]
+        const rook = next[rookFrom]
+        next[kingSq] = null
+        next[rookFrom] = null
+        if (kingTo !== rookTo) {
+          next[kingTo] = king
+          next[rookTo] = rook
+        }
+      }
+      clearCastling()
+      break
+    }
+
     default:
       break
   }
@@ -441,7 +521,9 @@ function snapshotOf(state: GameState): BoardSnapshot {
     echoSquare: state.echoSquare,
     echoFor: state.echoFor,
     crookedFrom: state.crookedFrom,
+    twinFrom: state.twinFrom,
     sharedPoolUsed: state.sharedPoolUsed,
+    kingHuntUsed: state.kingHuntUsed,
     borrowedTimeUsed: { ...state.borrowedTimeUsed },
   }
 }
@@ -475,7 +557,9 @@ export function cloneState(state: GameState): GameState {
     echoSquare: state.echoSquare ?? null,
     echoFor: state.echoFor ?? null,
     crookedFrom: state.crookedFrom ?? null,
+    twinFrom: state.twinFrom ?? null,
     sharedPoolUsed: state.sharedPoolUsed ?? false,
+    kingHuntUsed: state.kingHuntUsed ?? false,
     borrowedTimeUsed: {
       w: state.borrowedTimeUsed?.w ?? false,
       b: state.borrowedTimeUsed?.b ?? false,
@@ -601,6 +685,7 @@ function moveGenOpts(state: GameState, turn: Color = state.turn): MoveGenOpts {
     echoSquare: state.echoSquare ?? null,
     echoFor: state.echoFor ?? null,
     crookedFrom: state.crookedFrom ?? null,
+    twinFrom: state.twinFrom ?? null,
     fullMove: state.fullMove,
   }
 }
@@ -696,7 +781,9 @@ function advanceAfterAction(
   | 'overtimeIdle'
   | 'halfmoveClock'
   | 'sharedPoolUsed'
+  | 'kingHuntUsed'
   | 'crookedFrom'
+  | 'twinFrom'
   | 'eclipse'
   | 'echoSquare'
   | 'echoFor'
@@ -738,7 +825,9 @@ function advanceAfterAction(
     overtimeIdle,
     halfmoveClock: irreversible ? 0 : state.halfmoveClock + 1,
     sharedPoolUsed: keepTurn ? (state.sharedPoolUsed ?? false) : false,
+    kingHuntUsed: keepTurn ? (state.kingHuntUsed ?? false) : false,
     crookedFrom: keepTurn ? state.crookedFrom : null,
+    twinFrom: keepTurn ? state.twinFrom : null,
     eclipse,
     echoSquare,
     echoFor,
@@ -799,7 +888,8 @@ export function makeMove(state: GameState, move: Move): GameState | null {
       (m.promotion ?? null) === (move.promotion ?? null) &&
       !!m.castle === !!move.castle &&
       !!m.enPassant === !!move.enPassant &&
-      !!m.crookedStep === !!move.crookedStep,
+      !!m.crookedStep === !!move.crookedStep &&
+      !!m.twinStep === !!move.twinStep,
   )
 
   if (!legal) return null
@@ -879,30 +969,75 @@ export function makeMove(state: GameState, move: Move): GameState | null {
     }
   }
 
-  // Crooked knight bonus: treat as +1 action before advance.
+  // Crooked / Twin knight bonuses: treat as +1 action before advance.
   let stateForClock = state
   let crookedFrom: number | null = state.crookedFrom ?? null
+  let twinFrom: number | null = state.twinFrom ?? null
   if (legal.crookedStep) {
     crookedFrom = null
   } else if (
     movingPiece?.type === 'n' &&
-    hasAugment(owned, 'crooked-knight')
+    hasAugment(owned, 'crooked-knight') &&
+    !legal.twinStep
   ) {
     crookedFrom = legal.to
     stateForClock = {
       ...state,
       actionsRemaining: (state.actionsRemaining ?? 1) + 1,
     }
-  } else {
+  } else if (!legal.twinStep) {
     crookedFrom = null
   }
 
-  // Shared pool / envoy extra action before advance.
+  if (legal.twinStep) {
+    twinFrom = null
+  } else if (
+    movingPiece?.type === 'n' &&
+    hasAugment(owned, 'twin-knights') &&
+    !legal.crookedStep
+  ) {
+    let other: number | null = null
+    for (let sq = 0; sq < 64; sq++) {
+      const p = nextBoard[sq]
+      if (p?.type === 'n' && p.color === mover && sq !== legal.to) {
+        other = sq
+        break
+      }
+    }
+    if (other != null) {
+      twinFrom = other
+      stateForClock = {
+        ...stateForClock,
+        actionsRemaining: (stateForClock.actionsRemaining ?? 1) + 1,
+      }
+    } else {
+      twinFrom = null
+    }
+  } else {
+    twinFrom = null
+  }
+
+  // Shared pool / envoy / king-hunt extra action before advance.
+  const enemyKingSq = (() => {
+    for (let i = 0; i < 64; i++) {
+      const p = nextBoard[i]
+      if (p?.type === 'k' && p.color !== mover) return i
+    }
+    return null
+  })()
+  const kingHuntHit =
+    !!legal.captured &&
+    hasRule(rules, 'king-hunt') &&
+    !(state.kingHuntUsed ?? false) &&
+    enemyKingSq != null &&
+    isAdjacent(legal.to, enemyKingSq)
+
   if (
     (legal.captured &&
       hasRule(rules, 'shared-pool') &&
       !(state.sharedPoolUsed ?? false)) ||
-    capturedEnvoy
+    capturedEnvoy ||
+    kingHuntHit
   ) {
     stateForClock = {
       ...stateForClock,
@@ -911,6 +1046,7 @@ export function makeMove(state: GameState, move: Move): GameState | null {
         legal.captured && hasRule(rules, 'shared-pool')
           ? true
           : stateForClock.sharedPoolUsed,
+      kingHuntUsed: kingHuntHit ? true : stateForClock.kingHuntUsed,
     }
   }
 
@@ -958,6 +1094,7 @@ export function makeMove(state: GameState, move: Move): GameState | null {
     prev: prevSnap,
     ...clock,
     crookedFrom: clock.turn === mover ? crookedFrom : null,
+    twinFrom: clock.turn === mover ? twinFrom : null,
     echoSquare,
     echoFor,
   }
@@ -1116,7 +1253,9 @@ export function useActiveCard(
         echoSquare: snap.echoSquare,
         echoFor: snap.echoFor,
         crookedFrom: null,
+        twinFrom: null,
         sharedPoolUsed: snap.sharedPoolUsed,
+        kingHuntUsed: snap.kingHuntUsed,
         borrowedTimeUsed: { ...snap.borrowedTimeUsed },
         augments,
         prev: null,
@@ -1210,6 +1349,88 @@ export function useActiveCard(
       next.actionsRemaining = (next.actionsRemaining ?? 1) + 1
       next.prev = snapshotOf(state)
       return resolveEndConditions(next)
+    }
+
+    case 'recruit': {
+      if (square == null) return null
+      if (board[square]) return null
+      const rank = Math.floor(square / 8)
+      const second = color === 'w' ? 6 : 1
+      if (rank !== second) return null
+      board[square] = { type: 'p', color }
+      augments = consumeCard(augments, color, cardId)
+      return finishCardUse(state, board, augments, true)
+    }
+
+    case 'teleport': {
+      if (square == null) return null
+      if (board[square]) return null
+      const rank = Math.floor(square / 8)
+      const back = color === 'w' ? 7 : 0
+      if (rank !== back) return null
+      let kingSq = -1
+      for (let i = 0; i < 64; i++) {
+        if (board[i]?.type === 'k' && board[i]?.color === color) {
+          kingSq = i
+          break
+        }
+      }
+      if (kingSq < 0) return null
+      board[square] = board[kingSq]
+      board[kingSq] = null
+      augments = consumeCard(augments, color, cardId)
+      const next = finishCardUse(state, board, augments, true)
+      if (color === 'w') {
+        next.castling = { ...next.castling, wK: false, wQ: false }
+      } else {
+        next.castling = { ...next.castling, bK: false, bQ: false }
+      }
+      return next
+    }
+
+    case 'castle-now': {
+      if (square == null) return null
+      const rook = pieceAt(square)
+      if (!rook || rook.color !== color || rook.type !== 'r') return null
+      let kingSq = -1
+      for (let i = 0; i < 64; i++) {
+        if (board[i]?.type === 'k' && board[i]?.color === color) {
+          kingSq = i
+          break
+        }
+      }
+      if (kingSq < 0) return null
+      const back = color === 'w' ? 7 : 0
+      const kingR = Math.floor(kingSq / 8)
+      const rookR = Math.floor(square / 8)
+      if (kingR !== back || rookR !== back) return null
+      const kingF = kingSq % 8
+      const rookF = square % 8
+      if (kingF === rookF) return null
+      const dir = rookF > kingF ? 1 : -1
+      for (let f = kingF + dir; f !== rookF; f += dir) {
+        if (board[back * 8 + f]) return null
+      }
+      const kingToF = kingF + 2 * dir
+      if (kingToF < 0 || kingToF > 7) return null
+      if (dir > 0 && kingToF > rookF) return null
+      if (dir < 0 && kingToF < rookF) return null
+      const kingTo = back * 8 + kingToF
+      if (kingTo !== square && board[kingTo]) return null
+      const rookTo = back * 8 + (dir > 0 ? kingToF - 1 : kingToF + 1)
+      const king = board[kingSq]
+      board[kingSq] = null
+      board[square] = null
+      board[kingTo] = king
+      board[rookTo] = rook
+      augments = consumeCard(augments, color, cardId)
+      const next = finishCardUse(state, board, augments, true)
+      if (color === 'w') {
+        next.castling = { ...next.castling, wK: false, wQ: false }
+      } else {
+        next.castling = { ...next.castling, bK: false, bQ: false }
+      }
+      return next
     }
 
     default:
