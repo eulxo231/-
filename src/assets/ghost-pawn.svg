@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="title desc">
+  <title id="title">Ghost Pawn</title>
+  <desc id="desc">A pawn steps forward through one friendly pawn to the square beyond.</desc>
+  <!--
+    Pieces: Colin M.L. Burnett (Cburnett) chess set
+    Licensed under GPL / BSD / GFDL (Wikipedia / Lichess).
+  -->
+
+  <rect width="240" height="240" fill="#0a0a0a"/>
+
+  <!-- Single file of squares -->
+  <g stroke="#1e2a24" stroke-width="1">
+    <rect x="96" y="168" width="48" height="40" fill="#121816"/>
+    <rect x="96" y="128" width="48" height="40" fill="#1a2420"/>
+    <rect x="96" y="88" width="48" height="40" fill="#121816"/>
+    <rect x="96" y="48" width="48" height="40" fill="#1a2420"/>
+  </g>
+
+  <!-- Friendly pawn square (phased through) -->
+  <rect x="96" y="128" width="48" height="40" fill="#7ec8ff" fill-opacity="0.14" stroke="#7ec8ff" stroke-opacity="0.55" stroke-width="1.5" stroke-dasharray="4 3"/>
+
+  <!-- Destination beyond -->
+  <rect x="96" y="88" width="48" height="40" fill="#2a8c62" fill-opacity="0.32"/>
+
+  <!-- Path glow -->
+  <path d="M120 196 L120 100" stroke="#7ec8ff" stroke-opacity="0.25" stroke-width="14" stroke-linecap="round" fill="none"/>
+
+  <defs>
+    <marker id="gp-arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#7ec8ff"/>
+    </marker>
+    <linearGradient id="gp-fade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.85"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Ghost trail arrow through friendly pawn -->
+  <path d="M120 196 L120 108" stroke="#7ec8ff" stroke-width="3.5" stroke-linecap="round" fill="none" marker-end="url(#gp-arrow)" stroke-dasharray="6 5"/>
+
+  <!-- Ghost destination pawn -->
+  <g opacity="0.32" transform="translate(97.5 83) scale(1.0)">
+    <path fill="#7ec8ff" stroke="#7ec8ff" stroke-linecap="round" stroke-width="1.5" d="M22.5 9c-2.21 0-4 1.79-4 4 0 .89.29 1.71.78 2.38C17.33 16.5 16 18.59 16 21c0 2.03.94 3.84 2.41 5.03-3 1.06-7.41 5.55-7.41 13.47h23c0-7.92-4.41-12.41-7.41-13.47 1.47-1.19 2.41-3 2.41-5.03 0-2.41-1.33-4.5-3.28-5.62.49-.67.78-1.49.78-2.38 0-2.21-1.79-4-4-4z"/>
+  </g>
+
+  <!-- Friendly pawn being passed through (semi-transparent / ghostly) -->
+  <g transform="translate(97.5 123) scale(1.0)" opacity="0.55">
+    <path fill="url(#gp-fade)" stroke="#7ec8ff" stroke-linecap="round" stroke-width="1.5" d="M22.5 9c-2.21 0-4 1.79-4 4 0 .89.29 1.71.78 2.38C17.33 16.5 16 18.59 16 21c0 2.03.94 3.84 2.41 5.03-3 1.06-7.41 5.55-7.41 13.47h23c0-7.92-4.41-12.41-7.41-13.47 1.47-1.19 2.41-3 2.41-5.03 0-2.41-1.33-4.5-3.28-5.62.49-.67.78-1.49.78-2.38 0-2.21-1.79-4-4-4z"/>
+  </g>
+
+  <!-- Moving pawn (solid, starting square) -->
+  <g transform="translate(97.5 163) scale(1.0)">
+    <path fill="#fff" stroke="#000" stroke-linecap="round" stroke-width="1.5" d="M22.5 9c-2.21 0-4 1.79-4 4 0 .89.29 1.71.78 2.38C17.33 16.5 16 18.59 16 21c0 2.03.94 3.84 2.41 5.03-3 1.06-7.41 5.55-7.41 13.47h23c0-7.92-4.41-12.41-7.41-13.47 1.47-1.19 2.41-3 2.41-5.03 0-2.41-1.33-4.5-3.28-5.62.49-.67.78-1.49.78-2.38 0-2.21-1.79-4-4-4z"/>
+  </g>
+
+  <!-- Phase badge on the passed pawn -->
+  <g transform="translate(148 148)">
+    <circle cx="0" cy="0" r="12" fill="#0a0a0a" stroke="#7ec8ff" stroke-width="1.5"/>
+    <path d="M-5 0 C-5 -4, -2 -6, 0 -6 C2 -6, 5 -4, 5 0 C5 3, 2 5, 0 5 C-2 5, -5 3, -5 0 Z" fill="none" stroke="#7ec8ff" stroke-width="1.5"/>
+    <circle cx="0" cy="-1" r="1.5" fill="#7ec8ff"/>
+  </g>
+
+</svg>

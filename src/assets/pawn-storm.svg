@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="title desc">
+  <title id="title">Pawn Storm</title>
+  <desc id="desc">Pawns advancing two squares forward from any rank when the path is clear.</desc>
+  <!--
+    Pieces: Colin M.L. Burnett (Cburnett) chess set
+    Licensed under GPL / BSD / GFDL (Wikipedia / Lichess).
+  -->
+
+  <rect width="240" height="240" fill="#0a0a0a"/>
+
+  <!-- File columns (three storming pawns) -->
+  <g stroke="#1e2a24" stroke-width="1">
+    <!-- left file -->
+    <rect x="36" y="156" width="36" height="36" fill="#121816"/>
+    <rect x="36" y="120" width="36" height="36" fill="#1a2420"/>
+    <rect x="36" y="84" width="36" height="36" fill="#121816"/>
+    <rect x="36" y="48" width="36" height="36" fill="#1a2420"/>
+    <!-- center file -->
+    <rect x="102" y="156" width="36" height="36" fill="#1a2420"/>
+    <rect x="102" y="120" width="36" height="36" fill="#121816"/>
+    <rect x="102" y="84" width="36" height="36" fill="#1a2420"/>
+    <rect x="102" y="48" width="36" height="36" fill="#121816"/>
+    <!-- right file -->
+    <rect x="168" y="156" width="36" height="36" fill="#121816"/>
+    <rect x="168" y="120" width="36" height="36" fill="#1a2420"/>
+    <rect x="168" y="84" width="36" height="36" fill="#121816"/>
+    <rect x="168" y="48" width="36" height="36" fill="#1a2420"/>
+  </g>
+
+  <!-- Clear path + double-step destinations -->
+  <g fill="#2a8c62" fill-opacity="0.28">
+    <rect x="36" y="120" width="36" height="36"/>
+    <rect x="36" y="84" width="36" height="36"/>
+    <rect x="102" y="120" width="36" height="36"/>
+    <rect x="102" y="84" width="36" height="36"/>
+    <rect x="168" y="120" width="36" height="36"/>
+    <rect x="168" y="84" width="36" height="36"/>
+  </g>
+  <g fill="#3ecf8e" fill-opacity="0.22">
+    <rect x="36" y="84" width="36" height="36"/>
+    <rect x="102" y="84" width="36" height="36"/>
+    <rect x="168" y="84" width="36" height="36"/>
+  </g>
+
+  <defs>
+    <marker id="ps-arrow" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="#3ecf8e"/>
+    </marker>
+  </defs>
+
+  <!-- Double-step arrows (two ranks) -->
+  <g stroke="#3ecf8e" stroke-width="3" stroke-linecap="round" fill="none" marker-end="url(#ps-arrow)">
+    <path d="M54 158 L54 102"/>
+    <path d="M120 158 L120 102"/>
+    <path d="M186 158 L186 102"/>
+  </g>
+
+  <!-- Mid-step ticks (shows "two squares") -->
+  <g fill="#3ecf8e">
+    <circle cx="54" cy="138" r="2.5"/>
+    <circle cx="54" cy="102" r="3"/>
+    <circle cx="120" cy="138" r="2.5"/>
+    <circle cx="120" cy="102" r="3"/>
+    <circle cx="186" cy="138" r="2.5"/>
+    <circle cx="186" cy="102" r="3"/>
+  </g>
+
+  <!-- Ghost pawns at destinations -->
+  <g opacity="0.28">
+    <g transform="translate(31.5 79) scale(1.0)">
+      <path fill="#3ecf8e" stroke="#3ecf8e" stroke-linecap="round" stroke-width="1.5" d="M22.5 9c-2.21 0-4 1.79-4 4 0 .89.29 1.71.78 2.38C17.33 16.5 16 18.59 16 21c0 2.03.94 3.84 2.41 5.03-3 1.06-7.41 5.55-7.41 13.47h23c0-7.92-4.41-12.41-7.41-13.47 1.47-1.19 2.41-3 2.41-5.03 0-2.41-1.33-4.5-3.28-5.62.49-.67.78-1.49.78-2.38 0-2.21-1.79-4-4-4z"/>
+    </g>
+    <g transform="translate(97.5 79) scale(1.0)">
+      <path fill="#3ecf8e" stroke="#3ecf8e" stroke-linecap="round" stroke-width="1.5" d="M22.5 9c-2.21 0-4 1.79-4 4 0 .89.29 1.71.78 2.38C17.33 16.5 16 18.59 16 21c0 2.03.94 3.84 2.41 5.03-3 1.06-7.41 5.55-7.41 13.47h23c0-7.92-4.41-12.41-7.41-13.47 1.47-1.19 2.41-3 2.41-5.03 0-2.41-1.33-4.5-3.28-5.62.49-.67.78-1.49.78-2.38 0-2.21-1.79-4-4-4z"/>
+    </g>
+    <g transform="translate(163.5 79) scale(1.0)">
+      <path fill="#3ecf8e" stroke="#3ecf8e" stroke-linecap="round" stroke-width="1.5" d="M22.5 9c-2.21 0-4 1.79-4 4 0 .89.29 1.71.78 2.38C17.33 16.5 16 18.59 16 21c0 2.03.94 3.84 2.41 5.03-3 1.06-7.41 5.55-7.41 13.47h23c0-7.92-4.41-12.41-7.41-13.47 1.47-1.19 2.41-3 2.41-5.03 0-2.41-1.33-4.5-3.28-5.62.49-.67.78-1.49.78-2.38 0-2.21-1.79-4-4-4z"/>
+    </g>
+  </g>
+
+  <!-- Cburnett white pawns (starting mid-board, not home rank) -->
+  <g transform="translate(31.5 151) scale(1.0)">
+    <path fill="#fff" stroke="#000" stroke-linecap="round" stroke-width="1.5" d="M22.5 9c-2.21 0-4 1.79-4 4 0 .89.29 1.71.78 2.38C17.33 16.5 16 18.59 16 21c0 2.03.94 3.84 2.41 5.03-3 1.06-7.41 5.55-7.41 13.47h23c0-7.92-4.41-12.41-7.41-13.47 1.47-1.19 2.41-3 2.41-5.03 0-2.41-1.33-4.5-3.28-5.62.49-.67.78-1.49.78-2.38 0-2.21-1.79-4-4-4z"/>
+  </g>
+  <g transform="translate(97.5 151) scale(1.0)">
+    <path fill="#fff" stroke="#000" stroke-linecap="round" stroke-width="1.5" d="M22.5 9c-2.21 0-4 1.79-4 4 0 .89.29 1.71.78 2.38C17.33 16.5 16 18.59 16 21c0 2.03.94 3.84 2.41 5.03-3 1.06-7.41 5.55-7.41 13.47h23c0-7.92-4.41-12.41-7.41-13.47 1.47-1.19 2.41-3 2.41-5.03 0-2.41-1.33-4.5-3.28-5.62.49-.67.78-1.49.78-2.38 0-2.21-1.79-4-4-4z"/>
+  </g>
+  <g transform="translate(163.5 151) scale(1.0)">
+    <path fill="#fff" stroke="#000" stroke-linecap="round" stroke-width="1.5" d="M22.5 9c-2.21 0-4 1.79-4 4 0 .89.29 1.71.78 2.38C17.33 16.5 16 18.59 16 21c0 2.03.94 3.84 2.41 5.03-3 1.06-7.41 5.55-7.41 13.47h23c0-7.92-4.41-12.41-7.41-13.47 1.47-1.19 2.41-3 2.41-5.03 0-2.41-1.33-4.5-3.28-5.62.49-.67.78-1.49.78-2.38 0-2.21-1.79-4-4-4z"/>
+  </g>
+
+</svg>

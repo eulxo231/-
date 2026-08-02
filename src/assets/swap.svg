@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="title desc">
+  <title id="title">Swap</title>
+  <desc id="desc">Two of your pieces exchange positions.</desc>
+  <!--
+    Pieces: Colin M.L. Burnett (Cburnett) chess set
+    Licensed under GPL / BSD / GFDL (Wikipedia / Lichess).
+  -->
+
+  <rect width="240" height="240" fill="#0a0a0a"/>
+
+  <!-- Board squares -->
+  <g stroke="#1e2a24" stroke-width="1">
+    <rect x="40" y="140" width="48" height="48" fill="#121816"/>
+    <rect x="152" y="52" width="48" height="48" fill="#1a2420"/>
+  </g>
+
+  <!-- Selected swap squares -->
+  <rect x="40" y="140" width="48" height="48" fill="#2a8c62" fill-opacity="0.28" stroke="#3ecf8e" stroke-opacity="0.55" stroke-width="1.75"/>
+  <rect x="152" y="52" width="48" height="48" fill="#2a8c62" fill-opacity="0.28" stroke="#3ecf8e" stroke-opacity="0.55" stroke-width="1.75"/>
+
+  <defs>
+    <marker id="sw-arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#3ecf8e"/>
+    </marker>
+  </defs>
+
+  <!-- Swap arcs (exchange paths) -->
+  <path d="M64 152 C 40 90, 100 40, 176 76" fill="none" stroke="#3ecf8e" stroke-width="3" stroke-linecap="round" marker-end="url(#sw-arrow)"/>
+  <path d="M176 88 C 200 150, 140 200, 64 164" fill="none" stroke="#3ecf8e" stroke-width="3" stroke-linecap="round" marker-end="url(#sw-arrow)"/>
+
+  <!-- Cburnett white knight -->
+  <g transform="translate(41.5 143) scale(1.0)">
+    <g fill="none" fill-rule="evenodd" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+      <path fill="#fff" d="M22 10c10.5 1 16.5 8 16 29H15c0-9 10-6.5 8-21"/>
+      <path fill="#fff" d="M24 18c.38 2.91-5.55 7.37-8 9-3 2-2.82 4.34-5 4-1.042-.94 1.41-3.04 0-3-1 0 .19 1.23-1 2-1 0-4.003 1-4-4 0-2 6-12 6-12s1.89-1.9 2-3.5c-.73-.994-.5-2-.5-3 1-1 3 2.5 3 2.5h2s.78-1.992 2.5-3c1 0 1 3 1 3"/>
+      <path fill="#000" d="M9.5 25.5a.5.5 0 1 1-1 0 .5.5 0 1 1 1 0m5.433-9.75a.5 1.5 30 1 1-.866-.5.5 1.5 30 1 1 .866.5"/>
+    </g>
+  </g>
+
+  <!-- Cburnett white bishop (start) -->
+  <g transform="translate(153.5 55) scale(1.0)">
+    <g fill="none" fill-rule="evenodd" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+      <g fill="#fff" stroke-linecap="butt">
+        <path d="M9 36c3.39-.97 10.11.43 13.5-2 3.39 2.43 10.11 1.03 13.5 2 0 0 1.65.54 3 2-.68.97-1.65.99-3 .5-3.39-.97-10.11.46-13.5-1-3.39 1.46-10.11.03-13.5 1-1.35.49-2.32.47-3-.5 1.35-1.94 3-2 3-2z"/>
+        <path d="M15 32c2.5 2.5 12.5 2.5 15 0 .5-1.5 0-2 0-2 0-2.5-2.5-4-2.5-4 5.5-1.5 6-11.5-5-15.5-11 4-10.5 14-5 15.5 0 0-2.5 1.5-2.5 4 0 0-.5.5 0 2z"/>
+        <path d="M25 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 1 1 5 0z"/>
+      </g>
+      <path stroke-linejoin="miter" d="M17.5 26h10M15 30h15m-7.5-14.5v5M20 18h5"/>
+    </g>
+  </g>
+</svg>

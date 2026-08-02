@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="title desc">
+  <title id="title">Anchor Rook</title>
+  <desc id="desc">A rook on its starting corner square is immune to pawn captures.</desc>
+  <!--
+    Pieces: Colin M.L. Burnett (Cburnett) chess set
+    Licensed under GPL / BSD / GFDL (Wikipedia / Lichess).
+  -->
+
+  <rect width="240" height="240" fill="#0a0a0a"/>
+
+  <!-- Corner of the board (a1 area) -->
+  <g stroke="#1e2a24" stroke-width="1">
+    <rect x="36" y="132" width="52" height="52" fill="#1a2420"/>
+    <rect x="88" y="132" width="52" height="52" fill="#121816"/>
+    <rect x="140" y="132" width="52" height="52" fill="#1a2420"/>
+    <rect x="36" y="80" width="52" height="52" fill="#121816"/>
+    <rect x="88" y="80" width="52" height="52" fill="#1a2420"/>
+    <rect x="140" y="80" width="52" height="52" fill="#121816"/>
+  </g>
+
+  <!-- Starting corner highlight -->
+  <rect x="36" y="132" width="52" height="52" fill="#d6a83a" fill-opacity="0.16" stroke="#d6a83a" stroke-opacity="0.65" stroke-width="2"/>
+
+  <!-- Anchor chain / ring around corner square -->
+  <circle cx="62" cy="158" r="38" fill="none" stroke="#9eb0ba" stroke-width="3" stroke-opacity="0.75"/>
+  <circle cx="62" cy="158" r="42" fill="none" stroke="#c5d0d6" stroke-width="1.25" stroke-opacity="0.3" stroke-dasharray="3 5"/>
+
+  <!-- Small anchor symbol below rook (graphic only) -->
+  <g transform="translate(62 198)" fill="none" stroke="#9eb0ba" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="0" cy="-6" r="3.5" fill="#0a0a0a"/>
+    <path d="M0 -2 L0 8"/>
+    <path d="M-8 4 C-8 10, -4 12, 0 12 C4 12, 8 10, 8 4"/>
+    <path d="M-5 1 L5 1"/>
+  </g>
+
+  <!-- Enemy pawn attack (blocked) -->
+  <defs>
+    <marker id="ar-denied" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+      <circle cx="5" cy="5" r="4.5" fill="#0a0a0a" stroke="#e85d4c" stroke-width="1.5"/>
+      <path d="M2.5 2.5 L7.5 7.5 M7.5 2.5 L2.5 7.5" stroke="#e85d4c" stroke-width="1.5" stroke-linecap="round"/>
+    </marker>
+  </defs>
+  <path d="M114 118 L78 146" stroke="#e85d4c" stroke-opacity="0.75" stroke-width="3" stroke-linecap="round" stroke-dasharray="5 4" fill="none" marker-end="url(#ar-denied)"/>
+
+  <!-- Enemy pawn -->
+  <g transform="translate(85.5 75) scale(1.05)">
+    <path fill="#2a3030" stroke="#c8d0cc" stroke-linecap="round" stroke-width="1.5" d="M22.5 9c-2.21 0-4 1.79-4 4 0 .89.29 1.71.78 2.38C17.33 16.5 16 18.59 16 21c0 2.03.94 3.84 2.41 5.03-3 1.06-7.41 5.55-7.41 13.47h23c0-7.92-4.41-12.41-7.41-13.47 1.47-1.19 2.41-3 2.41-5.03 0-2.41-1.33-4.5-3.28-5.62.49-.67.78-1.49.78-2.38 0-2.21-1.79-4-4-4z"/>
+  </g>
+
+  <!-- Cburnett white rook on corner -->
+  <g transform="translate(39.5 127) scale(1.05)">
+    <g fill="#fff" fill-rule="evenodd" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+      <path stroke-linecap="butt" d="M9 39h27v-3H9zm3-3v-4h21v4zm-1-22V9h4v2h5V9h5v2h5V9h4v5"/>
+      <path d="m34 14-3 3H14l-3-3"/>
+      <path stroke-linecap="butt" stroke-linejoin="miter" d="M31 17v12.5H14V17"/>
+      <path d="m31 29.5 1.5 2.5h-20l1.5-2.5"/>
+      <path fill="none" stroke-linejoin="miter" d="M11 14h23"/>
+    </g>
+  </g>
+</svg>

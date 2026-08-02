@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="title desc">
+  <title id="title">Echo Lane</title>
+  <desc id="desc">After a slider moves, an echo remains on the vacated square and blocks enemy slides.</desc>
+  <!--
+    Pieces: Colin M.L. Burnett (Cburnett) chess set
+    Licensed under GPL / BSD / GFDL (Wikipedia / Lichess).
+  -->
+
+  <rect width="240" height="240" fill="#0a0a0a"/>
+
+  <!-- Rank of squares (rook slide) -->
+  <g stroke="#1e2a24" stroke-width="1">
+    <rect x="28" y="96" width="40" height="40" fill="#121816"/>
+    <rect x="68" y="96" width="40" height="40" fill="#1a2420"/>
+    <rect x="108" y="96" width="40" height="40" fill="#121816"/>
+    <rect x="148" y="96" width="40" height="40" fill="#1a2420"/>
+    <rect x="188" y="96" width="40" height="40" fill="#121816"/>
+  </g>
+
+  <!-- Vacated square with echo -->
+  <rect x="28" y="96" width="40" height="40" fill="#7ec8ff" fill-opacity="0.16" stroke="#7ec8ff" stroke-opacity="0.7" stroke-width="1.75"/>
+
+  <!-- Destination -->
+  <rect x="148" y="96" width="40" height="40" fill="#2a8c62" fill-opacity="0.22"/>
+
+  <!-- Friendly rook slide -->
+  <defs>
+    <marker id="el-green" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="#3ecf8e"/>
+    </marker>
+    <marker id="el-blocked" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+      <circle cx="5" cy="5" r="4.5" fill="#0a0a0a" stroke="#7ec8ff" stroke-width="1.5"/>
+      <path d="M2.5 2.5 L7.5 7.5 M7.5 2.5 L2.5 7.5" stroke="#7ec8ff" stroke-width="1.5" stroke-linecap="round"/>
+    </marker>
+  </defs>
+  <path d="M48 116 L158 116" stroke="#3ecf8e" stroke-width="3" stroke-linecap="round" fill="none" marker-end="url(#el-green)"/>
+
+  <!-- Enemy slide blocked by echo -->
+  <path d="M208 72 L48 72" stroke="#e85d4c" stroke-opacity="0.55" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="5 4" fill="none"/>
+  <path d="M208 72 L56 110" stroke="#e85d4c" stroke-opacity="0.85" stroke-width="2.75" stroke-linecap="round" stroke-dasharray="5 4" fill="none" marker-end="url(#el-blocked)"/>
+
+  <!-- Echo ghost on vacated square (faint rook outline) -->
+  <g transform="translate(25.5 91) scale(1.0)" opacity="0.4">
+    <g fill="#7ec8ff" fill-opacity="0.25" fill-rule="evenodd" stroke="#7ec8ff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+      <path stroke-linecap="butt" d="M9 39h27v-3H9zm3-3v-4h21v4zm-1-22V9h4v2h5V9h5v2h5V9h4v5"/>
+      <path d="m34 14-3 3H14l-3-3"/>
+      <path stroke-linecap="butt" stroke-linejoin="miter" d="M31 17v12.5H14V17"/>
+      <path d="m31 29.5 1.5 2.5h-20l1.5-2.5"/>
+      <path fill="none" stroke-linejoin="miter" d="M11 14h23"/>
+    </g>
+  </g>
+
+  <!-- Ripple rings for echo -->
+  <g fill="none" stroke="#7ec8ff" stroke-opacity="0.45" stroke-width="1.25">
+    <circle cx="48" cy="116" r="22"/>
+    <circle cx="48" cy="116" r="28" stroke-dasharray="3 4" stroke-opacity="0.3"/>
+  </g>
+
+  <!-- Cburnett white rook at destination -->
+  <g transform="translate(145.5 91) scale(1.0)">
+    <g fill="#fff" fill-rule="evenodd" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+      <path stroke-linecap="butt" d="M9 39h27v-3H9zm3-3v-4h21v4zm-1-22V9h4v2h5V9h5v2h5V9h4v5"/>
+      <path d="m34 14-3 3H14l-3-3"/>
+      <path stroke-linecap="butt" stroke-linejoin="miter" d="M31 17v12.5H14V17"/>
+      <path d="m31 29.5 1.5 2.5h-20l1.5-2.5"/>
+      <path fill="none" stroke-linejoin="miter" d="M11 14h23"/>
+    </g>
+  </g>
+
+  <!-- Enemy dark rook attempting to slide through -->
+  <g transform="translate(185.5 47) scale(0.95)">
+    <g fill="#2a3030" fill-rule="evenodd" stroke="#c8d0cc" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+      <path stroke-linecap="butt" d="M9 39h27v-3H9zm3-3v-4h21v4zm-1-22V9h4v2h5V9h5v2h5V9h4v5"/>
+      <path d="m34 14-3 3H14l-3-3"/>
+      <path stroke-linecap="butt" stroke-linejoin="miter" d="M31 17v12.5H14V17"/>
+      <path d="m31 29.5 1.5 2.5h-20l1.5-2.5"/>
+      <path fill="none" stroke-linejoin="miter" d="M11 14h23"/>
+    </g>
+  </g>
+</svg>

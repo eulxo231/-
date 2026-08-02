@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="title desc">
+  <title id="title">Omni Pawn</title>
+  <desc id="desc">A chess pawn with arrows showing one-square moves up, down, left, and right.</desc>
+
+  <!-- Card art plane (matches black augment art) -->
+  <rect width="240" height="240" fill="#0a0a0a"/>
+
+  <!-- Soft board hint: 3x3 cells around the pawn -->
+  <g fill="none" stroke="#1e2a24" stroke-width="1.25">
+    <rect x="48" y="48" width="48" height="48"/>
+    <rect x="96" y="48" width="48" height="48"/>
+    <rect x="144" y="48" width="48" height="48"/>
+    <rect x="48" y="96" width="48" height="48"/>
+    <rect x="96" y="96" width="48" height="48"/>
+    <rect x="144" y="96" width="48" height="48"/>
+    <rect x="48" y="144" width="48" height="48"/>
+    <rect x="96" y="144" width="48" height="48"/>
+    <rect x="144" y="144" width="48" height="48"/>
+  </g>
+
+  <!-- Destination squares (one step ortho) -->
+  <g fill="#2a8c62" fill-opacity="0.22">
+    <rect x="96" y="48" width="48" height="48"/>
+    <rect x="96" y="144" width="48" height="48"/>
+    <rect x="48" y="96" width="48" height="48"/>
+    <rect x="144" y="96" width="48" height="48"/>
+  </g>
+
+  <!-- Movement arrows -->
+  <defs>
+    <marker id="arrowhead" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="#3ecf8e"/>
+    </marker>
+  </defs>
+  <g stroke="#3ecf8e" stroke-width="3.5" stroke-linecap="round" fill="none" marker-end="url(#arrowhead)">
+    <path d="M120 100 L120 72"/>
+    <path d="M120 140 L120 168"/>
+    <path d="M100 120 L72 120"/>
+    <path d="M140 120 L168 120"/>
+  </g>
+
+  <!-- Chess pawn (center) -->
+  <g fill="#f2f5f3" transform="translate(120 124)">
+    <ellipse cx="0" cy="34" rx="28" ry="7" fill="#c8d0cc"/>
+    <path d="M-26 28 C-22 18, -16 14, 0 14 C16 14, 22 18, 26 28 L26 34 L-26 34 Z"/>
+    <ellipse cx="0" cy="12" rx="16" ry="5"/>
+    <path d="M-11 12 C-14 2, -10 -10, 0 -14 C10 -10, 14 2, 11 12 Z"/>
+    <ellipse cx="0" cy="-12" rx="9" ry="3.5"/>
+    <circle cx="0" cy="-22" r="11"/>
+    <circle cx="-3.5" cy="-25" r="3.2" fill="#ffffff" fill-opacity="0.35"/>
+  </g>
+
+  <!-- One-square markers on destinations -->
+  <g fill="#3ecf8e" fill-opacity="0.9">
+    <circle cx="120" cy="72" r="3"/>
+    <circle cx="120" cy="168" r="3"/>
+    <circle cx="72" cy="120" r="3"/>
+    <circle cx="168" cy="120" r="3"/>
+  </g>
+</svg>
