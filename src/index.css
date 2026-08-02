@@ -789,6 +789,17 @@ button {
   flex: 1 1 42%;
   min-height: 0;
   background: #000;
+  overflow: hidden;
+}
+
+.augment-card-art img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  pointer-events: none;
+  user-select: none;
 }
 
 .augment-card-body {

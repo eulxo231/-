@@ -1,3 +1,4 @@
+import { getAugmentArt } from '../augments/art'
 import { getAugment, type AugmentId } from '../augments/catalog'
 
 const TARGET_HINTS: Partial<Record<AugmentId, string>> = {
@@ -38,6 +39,7 @@ function CardView({
   onClick?: () => void
 }) {
   const card = getAugment(id)
+  const art = getAugmentArt(id)
   const interactive = card.kind === 'active' && usable && onClick
 
   return (
@@ -66,7 +68,9 @@ function CardView({
           : undefined
       }
     >
-      <div className="augment-card-art" aria-hidden="true" />
+      <div className="augment-card-art" aria-hidden="true">
+        {art ? <img src={art} alt="" draggable={false} /> : null}
+      </div>
       <div className="augment-card-body">
         <header>
           <h3>{card.name}</h3>

@@ -1,3 +1,4 @@
+import { getAugmentArt } from '../augments/art'
 import {
   DRAFT_PICKS_TOTAL,
   draftOptionsFor,
@@ -45,6 +46,7 @@ export function DraftPanel({ game, controller, onPick }: DraftPanelProps) {
         <div className="draft-options">
           {options.map((id) => {
             const card = getAugment(id)
+            const art = getAugmentArt(id)
             return (
               <button
                 key={id}
@@ -53,7 +55,9 @@ export function DraftPanel({ game, controller, onPick }: DraftPanelProps) {
                 disabled={!canPick}
                 onClick={() => onPick(id)}
               >
-                <div className="augment-card-art" aria-hidden="true" />
+                <div className="augment-card-art" aria-hidden="true">
+                  {art ? <img src={art} alt="" draggable={false} /> : null}
+                </div>
                 <div className="augment-card-body">
                   <header>
                     <h3>{card.name}</h3>
