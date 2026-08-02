@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="title desc">
+  <title id="title">Time Skip</title>
+  <desc id="desc">Gain an extra full action budget this turn.</desc>
+  <!--
+    Pieces: Colin M.L. Burnett (Cburnett) chess set
+    Licensed under GPL / BSD / GFDL (Wikipedia / Lichess).
+  -->
+
+  <rect width="240" height="240" fill="#0a0a0a"/>
+
+  <!-- Soft board cell under the piece -->
+  <rect x="96" y="108" width="48" height="48" fill="#121816" stroke="#1e2a24" stroke-width="1"/>
+  <rect x="96" y="108" width="48" height="48" fill="#d6a83a" fill-opacity="0.16"/>
+
+  <!-- Clock ring -->
+  <circle cx="120" cy="120" r="78" fill="none" stroke="#1e2a24" stroke-width="2"/>
+  <circle cx="120" cy="120" r="78" fill="none" stroke="#d6a83a" stroke-opacity="0.45" stroke-width="2.5" stroke-dasharray="10 14" stroke-linecap="round"/>
+
+  <!-- Clock ticks -->
+  <g stroke="#9eb0ba" stroke-opacity="0.45" stroke-width="2" stroke-linecap="round">
+    <path d="M120 48 L120 58"/>
+    <path d="M120 182 L120 192"/>
+    <path d="M48 120 L58 120"/>
+    <path d="M182 120 L192 120"/>
+  </g>
+
+  <!-- Hands jumping ahead (skip) -->
+  <g stroke="#d6a83a" stroke-width="3" stroke-linecap="round">
+    <path d="M120 120 L120 72"/>
+    <path d="M120 120 L156 100"/>
+  </g>
+  <circle cx="120" cy="120" r="4.5" fill="#d6a83a"/>
+
+  <defs>
+    <marker id="ts-arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#3ecf8e"/>
+    </marker>
+  </defs>
+
+  <!-- Extra-action skip arcs (two budgets) -->
+  <path d="M168 72 A 70 70 0 0 1 186 120" fill="none" stroke="#3ecf8e" stroke-width="3.25" stroke-linecap="round" marker-end="url(#ts-arrow)"/>
+  <path d="M186 128 A 70 70 0 0 1 168 168" fill="none" stroke="#3ecf8e" stroke-width="3.25" stroke-linecap="round" marker-end="url(#ts-arrow)"/>
+
+  <!-- Double chevron (time skip) -->
+  <g fill="none" stroke="#3ecf8e" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M54 100 L74 120 L54 140"/>
+    <path d="M72 100 L92 120 L72 140"/>
+  </g>
+
+  <!-- Cburnett white knight (acting piece) -->
+  <g transform="translate(97.5 111) scale(1.0)">
+    <g fill="none" fill-rule="evenodd" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+      <path fill="#fff" d="M22 10c10.5 1 16.5 8 16 29H15c0-9 10-6.5 8-21"/>
+      <path fill="#fff" d="M24 18c.38 2.91-5.55 7.37-8 9-3 2-2.82 4.34-5 4-1.042-.94 1.41-3.04 0-3-1 0 .19 1.23-1 2-1 0-4.003 1-4-4 0-2 6-12 6-12s1.89-1.9 2-3.5c-.73-.994-.5-2-.5-3 1-1 3 2.5 3 2.5h2s.78-1.992 2.5-3c1 0 1 3 1 3"/>
+      <path fill="#000" d="M9.5 25.5a.5.5 0 1 1-1 0 .5.5 0 1 1 1 0m5.433-9.75a.5 1.5 30 1 1-.866-.5.5 1.5 30 1 1 .866.5"/>
+    </g>
+  </g>
+</svg>

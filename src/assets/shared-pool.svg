@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="title desc">
+  <title id="title">Shared Pool</title>
+  <desc id="desc">After a capture, gain one extra action this turn (once per turn).</desc>
+  <!--
+    Pieces: Colin M.L. Burnett (Cburnett) chess set
+    Licensed under GPL / BSD / GFDL (Wikipedia / Lichess).
+  -->
+
+  <rect width="240" height="240" fill="#0a0a0a"/>
+
+  <!-- Capture square + follow-up square -->
+  <g stroke="#1e2a24" stroke-width="1">
+    <rect x="56" y="108" width="48" height="48" fill="#121816"/>
+    <rect x="120" y="108" width="48" height="48" fill="#1a2420"/>
+    <rect x="152" y="52" width="48" height="48" fill="#121816"/>
+  </g>
+
+  <!-- Capture -->
+  <rect x="120" y="108" width="48" height="48" fill="#e85d4c" fill-opacity="0.24"/>
+
+  <!-- Extra-action reward -->
+  <rect x="152" y="52" width="48" height="48" fill="#2a8c62" fill-opacity="0.28" stroke="#3ecf8e" stroke-opacity="0.5" stroke-width="1.5"/>
+
+  <!-- Shared pool bowl under the trade -->
+  <ellipse cx="120" cy="188" rx="52" ry="14" fill="#1a2420" stroke="#9eb0ba" stroke-opacity="0.35" stroke-width="1.5"/>
+  <ellipse cx="120" cy="182" rx="40" ry="10" fill="#2a8c62" fill-opacity="0.2"/>
+  <g fill="#d6a83a" fill-opacity="0.7">
+    <circle cx="104" cy="180" r="4"/>
+    <circle cx="120" cy="178" r="4.5"/>
+    <circle cx="136" cy="180" r="4"/>
+  </g>
+
+  <defs>
+    <marker id="sp-red" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="#e85d4c"/>
+    </marker>
+    <marker id="sp-green" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="#3ecf8e"/>
+    </marker>
+  </defs>
+
+  <!-- Capture move -->
+  <path d="M80 132 L144 132" fill="none" stroke="#e85d4c" stroke-width="3" stroke-linecap="round" marker-end="url(#sp-red)"/>
+
+  <!-- Extra action from the pool -->
+  <path d="M144 120 L176 88" fill="none" stroke="#3ecf8e" stroke-width="3" stroke-linecap="round" marker-end="url(#sp-green)"/>
+
+  <!-- Extra-action chevron -->
+  <g fill="none" stroke="#3ecf8e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M168 40 L184 56 L168 72"/>
+  </g>
+
+  <!-- Enemy pawn being captured -->
+  <g transform="translate(121.5 111) scale(1.0)" opacity="0.55">
+    <path fill="#2a3030" stroke="#c8d0cc" stroke-linecap="round" stroke-width="1.5" d="M22.5 9c-2.21 0-4 1.79-4 4 0 .89.29 1.71.78 2.38C17.33 16.5 16 18.59 16 21c0 2.03.94 3.84 2.41 5.03-3 1.06-7.41 5.55-7.41 13.47h23c0-7.92-4.41-12.41-7.41-13.47 1.47-1.19 2.41-3 2.41-5.03 0-2.41-1.33-4.5-3.28-5.62.49-.67.78-1.49.78-2.38 0-2.21-1.79-4-4-4z"/>
+  </g>
+
+  <!-- Ghost knight on bonus action square -->
+  <g opacity="0.28" transform="translate(153.5 55) scale(1.0)">
+    <g fill="none" fill-rule="evenodd" stroke="#3ecf8e" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+      <path fill="#3ecf8e" fill-opacity="0.35" d="M22 10c10.5 1 16.5 8 16 29H15c0-9 10-6.5 8-21"/>
+      <path fill="#3ecf8e" fill-opacity="0.35" d="M24 18c.38 2.91-5.55 7.37-8 9-3 2-2.82 4.34-5 4-1.042-.94 1.41-3.04 0-3-1 0 .19 1.23-1 2-1 0-4.003 1-4-4 0-2 6-12 6-12s1.89-1.9 2-3.5c-.73-.994-.5-2-.5-3 1-1 3 2.5 3 2.5h2s.78-1.992 2.5-3c1 0 1 3 1 3"/>
+      <path fill="#000" d="M9.5 25.5a.5.5 0 1 1-1 0 .5.5 0 1 1 1 0m5.433-9.75a.5 1.5 30 1 1-.866-.5.5 1.5 30 1 1 .866.5"/>
+    </g>
+  </g>
+
+  <!-- Attacking knight -->
+  <g transform="translate(57.5 111) scale(1.0)">
+    <g fill="none" fill-rule="evenodd" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+      <path fill="#fff" d="M22 10c10.5 1 16.5 8 16 29H15c0-9 10-6.5 8-21"/>
+      <path fill="#fff" d="M24 18c.38 2.91-5.55 7.37-8 9-3 2-2.82 4.34-5 4-1.042-.94 1.41-3.04 0-3-1 0 .19 1.23-1 2-1 0-4.003 1-4-4 0-2 6-12 6-12s1.89-1.9 2-3.5c-.73-.994-.5-2-.5-3 1-1 3 2.5 3 2.5h2s.78-1.992 2.5-3c1 0 1 3 1 3"/>
+      <path fill="#000" d="M9.5 25.5a.5.5 0 1 1-1 0 .5.5 0 1 1 1 0m5.433-9.75a.5 1.5 30 1 1-.866-.5.5 1.5 30 1 1 .866.5"/>
+    </g>
+  </g>
+</svg>

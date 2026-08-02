@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="title desc">
+  <title id="title">Narrow Board</title>
+  <desc id="desc">The a- and h-files cannot be moved onto.</desc>
+  <!--
+    Pieces: Colin M.L. Burnett (Cburnett) chess set
+    Licensed under GPL / BSD / GFDL (Wikipedia / Lichess).
+  -->
+
+  <rect width="240" height="240" fill="#0a0a0a"/>
+
+  <!-- Eight files -->
+  <g stroke="#1e2a24" stroke-width="1">
+    <rect x="16" y="48" width="26" height="144" fill="#121816"/>
+    <rect x="42" y="48" width="26" height="144" fill="#1a2420"/>
+    <rect x="68" y="48" width="26" height="144" fill="#121816"/>
+    <rect x="94" y="48" width="26" height="144" fill="#1a2420"/>
+    <rect x="120" y="48" width="26" height="144" fill="#121816"/>
+    <rect x="146" y="48" width="26" height="144" fill="#1a2420"/>
+    <rect x="172" y="48" width="26" height="144" fill="#121816"/>
+    <rect x="198" y="48" width="26" height="144" fill="#1a2420"/>
+  </g>
+
+  <!-- Playable center (b-g) -->
+  <rect x="42" y="48" width="156" height="144" fill="#2a8c62" fill-opacity="0.1" stroke="#3ecf8e" stroke-opacity="0.35" stroke-width="1.5"/>
+
+  <!-- Forbidden a- and h-files -->
+  <g fill="#e85d4c" fill-opacity="0.22">
+    <rect x="16" y="48" width="26" height="144"/>
+    <rect x="198" y="48" width="26" height="144"/>
+  </g>
+  <g fill="none" stroke="#e85d4c" stroke-opacity="0.65" stroke-width="1.75">
+    <rect x="16" y="48" width="26" height="144"/>
+    <rect x="198" y="48" width="26" height="144"/>
+  </g>
+
+  <!-- Block marks on a/h -->
+  <g stroke="#e85d4c" stroke-width="2.75" stroke-linecap="round">
+    <path d="M21 108 L37 132"/>
+    <path d="M37 108 L21 132"/>
+    <path d="M203 108 L219 132"/>
+    <path d="M219 108 L203 132"/>
+  </g>
+
+  <defs>
+    <marker id="nb-arrow" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="#e85d4c"/>
+    </marker>
+  </defs>
+
+  <!-- Attempted move onto a-file (blocked) -->
+  <path d="M107 140 L29 140" fill="none" stroke="#e85d4c" stroke-opacity="0.55" stroke-width="2.75" stroke-linecap="round" stroke-dasharray="5 4" marker-end="url(#nb-arrow)"/>
+
+  <!-- Legal move staying on playable files -->
+  <path d="M107 120 L159 120" fill="none" stroke="#3ecf8e" stroke-width="2.75" stroke-linecap="round"/>
+  <circle cx="159" cy="120" r="3.5" fill="#3ecf8e"/>
+
+  <!-- Knight in the playable zone -->
+  <g transform="translate(84.5 123) scale(1.0)">
+    <g fill="none" fill-rule="evenodd" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+      <path fill="#fff" d="M22 10c10.5 1 16.5 8 16 29H15c0-9 10-6.5 8-21"/>
+      <path fill="#fff" d="M24 18c.38 2.91-5.55 7.37-8 9-3 2-2.82 4.34-5 4-1.042-.94 1.41-3.04 0-3-1 0 .19 1.23-1 2-1 0-4.003 1-4-4 0-2 6-12 6-12s1.89-1.9 2-3.5c-.73-.994-.5-2-.5-3 1-1 3 2.5 3 2.5h2s.78-1.992 2.5-3c1 0 1 3 1 3"/>
+      <path fill="#000" d="M9.5 25.5a.5.5 0 1 1-1 0 .5.5 0 1 1 1 0m5.433-9.75a.5 1.5 30 1 1-.866-.5.5 1.5 30 1 1 .866.5"/>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,39 @@
+---
+description: After creating an augment card SVG icon, wire it into art.ts automatically
+alwaysApply: true
+---
+
+# Augment card art → art.ts
+
+When the user asks to create a card icon / vector image (`.svg`) for an augment:
+
+1. **Create the SVG** at `src/assets/<augment-id>.svg`
+   - Filename must match the catalog `AugmentId` (kebab-case), e.g. `twin-knights` → `twin-knights.svg`
+   - Style: black background (`#0a0a0a`), no visible text/labels, board-piece scale (fit pieces inside squares)
+   - Prefer Cburnett piece paths from `src/assets/cburnett-*.svg` for N/B/R/P/K
+   - For queens, always use the fixed Staunton silhouette from `src/assets/piece-queen.svg` / `coronation.svg` (never Cburnett `cburnett-wq.svg`)
+
+2. **Immediately wire it in `src/augments/art.ts`** (do not wait to be asked):
+   - Add an import (camelCase variable from kebab-case id):
+     ```ts
+     import twinKnights from '../assets/twin-knights.svg'
+     ```
+   - Add the entry to `ART` keyed by `AugmentId`:
+     ```ts
+     'twin-knights': twinKnights,
+     // or shorthand when the import name matches a valid identifier key:
+     militia,
+     ```
+   - Keep imports alphabetically sorted by filename; keep `ART` keys roughly grouped with existing style
+   - Only map ids that exist in `src/augments/catalog.ts`
+
+3. **Done criteria**
+   - SVG file exists under `src/assets/`
+   - `getAugmentArt(id)` returns the new asset
+   - Draft panel / augment tray show the icon (they already use `getAugmentArt`)
+   - Cards without art stay as the black placeholder — that is expected
+
+4. **Do not**
+   - Leave a new SVG unregistered in `art.ts`
+   - Invent an `AugmentId` that is not in the catalog
+   - Put Chess.com proprietary piece assets in the repo

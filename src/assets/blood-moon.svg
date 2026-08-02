@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="title desc">
+  <title id="title">Blood Moon</title>
+  <desc id="desc">If any capture is available, you must capture.</desc>
+  <!--
+    Pieces: Colin M.L. Burnett (Cburnett) chess set
+    Licensed under GPL / BSD / GFDL (Wikipedia / Lichess).
+  -->
+
+  <rect width="240" height="240" fill="#0a0a0a"/>
+
+  <!-- Soft board cells -->
+  <g stroke="#1e2a24" stroke-width="1">
+    <rect x="72" y="120" width="44" height="44" fill="#121816"/>
+    <rect x="124" y="72" width="44" height="44" fill="#1a2420"/>
+    <rect x="48" y="72" width="44" height="44" fill="#121816"/>
+  </g>
+
+  <!-- Forced capture square -->
+  <rect x="124" y="72" width="44" height="44" fill="#e85d4c" fill-opacity="0.28" stroke="#e85d4c" stroke-opacity="0.65" stroke-width="1.75"/>
+
+  <!-- Quiet move option (forbidden when capture exists) -->
+  <rect x="48" y="72" width="44" height="44" fill="#6a7a88" fill-opacity="0.12"/>
+
+  <!-- Blood moon -->
+  <circle cx="176" cy="48" r="28" fill="#8b1e1e" fill-opacity="0.55"/>
+  <circle cx="176" cy="48" r="22" fill="#c0392b" fill-opacity="0.75"/>
+  <circle cx="168" cy="40" r="6" fill="#e85d4c" fill-opacity="0.35"/>
+  <g stroke="#e85d4c" stroke-opacity="0.4" stroke-width="2" stroke-linecap="round">
+    <path d="M176 14 L176 8"/>
+    <path d="M204 48 L210 48"/>
+    <path d="M196 28 L202 22"/>
+  </g>
+
+  <defs>
+    <marker id="bm-arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#e85d4c"/>
+    </marker>
+  </defs>
+
+  <!-- Forced capture -->
+  <path d="M94 142 L146 94" fill="none" stroke="#e85d4c" stroke-width="3.25" stroke-linecap="round" marker-end="url(#bm-arrow)"/>
+
+  <!-- Quiet path blocked -->
+  <path d="M94 142 L70 94" fill="none" stroke="#9eb0ba" stroke-opacity="0.4" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="4 5"/>
+  <g stroke="#e85d4c" stroke-width="2.75" stroke-linecap="round">
+    <path d="M58 82 L82 106"/>
+    <path d="M82 82 L58 106"/>
+  </g>
+
+  <!-- Enemy piece to capture -->
+  <g transform="translate(125.5 75) scale(1.0)" opacity="0.75">
+    <path fill="#2a3030" stroke="#c8d0cc" stroke-linecap="round" stroke-width="1.5" d="M22.5 9c-2.21 0-4 1.79-4 4 0 .89.29 1.71.78 2.38C17.33 16.5 16 18.59 16 21c0 2.03.94 3.84 2.41 5.03-3 1.06-7.41 5.55-7.41 13.47h23c0-7.92-4.41-12.41-7.41-13.47 1.47-1.19 2.41-3 2.41-5.03 0-2.41-1.33-4.5-3.28-5.62.49-.67.78-1.49.78-2.38 0-2.21-1.79-4-4-4z"/>
+  </g>
+
+  <!-- Attacking knight -->
+  <g transform="translate(73.5 123) scale(1.0)">
+    <g fill="none" fill-rule="evenodd" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+      <path fill="#fff" d="M22 10c10.5 1 16.5 8 16 29H15c0-9 10-6.5 8-21"/>
+      <path fill="#fff" d="M24 18c.38 2.91-5.55 7.37-8 9-3 2-2.82 4.34-5 4-1.042-.94 1.41-3.04 0-3-1 0 .19 1.23-1 2-1 0-4.003 1-4-4 0-2 6-12 6-12s1.89-1.9 2-3.5c-.73-.994-.5-2-.5-3 1-1 3 2.5 3 2.5h2s.78-1.992 2.5-3c1 0 1 3 1 3"/>
+      <path fill="#000" d="M9.5 25.5a.5.5 0 1 1-1 0 .5.5 0 1 1 1 0m5.433-9.75a.5 1.5 30 1 1-.866-.5.5 1.5 30 1 1 .866.5"/>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="title desc">
+  <title id="title">Sudden Death</title>
+  <desc id="desc">From move 20, capturing a knight, bishop, rook, or queen wins instantly.</desc>
+  <!--
+    Pieces: Colin M.L. Burnett (Cburnett) chess set
+    Queen: fixed Staunton card-art silhouette (piece-queen.svg).
+    Licensed under GPL / BSD / GFDL where Cburnett applies.
+  -->
+
+  <rect width="240" height="240" fill="#0a0a0a"/>
+
+  <!-- Board cells -->
+  <g stroke="#1e2a24" stroke-width="1">
+    <rect x="56" y="128" width="48" height="48" fill="#121816"/>
+    <rect x="136" y="64" width="48" height="48" fill="#1a2420"/>
+  </g>
+
+  <!-- Lethal capture square -->
+  <rect x="136" y="64" width="48" height="48" fill="#e85d4c" fill-opacity="0.28" stroke="#e85d4c" stroke-opacity="0.7" stroke-width="2"/>
+
+  <!-- Instant-win burst -->
+  <g stroke="#e85d4c" stroke-width="2.5" stroke-linecap="round" fill="none">
+    <path d="M160 48 L160 28"/>
+    <path d="M160 128 L160 148"/>
+    <path d="M128 88 L108 88"/>
+    <path d="M192 88 L212 88"/>
+    <path d="M138 66 L122 50"/>
+    <path d="M182 66 L198 50"/>
+    <path d="M138 110 L122 126"/>
+    <path d="M182 110 L198 126"/>
+  </g>
+  <g fill="#e85d4c">
+    <circle cx="160" cy="28" r="2.5"/>
+    <circle cx="160" cy="148" r="2.5"/>
+    <circle cx="108" cy="88" r="2.5"/>
+    <circle cx="212" cy="88" r="2.5"/>
+  </g>
+
+  <defs>
+    <marker id="sd-arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#e85d4c"/>
+    </marker>
+  </defs>
+
+  <!-- Killing capture -->
+  <path d="M80 152 L160 88" fill="none" stroke="#e85d4c" stroke-width="3.25" stroke-linecap="round" marker-end="url(#sd-arrow)"/>
+
+  <!-- Lethal targets strip (N B R Q) - small silhouettes -->
+  <g opacity="0.55">
+    <!-- mini knight -->
+    <g transform="translate(36 40) scale(0.55)">
+      <g fill="none" fill-rule="evenodd" stroke="#e85d4c" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+        <path fill="#e85d4c" fill-opacity="0.25" d="M22 10c10.5 1 16.5 8 16 29H15c0-9 10-6.5 8-21"/>
+        <path fill="#e85d4c" fill-opacity="0.25" d="M24 18c.38 2.91-5.55 7.37-8 9-3 2-2.82 4.34-5 4-1.042-.94 1.41-3.04 0-3-1 0 .19 1.23-1 2-1 0-4.003 1-4-4 0-2 6-12 6-12s1.89-1.9 2-3.5c-.73-.994-.5-2-.5-3 1-1 3 2.5 3 2.5h2s.78-1.992 2.5-3c1 0 1 3 1 3"/>
+      </g>
+    </g>
+    <!-- mini bishop -->
+    <g transform="translate(72 40) scale(0.55)">
+      <g fill="none" fill-rule="evenodd" stroke="#e85d4c" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+        <g fill="#e85d4c" fill-opacity="0.25" stroke-linecap="butt">
+          <path d="M9 36c3.39-.97 10.11.43 13.5-2 3.39 2.43 10.11 1.03 13.5 2 0 0 1.65.54 3 2-.68.97-1.65.99-3 .5-3.39-.97-10.11.46-13.5-1-3.39 1.46-10.11.03-13.5 1-1.35.49-2.32.47-3-.5 1.35-1.94 3-2 3-2z"/>
+          <path d="M15 32c2.5 2.5 12.5 2.5 15 0 .5-1.5 0-2 0-2 0-2.5-2.5-4-2.5-4 5.5-1.5 6-11.5-5-15.5-11 4-10.5 14-5 15.5 0 0-2.5 1.5-2.5 4 0 0-.5.5 0 2z"/>
+          <path d="M25 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 1 1 5 0z"/>
+        </g>
+      </g>
+    </g>
+    <!-- mini rook -->
+    <g transform="translate(108 40) scale(0.55)">
+      <g fill="#e85d4c" fill-opacity="0.25" fill-rule="evenodd" stroke="#e85d4c" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+        <path stroke-linecap="butt" d="M9 39h27v-3H9zm3-3v-4h21v4zm-1-22V9h4v2h5V9h5v2h5V9h4v5"/>
+        <path d="m34 14-3 3H14l-3-3"/>
+        <path stroke-linecap="butt" stroke-linejoin="miter" d="M31 17v12.5H14V17"/>
+        <path d="m31 29.5 1.5 2.5h-20l1.5-2.5"/>
+      </g>
+    </g>
+  </g>
+
+  <!-- Enemy queen (lethal major) - fixed Staunton, small -->
+  <g transform="translate(160 68) scale(0.15)" opacity="0.7">
+    <path fill="#2a3030" stroke="#e85d4c" stroke-width="8" stroke-linejoin="round" stroke-linecap="round" d="M-54 46C-54 38 -48 34 -42 34L-48 14L-34 34L-26 2L-14 34L0 -6L14 34L26 2L34 34L48 14L42 34C48 34 54 38 54 46L52 58C44 66 34 68 28 68L24 68C18 80 18 96 18 112L18 128C18 140 28 146 40 150L52 154C62 158 64 166 64 174L64 182C64 194 50 200 36 200L-36 200C-50 200 -64 194 -64 182L-64 174C-64 166 -62 158 -52 154L-40 150C-28 146 -18 140 -18 128L-18 112C-18 96 -18 80 -24 68L-28 68C-34 68 -44 66 -52 58Z"/>
+    <g fill="#2a3030" stroke="#e85d4c" stroke-width="8">
+      <circle cx="-48" cy="10" r="7.5"/>
+      <circle cx="-26" cy="-2" r="7.5"/>
+      <circle cx="0" cy="-10" r="8"/>
+      <circle cx="26" cy="-2" r="7.5"/>
+      <circle cx="48" cy="10" r="7.5"/>
+    </g>
+    <path d="M-42 58 L42 58" fill="none" stroke="#e85d4c" stroke-width="8" stroke-linecap="round"/>
+    <path d="M-16 108 L16 108" fill="none" stroke="#e85d4c" stroke-width="7" stroke-linecap="round"/>
+    <path d="M-18 124 L18 124" fill="none" stroke="#e85d4c" stroke-width="7" stroke-linecap="round"/>
+    <path d="M-50 152 L50 152" fill="none" stroke="#e85d4c" stroke-width="7.5" stroke-linecap="round"/>
+  </g>
+
+  <!-- Attacking knight -->
+  <g transform="translate(57.5 131) scale(1.0)">
+    <g fill="none" fill-rule="evenodd" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+      <path fill="#fff" d="M22 10c10.5 1 16.5 8 16 29H15c0-9 10-6.5 8-21"/>
+      <path fill="#fff" d="M24 18c.38 2.91-5.55 7.37-8 9-3 2-2.82 4.34-5 4-1.042-.94 1.41-3.04 0-3-1 0 .19 1.23-1 2-1 0-4.003 1-4-4 0-2 6-12 6-12s1.89-1.9 2-3.5c-.73-.994-.5-2-.5-3 1-1 3 2.5 3 2.5h2s.78-1.992 2.5-3c1 0 1 3 1 3"/>
+      <path fill="#000" d="M9.5 25.5a.5.5 0 1 1-1 0 .5.5 0 1 1 1 0m5.433-9.75a.5 1.5 30 1 1-.866-.5.5 1.5 30 1 1 .866.5"/>
+    </g>
+  </g>
+</svg>

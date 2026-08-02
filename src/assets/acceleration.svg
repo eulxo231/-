@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="title desc">
+  <title id="title">Acceleration</title>
+  <desc id="desc">From the third turn, each player takes two actions per turn.</desc>
+  <!--
+    Pieces: Colin M.L. Burnett (Cburnett) chess set
+    Licensed under GPL / BSD / GFDL (Wikipedia / Lichess).
+  -->
+
+  <rect width="240" height="240" fill="#0a0a0a"/>
+
+  <!-- Soft board cells for a double move -->
+  <g stroke="#1e2a24" stroke-width="1">
+    <rect x="48" y="120" width="40" height="40" fill="#121816"/>
+    <rect x="100" y="120" width="40" height="40" fill="#1a2420"/>
+    <rect x="152" y="120" width="40" height="40" fill="#121816"/>
+  </g>
+
+  <!-- Two action destinations -->
+  <g fill="#2a8c62" fill-opacity="0.3">
+    <rect x="100" y="120" width="40" height="40"/>
+    <rect x="152" y="120" width="40" height="40"/>
+  </g>
+
+  <defs>
+    <marker id="ac-arrow" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="#3ecf8e"/>
+    </marker>
+  </defs>
+
+  <!-- Action 1 + Action 2 -->
+  <g stroke="#3ecf8e" stroke-width="3.25" stroke-linecap="round" fill="none" marker-end="url(#ac-arrow)">
+    <path d="M68 110 L120 110"/>
+    <path d="M120 110 L172 110"/>
+  </g>
+
+  <!-- Speed / acceleration streaks -->
+  <g stroke="#3ecf8e" stroke-opacity="0.45" stroke-width="2.5" stroke-linecap="round">
+    <path d="M40 88 L88 88"/>
+    <path d="M52 76 L108 76"/>
+    <path d="M36 100 L80 100"/>
+  </g>
+
+  <!-- Double-action chevrons -->
+  <g fill="none" stroke="#d6a83a" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M168 64 L188 84 L168 104"/>
+    <path d="M186 64 L206 84 L186 104"/>
+  </g>
+
+  <!-- Ghost pawn after first action -->
+  <g opacity="0.28" transform="translate(101.5 123) scale(1.0)">
+    <path fill="#3ecf8e" stroke="#3ecf8e" stroke-linecap="round" stroke-width="1.5" d="M22.5 9c-2.21 0-4 1.79-4 4 0 .89.29 1.71.78 2.38C17.33 16.5 16 18.59 16 21c0 2.03.94 3.84 2.41 5.03-3 1.06-7.41 5.55-7.41 13.47h23c0-7.92-4.41-12.41-7.41-13.47 1.47-1.19 2.41-3 2.41-5.03 0-2.41-1.33-4.5-3.28-5.62.49-.67.78-1.49.78-2.38 0-2.21-1.79-4-4-4z"/>
+  </g>
+
+  <!-- Ghost pawn after second action -->
+  <g opacity="0.28" transform="translate(153.5 123) scale(1.0)">
+    <path fill="#3ecf8e" stroke="#3ecf8e" stroke-linecap="round" stroke-width="1.5" d="M22.5 9c-2.21 0-4 1.79-4 4 0 .89.29 1.71.78 2.38C17.33 16.5 16 18.59 16 21c0 2.03.94 3.84 2.41 5.03-3 1.06-7.41 5.55-7.41 13.47h23c0-7.92-4.41-12.41-7.41-13.47 1.47-1.19 2.41-3 2.41-5.03 0-2.41-1.33-4.5-3.28-5.62.49-.67.78-1.49.78-2.38 0-2.21-1.79-4-4-4z"/>
+  </g>
+
+  <!-- Cburnett white pawn (start) -->
+  <g transform="translate(49.5 123) scale(1.0)">
+    <path fill="#fff" stroke="#000" stroke-linecap="round" stroke-width="1.5" d="M22.5 9c-2.21 0-4 1.79-4 4 0 .89.29 1.71.78 2.38C17.33 16.5 16 18.59 16 21c0 2.03.94 3.84 2.41 5.03-3 1.06-7.41 5.55-7.41 13.47h23c0-7.92-4.41-12.41-7.41-13.47 1.47-1.19 2.41-3 2.41-5.03 0-2.41-1.33-4.5-3.28-5.62.49-.67.78-1.49.78-2.38 0-2.21-1.79-4-4-4z"/>
+  </g>
+
+  <!-- Two action ticks -->
+  <g fill="#3ecf8e">
+    <circle cx="120" cy="110" r="3.5"/>
+    <circle cx="172" cy="110" r="3.5"/>
+  </g>
+</svg>

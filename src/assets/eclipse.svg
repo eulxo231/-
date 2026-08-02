@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="title desc">
+  <title id="title">Eclipse</title>
+  <desc id="desc">An enemy non-king piece is frozen until your next turn.</desc>
+  <!--
+    Pieces: Colin M.L. Burnett (Cburnett) chess set
+    Licensed under GPL / BSD / GFDL (Wikipedia / Lichess).
+  -->
+
+  <rect width="240" height="240" fill="#0a0a0a"/>
+
+  <!-- Soft board cell -->
+  <rect x="96" y="112" width="48" height="48" fill="#121816" stroke="#1e2a24" stroke-width="1"/>
+  <rect x="96" y="112" width="48" height="48" fill="#4a6a8a" fill-opacity="0.28" stroke="#7ec8ff" stroke-opacity="0.55" stroke-width="1.75"/>
+
+  <!-- Sun (gold) -->
+  <circle cx="120" cy="72" r="28" fill="#d6a83a" fill-opacity="0.35"/>
+  <circle cx="120" cy="72" r="22" fill="#d6a83a" fill-opacity="0.55"/>
+  <g stroke="#d6a83a" stroke-opacity="0.55" stroke-width="2.5" stroke-linecap="round">
+    <path d="M120 36 L120 28"/>
+    <path d="M120 116 L120 108"/>
+    <path d="M84 72 L76 72"/>
+    <path d="M164 72 L156 72"/>
+    <path d="M94 46 L88 40"/>
+    <path d="M146 46 L152 40"/>
+    <path d="M94 98 L88 104"/>
+    <path d="M146 98 L152 104"/>
+  </g>
+
+  <!-- Moon covering the sun (eclipse) -->
+  <circle cx="132" cy="68" r="22" fill="#0a0a0a"/>
+  <circle cx="132" cy="68" r="22" fill="none" stroke="#9eb0ba" stroke-opacity="0.35" stroke-width="1.5"/>
+
+  <!-- Freeze shards around the piece -->
+  <g stroke="#7ec8ff" stroke-opacity="0.75" stroke-width="2" stroke-linecap="round" fill="none">
+    <path d="M78 128 L92 136"/>
+    <path d="M162 128 L148 136"/>
+    <path d="M86 168 L98 158"/>
+    <path d="M154 168 L142 158"/>
+    <path d="M120 176 L120 164"/>
+  </g>
+  <g fill="#7ec8ff">
+    <circle cx="78" cy="128" r="2"/>
+    <circle cx="162" cy="128" r="2"/>
+    <circle cx="86" cy="168" r="2"/>
+    <circle cx="154" cy="168" r="2"/>
+    <circle cx="120" cy="176" r="2"/>
+  </g>
+
+  <!-- Ice crystal marks -->
+  <g stroke="#7ec8ff" stroke-width="1.75" stroke-linecap="round" fill="none">
+    <path d="M72 148 L72 136 M66 142 L78 142"/>
+    <path d="M168 148 L168 136 M162 142 L174 142"/>
+  </g>
+
+  <!-- Frozen enemy knight -->
+  <g transform="translate(97.5 115) scale(1.0)" opacity="0.7">
+    <g fill="none" fill-rule="evenodd" stroke="#7ec8ff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+      <path fill="#2a3030" d="M22 10c10.5 1 16.5 8 16 29H15c0-9 10-6.5 8-21"/>
+      <path fill="#2a3030" d="M24 18c.38 2.91-5.55 7.37-8 9-3 2-2.82 4.34-5 4-1.042-.94 1.41-3.04 0-3-1 0 .19 1.23-1 2-1 0-4.003 1-4-4 0-2 6-12 6-12s1.89-1.9 2-3.5c-.73-.994-.5-2-.5-3 1-1 3 2.5 3 2.5h2s.78-1.992 2.5-3c1 0 1 3 1 3"/>
+      <path fill="#7ec8ff" d="M9.5 25.5a.5.5 0 1 1-1 0 .5.5 0 1 1 1 0m5.433-9.75a.5 1.5 30 1 1-.866-.5.5 1.5 30 1 1 .866.5"/>
+    </g>
+  </g>
+</svg>

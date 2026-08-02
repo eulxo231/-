@@ -3,8 +3,8 @@
   <title id="title">Glass Queen</title>
   <desc id="desc">A queen captures an enemy piece and shatters, removing herself as well.</desc>
   <!--
-    Pieces: Colin M.L. Burnett (Cburnett) chess set
-    Licensed under GPL / BSD / GFDL (Wikipedia / Lichess).
+    Queen: fixed Staunton card-art silhouette (see piece-queen.svg).
+    Pawn: Colin M.L. Burnett (Cburnett), GPL / BSD / GFDL.
   -->
 
   <rect width="240" height="240" fill="#0a0a0a"/>
@@ -32,22 +32,36 @@
     <path fill="#2a3030" stroke="#c8d0cc" stroke-linecap="round" stroke-width="1.5" d="M22.5 9c-2.21 0-4 1.79-4 4 0 .89.29 1.71.78 2.38C17.33 16.5 16 18.59 16 21c0 2.03.94 3.84 2.41 5.03-3 1.06-7.41 5.55-7.41 13.47h23c0-7.92-4.41-12.41-7.41-13.47 1.47-1.19 2.41-3 2.41-5.03 0-2.41-1.33-4.5-3.28-5.62.49-.67.78-1.49.78-2.38 0-2.21-1.79-4-4-4z"/>
   </g>
 
-  <!-- Cburnett white queen (start), slightly glassy -->
-  <g transform="translate(39.5 135) scale(1.0)">
-    <g fill="#fff" fill-rule="evenodd" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
-      <path d="M8 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0m16.5-4.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0M36 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0m-22.5 2.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0M27 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0"/>
-      <path d="M9 26c8.5-1.5 21-1.5 27 0l2-12-7 5V11l-6.5 6.5L21 11v8l-7-5zM9 26c0 2 1.5 2 2.5 4 1 1.5 1 1 .5 3.5-1.5 1-1.5 2.5-1.5 2.5-1.5 1.5.5 2.5.5 2.5 6.5 1 16.5 1 23 0 0 0 1.5-1 0-2.5 0 0 .5-1.5-1-2.5-.5-2.5-.5-2 .5-3.5 1-2 2.5-2 2.5-4H9z" stroke-linecap="butt"/>
-      <path fill="none" d="M11.5 30c3.5-1 18.5-1 22 0M12 33.5c6-1 15-1 21 0"/>
+  <!-- Fixed Staunton queen (start) -->
+  <g transform="translate(62 142) scale(0.17)">
+    <path fill="#fff" stroke="#000" stroke-width="8" stroke-linejoin="round" stroke-linecap="round" d="M-54 46C-54 38 -48 34 -42 34L-48 14L-34 34L-26 2L-14 34L0 -6L14 34L26 2L34 34L48 14L42 34C48 34 54 38 54 46L52 58C44 66 34 68 28 68L24 68C18 80 18 96 18 112L18 128C18 140 28 146 40 150L52 154C62 158 64 166 64 174L64 182C64 194 50 200 36 200L-36 200C-50 200 -64 194 -64 182L-64 174C-64 166 -62 158 -52 154L-40 150C-28 146 -18 140 -18 128L-18 112C-18 96 -18 80 -24 68L-28 68C-34 68 -44 66 -52 58Z"/>
+    <g fill="#fff" stroke="#000" stroke-width="8">
+      <circle cx="-48" cy="10" r="7.5"/>
+      <circle cx="-26" cy="-2" r="7.5"/>
+      <circle cx="0" cy="-10" r="8"/>
+      <circle cx="26" cy="-2" r="7.5"/>
+      <circle cx="48" cy="10" r="7.5"/>
     </g>
+    <path d="M-42 58 L42 58" fill="none" stroke="#000" stroke-width="8" stroke-linecap="round"/>
+    <path d="M-16 108 L16 108" fill="none" stroke="#000" stroke-width="7" stroke-linecap="round"/>
+    <path d="M-18 124 L18 124" fill="none" stroke="#000" stroke-width="7" stroke-linecap="round"/>
+    <path d="M-50 152 L50 152" fill="none" stroke="#000" stroke-width="7.5" stroke-linecap="round"/>
   </g>
 
   <!-- Shattered queen silhouette on capture square -->
-  <g transform="translate(127.5 47) scale(1.0)" opacity="0.85">
-    <g fill="#a8d4ff" fill-opacity="0.35" fill-rule="evenodd" stroke="#7ec8ff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" stroke-opacity="0.8">
-      <path d="M8 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0m16.5-4.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0M36 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0m-22.5 2.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0M27 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0"/>
-      <path d="M9 26c8.5-1.5 21-1.5 27 0l2-12-7 5V11l-6.5 6.5L21 11v8l-7-5zM9 26c0 2 1.5 2 2.5 4 1 1.5 1 1 .5 3.5-1.5 1-1.5 2.5-1.5 2.5-1.5 1.5.5 2.5.5 2.5 6.5 1 16.5 1 23 0 0 0 1.5-1 0-2.5 0 0 .5-1.5-1-2.5-.5-2.5-.5-2 .5-3.5 1-2 2.5-2 2.5-4H9z" stroke-linecap="butt"/>
-      <path fill="none" d="M11.5 30c3.5-1 18.5-1 22 0M12 33.5c6-1 15-1 21 0"/>
+  <g transform="translate(150 56) scale(0.17)" opacity="0.85">
+    <path fill="#a8d4ff" fill-opacity="0.35" stroke="#7ec8ff" stroke-width="8" stroke-linejoin="round" stroke-linecap="round" stroke-opacity="0.8" d="M-54 46C-54 38 -48 34 -42 34L-48 14L-34 34L-26 2L-14 34L0 -6L14 34L26 2L34 34L48 14L42 34C48 34 54 38 54 46L52 58C44 66 34 68 28 68L24 68C18 80 18 96 18 112L18 128C18 140 28 146 40 150L52 154C62 158 64 166 64 174L64 182C64 194 50 200 36 200L-36 200C-50 200 -64 194 -64 182L-64 174C-64 166 -62 158 -52 154L-40 150C-28 146 -18 140 -18 128L-18 112C-18 96 -18 80 -24 68L-28 68C-34 68 -44 66 -52 58Z"/>
+    <g fill="#a8d4ff" fill-opacity="0.35" stroke="#7ec8ff" stroke-width="8" stroke-opacity="0.8">
+      <circle cx="-48" cy="10" r="7.5"/>
+      <circle cx="-26" cy="-2" r="7.5"/>
+      <circle cx="0" cy="-10" r="8"/>
+      <circle cx="26" cy="-2" r="7.5"/>
+      <circle cx="48" cy="10" r="7.5"/>
     </g>
+    <path d="M-42 58 L42 58" fill="none" stroke="#7ec8ff" stroke-width="8" stroke-linecap="round" stroke-opacity="0.8"/>
+    <path d="M-16 108 L16 108" fill="none" stroke="#7ec8ff" stroke-width="7" stroke-linecap="round" stroke-opacity="0.8"/>
+    <path d="M-18 124 L18 124" fill="none" stroke="#7ec8ff" stroke-width="7" stroke-linecap="round" stroke-opacity="0.8"/>
+    <path d="M-50 152 L50 152" fill="none" stroke="#7ec8ff" stroke-width="7.5" stroke-linecap="round" stroke-opacity="0.8"/>
   </g>
 
   <!-- Glass shards bursting from capture -->

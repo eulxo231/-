@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="title desc">
+  <title id="title">Castle Now</title>
+  <desc id="desc">Instantly castle with a rook along a clear path, ignoring prior moves.</desc>
+  <!--
+    Pieces: Colin M.L. Burnett (Cburnett) chess set
+    Licensed under GPL / BSD / GFDL (Wikipedia / Lichess).
+  -->
+
+  <rect width="240" height="240" fill="#0a0a0a"/>
+
+  <!-- Back-rank strip (e..h for kingside) -->
+  <g stroke="#1e2a24" stroke-width="1">
+    <rect x="48" y="112" width="36" height="36" fill="#121816"/>
+    <rect x="84" y="112" width="36" height="36" fill="#1a2420"/>
+    <rect x="120" y="112" width="36" height="36" fill="#121816"/>
+    <rect x="156" y="112" width="36" height="36" fill="#1a2420"/>
+  </g>
+
+  <!-- Clear path (f,g) -->
+  <g fill="#2a8c62" fill-opacity="0.28">
+    <rect x="84" y="112" width="36" height="36"/>
+    <rect x="120" y="112" width="36" height="36"/>
+  </g>
+
+  <!-- Instant destinations: king->g, rook->f -->
+  <g fill="#3ecf8e" fill-opacity="0.22">
+    <rect x="120" y="112" width="36" height="36"/>
+    <rect x="84" y="112" width="36" height="36"/>
+  </g>
+
+  <!-- Selected rook square -->
+  <rect x="156" y="112" width="36" height="36" fill="#d6a83a" fill-opacity="0.18" stroke="#d6a83a" stroke-opacity="0.55" stroke-width="1.75"/>
+
+  <defs>
+    <marker id="cn-arrow" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="#3ecf8e"/>
+    </marker>
+  </defs>
+
+  <!-- Instant castling arrows -->
+  <g stroke="#3ecf8e" stroke-width="3" stroke-linecap="round" fill="none" marker-end="url(#cn-arrow)">
+    <!-- king e -> g -->
+    <path d="M66 160 L138 160"/>
+    <!-- rook h -> f -->
+    <path d="M174 96 L102 96"/>
+  </g>
+
+  <!-- "Now" flash / instant burst -->
+  <g stroke="#d6a83a" stroke-width="2.25" stroke-linecap="round" fill="none">
+    <path d="M120 52 L120 68"/>
+    <path d="M96 60 L108 72"/>
+    <path d="M144 60 L132 72"/>
+  </g>
+  <g fill="#d6a83a">
+    <circle cx="120" cy="52" r="2.5"/>
+    <circle cx="96" cy="60" r="2"/>
+    <circle cx="144" cy="60" r="2"/>
+  </g>
+
+  <!-- Ghost king on g -->
+  <g opacity="0.28" transform="translate(115.5 104) scale(1.0)">
+    <g fill="none" fill-rule="evenodd" stroke="#3ecf8e" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+      <path stroke-linejoin="miter" d="M22.5 11.63V6M20 8h5"/>
+      <path fill="#3ecf8e" fill-opacity="0.35" stroke-linecap="butt" stroke-linejoin="miter" d="M22.5 25s4.5-7.5 3-10.5c0 0-1-2.5-3-2.5s-3 2.5-3 2.5c-1.5 3 3 10.5 3 10.5"/>
+      <path fill="#3ecf8e" fill-opacity="0.35" d="M11.5 37c5.5 3.5 15.5 3.5 21 0v-7s9-4.5 6-10.5c-4-6.5-13.5-3.5-16 4V27v-3.5c-3.5-7.5-13-10.5-16-4-3 6 5 10 5 10z"/>
+      <path d="M11.5 30c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0"/>
+    </g>
+  </g>
+
+  <!-- Ghost rook on f -->
+  <g opacity="0.28" transform="translate(79.5 68) scale(1.0)">
+    <g fill="#3ecf8e" fill-opacity="0.35" fill-rule="evenodd" stroke="#3ecf8e" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+      <path stroke-linecap="butt" d="M9 39h27v-3H9zm3-3v-4h21v4zm-1-22V9h4v2h5V9h5v2h5V9h4v5"/>
+      <path d="m34 14-3 3H14l-3-3"/>
+      <path stroke-linecap="butt" stroke-linejoin="miter" d="M31 17v12.5H14V17"/>
+      <path d="m31 29.5 1.5 2.5h-20l1.5-2.5"/>
+      <path fill="none" stroke-linejoin="miter" d="M11 14h23"/>
+    </g>
+  </g>
+
+  <!-- King on e -->
+  <g transform="translate(43.5 104) scale(1.0)">
+    <g fill="none" fill-rule="evenodd" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+      <path stroke-linejoin="miter" d="M22.5 11.63V6M20 8h5"/>
+      <path fill="#fff" stroke-linecap="butt" stroke-linejoin="miter" d="M22.5 25s4.5-7.5 3-10.5c0 0-1-2.5-3-2.5s-3 2.5-3 2.5c-1.5 3 3 10.5 3 10.5"/>
+      <path fill="#fff" d="M11.5 37c5.5 3.5 15.5 3.5 21 0v-7s9-4.5 6-10.5c-4-6.5-13.5-3.5-16 4V27v-3.5c-3.5-7.5-13-10.5-16-4-3 6 5 10 5 10z"/>
+      <path d="M11.5 30c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0"/>
+    </g>
+  </g>
+
+  <!-- Selected rook on h -->
+  <g transform="translate(151.5 104) scale(1.0)">
+    <g fill="#fff" fill-rule="evenodd" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+      <path stroke-linecap="butt" d="M9 39h27v-3H9zm3-3v-4h21v4zm-1-22V9h4v2h5V9h5v2h5V9h4v5"/>
+      <path d="m34 14-3 3H14l-3-3"/>
+      <path stroke-linecap="butt" stroke-linejoin="miter" d="M31 17v12.5H14V17"/>
+      <path d="m31 29.5 1.5 2.5h-20l1.5-2.5"/>
+      <path fill="none" stroke-linejoin="miter" d="M11 14h23"/>
+    </g>
+  </g>
+</svg>

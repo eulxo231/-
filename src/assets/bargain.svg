@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="title desc">
+  <title id="title">Bargain</title>
+  <desc id="desc">A pawn is sacrificed in exchange for an extra action.</desc>
+  <!--
+    Pieces: Colin M.L. Burnett (Cburnett) chess set
+    Licensed under GPL / BSD / GFDL (Wikipedia / Lichess).
+  -->
+
+  <rect width="240" height="240" fill="#0a0a0a"/>
+
+  <!-- Two sides of the bargain -->
+  <g stroke="#1e2a24" stroke-width="1">
+    <rect x="48" y="108" width="56" height="56" fill="#121816"/>
+    <rect x="136" y="108" width="56" height="56" fill="#1a2420"/>
+  </g>
+
+  <!-- Sacrifice side -->
+  <rect x="48" y="108" width="56" height="56" fill="#e85d4c" fill-opacity="0.22" stroke="#e85d4c" stroke-opacity="0.6" stroke-width="1.75"/>
+
+  <!-- Extra-action side -->
+  <rect x="136" y="108" width="56" height="56" fill="#2a8c62" fill-opacity="0.28" stroke="#3ecf8e" stroke-opacity="0.55" stroke-width="1.75"/>
+
+  <defs>
+    <marker id="bg-arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#d6a83a"/>
+    </marker>
+  </defs>
+
+  <!-- Trade arrow: pawn -> action -->
+  <path d="M112 136 L128 136" fill="none" stroke="#d6a83a" stroke-width="3.25" stroke-linecap="round" marker-end="url(#bg-arrow)"/>
+
+  <!-- Sacrifice X over the pawn -->
+  <g stroke="#e85d4c" stroke-width="3" stroke-linecap="round" opacity="0.9">
+    <path d="M62 122 L90 150"/>
+    <path d="M90 122 L62 150"/>
+  </g>
+
+  <!-- Extra-action chevrons -->
+  <g fill="none" stroke="#3ecf8e" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M152 128 L168 144 L152 160"/>
+    <path d="M168 128 L184 144 L168 160"/>
+  </g>
+
+  <!-- Sacrificed pawn (fading) -->
+  <g transform="translate(53.5 113) scale(1.05)" opacity="0.55">
+    <path fill="#fff" stroke="#000" stroke-linecap="round" stroke-width="1.5" d="M22.5 9c-2.21 0-4 1.79-4 4 0 .89.29 1.71.78 2.38C17.33 16.5 16 18.59 16 21c0 2.03.94 3.84 2.41 5.03-3 1.06-7.41 5.55-7.41 13.47h23c0-7.92-4.41-12.41-7.41-13.47 1.47-1.19 2.41-3 2.41-5.03 0-2.41-1.33-4.5-3.28-5.62.49-.67.78-1.49.78-2.38 0-2.21-1.79-4-4-4z"/>
+  </g>
+
+  <!-- Action sparkles on reward side -->
+  <g fill="#3ecf8e">
+    <circle cx="164" cy="118" r="2.5"/>
+    <circle cx="186" cy="130" r="2"/>
+    <circle cx="178" cy="156" r="2"/>
+  </g>
+</svg>
