@@ -18,8 +18,8 @@ export function useOnlineGame() {
     setConnection('connecting')
     const net = connectPeer({
       onOpen: () => {
-        setConnection('connected')
-        setError(null)
+        // Broker socket only — stay "connecting" until a room snapshot arrives.
+        setConnection('connecting')
       },
       onClose: () => {
         setConnection('disconnected')
@@ -36,8 +36,9 @@ export function useOnlineGame() {
         netRef.current = null
       },
       onError: (message) => {
-        setConnection('disconnected')
+        setConnection('idle')
         setError(message)
+        setRoom(null)
         netRef.current = null
       },
     })
@@ -54,12 +55,15 @@ export function useOnlineGame() {
 
   const createRoom = useCallback(() => {
     setError(null)
+    setConnection('connecting')
     ensureNet().create()
   }, [ensureNet])
 
   const joinRoom = useCallback(
     (code: string) => {
       setError(null)
+      setRoom(null)
+      setConnection('connecting')
       ensureNet().join(code)
     },
     [ensureNet],

@@ -473,12 +473,13 @@ export function connectPeer(handlers: PeerHandlers) {
             teardown()
             return
           }
+          // Retained host_ready arrives immediately if the room exists.
           joinTimer = setTimeout(() => {
             if (!ready) {
               fail('Room not found. Check the code and try again.')
               teardown()
             }
-          }, 8_000)
+          }, 2_500)
         })
       })
     },

@@ -92,7 +92,7 @@ export function Lobby({
               </div>
               <p className={`conn ${connection}`}>
                 {connection === 'connected' && 'Connected'}
-                {connection === 'connecting' && 'Connecting…'}
+                {connection === 'connecting' && 'Looking for room…'}
                 {connection === 'disconnected' && 'Disconnected — retry by creating or joining'}
                 {connection === 'idle' && 'Ready to connect'}
               </p>
