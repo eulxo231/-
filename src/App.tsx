@@ -141,18 +141,24 @@ export default function App() {
   const tryMove = (from: number, to: number, promotion?: PieceType) => {
     if (!game || !canInteract) return
 
-    const candidate =
-      getLegalMoves(game, from).find(
-        (m) => m.to === to && (m.promotion ?? undefined) === promotion,
-      ) ?? null
-    if (!candidate) {
+    const toMoves = getLegalMoves(game, from).filter((m) => m.to === to)
+    if (toMoves.length === 0) {
       setSelected(null)
       setPendingPromotion(null)
       return
     }
 
+    // Promo destinations have 4 legal moves (q/r/b/n). Ask before matching one.
     if (needsPromotion(game, from, to) && !promotion) {
       setPendingPromotion({ from, to })
+      return
+    }
+
+    const candidate =
+      toMoves.find((m) => (m.promotion ?? undefined) === promotion) ?? null
+    if (!candidate) {
+      setSelected(null)
+      setPendingPromotion(null)
       return
     }
 
