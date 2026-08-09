@@ -1,5 +1,7 @@
+import type { RefObject } from 'react'
 import { getAugmentArt } from '../augments/art'
 import { getAugment, type AugmentId } from '../augments/catalog'
+import { useCardHoverTip } from './CardHoverTip'
 
 const TARGET_HINTS: Partial<Record<AugmentId, string>> = {
   coronation: 'Select one of your pieces to crown as queen.',
@@ -41,52 +43,57 @@ function CardView({
   const card = getAugment(id)
   const art = getAugmentArt(id)
   const interactive = card.kind === 'active' && usable && onClick
+  const { ref, tipHandlers, tipPortal } = useCardHoverTip(card.summary)
 
   return (
-    <article
-      className={[
-        'augment-card',
-        card.kind === 'rule' ? 'rule' : '',
-        card.kind === 'active' ? 'active-card' : '',
-        selected ? 'selected' : '',
-        interactive ? 'clickable' : '',
-      ]
-        .filter(Boolean)
-        .join(' ')}
-      title={card.summary}
-      role={interactive ? 'button' : undefined}
-      tabIndex={interactive ? 0 : undefined}
-      onClick={interactive ? onClick : undefined}
-      onKeyDown={
-        interactive
-          ? (e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault()
-                onClick()
+    <>
+      <article
+        ref={ref as RefObject<HTMLElement>}
+        className={[
+          'augment-card',
+          card.kind === 'rule' ? 'rule' : '',
+          card.kind === 'active' ? 'active-card' : '',
+          selected ? 'selected' : '',
+          interactive ? 'clickable' : '',
+        ]
+          .filter(Boolean)
+          .join(' ')}
+        role={interactive ? 'button' : undefined}
+        tabIndex={0}
+        onClick={interactive ? onClick : undefined}
+        onKeyDown={
+          interactive
+            ? (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  onClick()
+                }
               }
-            }
-          : undefined
-      }
-    >
-      <div className="augment-card-art" aria-hidden="true">
-        {art ? <img src={art} alt="" draggable={false} /> : null}
-      </div>
-      <div className="augment-card-body">
-        <header>
-          <h3>{card.name}</h3>
-          {card.kind === 'rule' ? (
-            <span className="augment-kind">RULE</span>
-          ) : card.kind === 'active' ? (
-            <span className="augment-kind">ACTIVE</span>
-          ) : card.kind === 'opening' ? (
-            <span className="augment-kind">OPENING</span>
-          ) : (
-            <span className="augment-stars">{'★'.repeat(card.stars)}</span>
-          )}
-        </header>
-        <p>{card.summary}</p>
-      </div>
-    </article>
+            : undefined
+        }
+        {...tipHandlers}
+      >
+        <div className="augment-card-art" aria-hidden="true">
+          {art ? <img src={art} alt="" draggable={false} /> : null}
+        </div>
+        <div className="augment-card-body">
+          <header>
+            <h3>{card.name}</h3>
+            {card.kind === 'rule' ? (
+              <span className="augment-kind">RULE</span>
+            ) : card.kind === 'active' ? (
+              <span className="augment-kind">ACTIVE</span>
+            ) : card.kind === 'opening' ? (
+              <span className="augment-kind">OPENING</span>
+            ) : (
+              <span className="augment-stars">{'★'.repeat(card.stars)}</span>
+            )}
+          </header>
+          <p>{card.summary}</p>
+        </div>
+      </article>
+      {tipPortal}
+    </>
   )
 }
 

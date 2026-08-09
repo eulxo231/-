@@ -1,3 +1,4 @@
+import type { RefObject } from 'react'
 import { getAugmentArt } from '../augments/art'
 import {
   DRAFT_PICKS_TOTAL,
@@ -6,12 +7,63 @@ import {
   type AugmentId,
 } from '../augments/catalog'
 import type { Color, GameState } from '../engine/types'
+import { useCardHoverTip } from './CardHoverTip'
 
 interface DraftPanelProps {
   game: GameState
   /** Whose picks the local UI can submit (null = spectating). */
   controller: Color | null
   onPick: (card: AugmentId) => void
+}
+
+function DraftCard({
+  id,
+  canPick,
+  onPick,
+}: {
+  id: AugmentId
+  canPick: boolean
+  onPick: (card: AugmentId) => void
+}) {
+  const card = getAugment(id)
+  const art = getAugmentArt(id)
+  const { ref, tipHandlers, tipPortal } = useCardHoverTip(card.summary)
+
+  return (
+    <>
+      <button
+        ref={ref as RefObject<HTMLButtonElement>}
+        type="button"
+        className={`draft-card${card.kind === 'rule' ? ' rule' : ''}`}
+        aria-disabled={!canPick}
+        onClick={() => {
+          if (!canPick) return
+          onPick(id)
+        }}
+        {...tipHandlers}
+      >
+        <div className="augment-card-art" aria-hidden="true">
+          {art ? <img src={art} alt="" draggable={false} /> : null}
+        </div>
+        <div className="augment-card-body">
+          <header>
+            <h3>{card.name}</h3>
+            <span className="augment-kind">
+              {card.kind === 'rule'
+                ? 'RULE'
+                : card.kind === 'active'
+                  ? 'ACTIVE'
+                  : card.kind === 'opening'
+                    ? 'OPENING'
+                    : '★'.repeat(Math.max(1, card.stars))}
+            </span>
+          </header>
+          <p>{card.summary}</p>
+        </div>
+      </button>
+      {tipPortal}
+    </>
+  )
 }
 
 export function DraftPanel({ game, controller, onPick }: DraftPanelProps) {
@@ -44,39 +96,9 @@ export function DraftPanel({ game, controller, onPick }: DraftPanelProps) {
         </div>
 
         <div className="draft-options">
-          {options.map((id) => {
-            const card = getAugment(id)
-            const art = getAugmentArt(id)
-            return (
-              <button
-                key={id}
-                type="button"
-                className={`draft-card${card.kind === 'rule' ? ' rule' : ''}`}
-                disabled={!canPick}
-                title={card.summary}
-                onClick={() => onPick(id)}
-              >
-                <div className="augment-card-art" aria-hidden="true">
-                  {art ? <img src={art} alt="" draggable={false} /> : null}
-                </div>
-                <div className="augment-card-body">
-                  <header>
-                    <h3>{card.name}</h3>
-                    <span className="augment-kind">
-                      {card.kind === 'rule'
-                        ? 'RULE'
-                        : card.kind === 'active'
-                          ? 'ACTIVE'
-                          : card.kind === 'opening'
-                            ? 'OPENING'
-                            : '★'.repeat(Math.max(1, card.stars))}
-                    </span>
-                  </header>
-                  <p>{card.summary}</p>
-                </div>
-              </button>
-            )
-          })}
+          {options.map((id) => (
+            <DraftCard key={id} id={id} canPick={canPick} onPick={onPick} />
+          ))}
         </div>
       </section>
     </div>

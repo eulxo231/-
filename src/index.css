@@ -692,12 +692,12 @@ button {
   aspect-ratio: 3 / 4;
 }
 
-.draft-card:disabled {
+.draft-card[aria-disabled='true'] {
   opacity: 0.55;
   cursor: not-allowed;
 }
 
-.draft-card:not(:disabled):hover {
+.draft-card:not([aria-disabled='true']):hover {
   outline: 2px solid var(--accent);
   outline-offset: 1px;
 }
@@ -869,43 +869,23 @@ button {
   line-clamp: 4;
 }
 
-/* Expand full summary over the art when hovered / focused */
-@media (hover: hover) {
-  .augment-card:hover,
-  .augment-card:focus-within,
-  .draft-card:hover,
-  .draft-card:focus-within {
-    overflow: visible;
-    z-index: 20;
-  }
-
-  .augment-card:hover .augment-card-body,
-  .augment-card:focus-within .augment-card-body,
-  .draft-card:hover .augment-card-body,
-  .draft-card:focus-within .augment-card-body {
-    position: absolute;
-    left: -1px;
-    right: -1px;
-    bottom: -1px;
-    z-index: 1;
-    min-height: 58%;
-    max-height: calc(100% + 2.5rem);
-    overflow: auto;
-    background: #f7faf8;
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    box-shadow: 0 10px 28px rgba(26, 36, 32, 0.18);
-  }
-
-  .augment-card:hover .augment-card-body p,
-  .augment-card:focus-within .augment-card-body p,
-  .draft-card:hover .augment-card-body p,
-  .draft-card:focus-within .augment-card-body p {
-    display: block;
-    overflow: visible;
-    -webkit-line-clamp: unset;
-    line-clamp: unset;
-  }
+/* Full summary portal tip (see useCardHoverTip) */
+.card-hover-tip {
+  position: fixed;
+  z-index: 10000;
+  margin: 0;
+  padding: 0.55rem 0.65rem;
+  box-sizing: border-box;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: #f4f7f5;
+  background: #1a2420;
+  border: 1px solid rgba(244, 247, 245, 0.18);
+  border-radius: 6px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+  pointer-events: none;
+  white-space: normal;
+  word-wrap: break-word;
 }
 
 .draft-card .augment-card-art {
