@@ -148,14 +148,17 @@ export default function App() {
       return
     }
 
-    // Promo destinations have 4 legal moves (q/r/b/n). Ask before matching one.
-    if (needsPromotion(game, from, to) && !promotion) {
+    // Promo destinations are multiple legal moves (q/r/b/n). Ask before matching one.
+    const needsPromo =
+      toMoves.some((m) => m.promotion) || needsPromotion(game, from, to)
+    if (needsPromo && !promotion) {
       setPendingPromotion({ from, to })
       return
     }
 
-    const candidate =
-      toMoves.find((m) => (m.promotion ?? undefined) === promotion) ?? null
+    const candidate = needsPromo
+      ? (toMoves.find((m) => m.promotion === promotion) ?? null)
+      : (toMoves.find((m) => !m.promotion) ?? toMoves[0] ?? null)
     if (!candidate) {
       setSelected(null)
       setPendingPromotion(null)
@@ -163,14 +166,17 @@ export default function App() {
     }
 
     if (mode === 'online') {
-      online.sendMove(from, to, promotion)
+      online.sendMove(from, to, candidate.promotion)
       setSelected(null)
       setPendingPromotion(null)
       return
     }
 
     const next = makeMove(game, candidate)
-    if (!next) return
+    if (!next) {
+      setPendingPromotion(null)
+      return
+    }
     setLocalGame(next)
     setSelected(null)
     setPendingPromotion(null)
@@ -371,7 +377,13 @@ export default function App() {
       return
     }
     if (!pendingPromotion) return
-    tryMove(pendingPromotion.from, pendingPromotion.to, type)
+    const { from, to } = pendingPromotion
+    tryMove(from, to, type)
+  }
+
+  const onCancelPromotion = () => {
+    setPendingPromotion(null)
+    setPromoteCardSq(null)
   }
 
   const resetLocal = () => {
@@ -496,6 +508,7 @@ export default function App() {
               onMove={onMove}
               pendingPromotion={boardPendingPromotion}
               onPromote={onPromote}
+              onCancelPromotion={onCancelPromotion}
               highway={(game.rules ?? []).includes('highway')}
               promoteChoices={
                 promoteCardSq != null && pendingCard === 'promote-now'

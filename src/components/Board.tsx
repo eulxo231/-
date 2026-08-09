@@ -1,4 +1,5 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import type { Move, Piece, PieceType } from '../engine/types'
 import { pieceGlyph } from '../pieces'
 
@@ -20,6 +21,7 @@ interface BoardProps {
   onMove: (from: number, to: number) => void
   pendingPromotion: { from: number; to: number } | null
   onPromote: (type: PieceType) => void
+  onCancelPromotion?: () => void
   /** Override promotion piece choices (e.g. Promote Now: n/b/r). */
   promoteChoices?: PieceType[]
 }
@@ -49,6 +51,7 @@ export function Board({
   onMove,
   pendingPromotion,
   onPromote,
+  onCancelPromotion,
   promoteChoices = ['q', 'r', 'b', 'n'],
 }: BoardProps) {
   const boardRef = useRef<HTMLDivElement>(null)
@@ -64,6 +67,15 @@ export function Board({
     dragFrom.current = null
   }, [])
 
+  useEffect(() => {
+    if (!pendingPromotion || !onCancelPromotion) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onCancelPromotion()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [pendingPromotion, onCancelPromotion])
+
   const squareFromEvent = (e: React.MouseEvent | React.PointerEvent) => {
     const el = boardRef.current
     if (!el) return null
@@ -78,7 +90,11 @@ export function Board({
   }
 
   const handleClick = (sq: number) => {
-    if (disabled || pendingPromotion) return
+    if (disabled) return
+    if (pendingPromotion) {
+      onCancelPromotion?.()
+      return
+    }
     clearMarks()
     // Only legal destinations complete a move — illegal clicks never “premove”
     if (selected !== null && legalTargets.has(sq)) {
@@ -93,7 +109,7 @@ export function Board({
   }
 
   const handlePointerDown = (e: React.PointerEvent) => {
-    if (disabled || e.button !== 2) return
+    if (disabled || pendingPromotion || e.button !== 2) return
     e.preventDefault()
     const sq = squareFromEvent(e)
     if (sq === null) return
@@ -184,6 +200,52 @@ export function Board({
     )
   })
 
+  const promoColor = pendingPromotion
+    ? (board[pendingPromotion.from]?.color ?? turn)
+    : turn
+
+  const promoPortal =
+    pendingPromotion &&
+    createPortal(
+      <div
+        className="promo-overlay"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Promote pawn"
+        onClick={() => onCancelPromotion?.()}
+      >
+        <div
+          className="promo-panel"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <p>Promote pawn</p>
+          <div className="promo-choices">
+            {promoteChoices.map((t) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => onPromote(t)}
+                className="promo-btn"
+                aria-label={`Promote to ${t}`}
+              >
+                {pieceGlyph({ type: t, color: promoColor })}
+              </button>
+            ))}
+          </div>
+          {onCancelPromotion && (
+            <button
+              type="button"
+              className="ghost promo-cancel"
+              onClick={onCancelPromotion}
+            >
+              Cancel
+            </button>
+          )}
+        </div>
+      </div>,
+      document.body,
+    )
+
   return (
     <div className="board-wrap">
       <div
@@ -239,31 +301,9 @@ export function Board({
             )
           })}
         </svg>
-
-        {pendingPromotion && (
-          <div className="promo-overlay">
-            <div className="promo-panel">
-              <p>Promote pawn</p>
-              <div className="promo-choices">
-                {promoteChoices.map((t) => {
-                  const color = board[pendingPromotion.from]?.color ?? turn
-                  return (
-                    <button
-                      key={t}
-                      type="button"
-                      onClick={() => onPromote(t)}
-                      className="promo-btn"
-                    >
-                      {pieceGlyph({ type: t, color })}
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-          </div>
-        )}
       </div>
       <p className="board-hint">Right-click square to mark · drag to draw arrows</p>
+      {promoPortal}
     </div>
   )
 }

@@ -1117,13 +1117,13 @@ button {
 }
 
 .promo-overlay {
-  position: absolute;
+  position: fixed;
   inset: 0;
-  z-index: 3;
+  z-index: 10050;
   display: grid;
   place-items: center;
-  background: rgba(26, 36, 32, 0.35);
-  backdrop-filter: blur(2px);
+  background: rgba(26, 36, 32, 0.45);
+  backdrop-filter: blur(3px);
 }
 
 .promo-panel {
@@ -1134,16 +1134,24 @@ button {
   text-align: center;
   box-shadow: var(--shadow);
   animation: pop 0.2s ease both;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .promo-panel p {
-  margin: 0 0 0.75rem;
+  margin: 0;
   font-weight: 600;
 }
 
 .promo-choices {
   display: flex;
   gap: 0.4rem;
+}
+
+.promo-cancel {
+  margin-top: 0.15rem;
 }
 
 .promo-btn {
