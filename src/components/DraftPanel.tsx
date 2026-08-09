@@ -53,6 +53,7 @@ export function DraftPanel({ game, controller, onPick }: DraftPanelProps) {
                 type="button"
                 className={`draft-card${card.kind === 'rule' ? ' rule' : ''}`}
                 disabled={!canPick}
+                title={card.summary}
                 onClick={() => onPick(id)}
               >
                 <div className="augment-card-art" aria-hidden="true">
