@@ -148,17 +148,28 @@ export default function App() {
       return
     }
 
+    // Capturing the king ends the game — skip promotion UI entirely.
+    const capturesKing =
+      toMoves.some((m) => m.captured?.type === 'k') ||
+      game.board[to]?.type === 'k'
+
     // Promo destinations are multiple legal moves (q/r/b/n). Ask before matching one.
     const needsPromo =
-      toMoves.some((m) => m.promotion) || needsPromotion(game, from, to)
+      !capturesKing &&
+      (toMoves.some((m) => m.promotion) || needsPromotion(game, from, to))
     if (needsPromo && !promotion) {
       setPendingPromotion({ from, to })
       return
     }
 
-    const candidate = needsPromo
-      ? (toMoves.find((m) => m.promotion === promotion) ?? null)
-      : (toMoves.find((m) => !m.promotion) ?? toMoves[0] ?? null)
+    const candidate = capturesKing
+      ? (toMoves.find((m) => m.promotion === 'q') ??
+        toMoves.find((m) => m.captured?.type === 'k') ??
+        toMoves[0] ??
+        null)
+      : needsPromo
+        ? (toMoves.find((m) => m.promotion === promotion) ?? null)
+        : (toMoves.find((m) => !m.promotion) ?? toMoves[0] ?? null)
     if (!candidate) {
       setSelected(null)
       setPendingPromotion(null)

@@ -207,9 +207,12 @@ export function connectPeer(handlers: PeerHandlers) {
     if (!room || !ready) return false
     if (room.game.turn !== as || room.game.result) return false
     if (room.game.phase !== 'playing') return false
-    const legal = getLegalMoves(room.game, from).find(
-      (m) => m.to === to && (m.promotion ?? undefined) === promotion,
-    )
+    const toMoves = getLegalMoves(room.game, from).filter((m) => m.to === to)
+    // King capture ends the game — accept any promo variant (default queen).
+    const kingHit = toMoves.find((m) => m.captured?.type === 'k')
+    const legal =
+      kingHit ??
+      toMoves.find((m) => (m.promotion ?? undefined) === promotion)
     if (!legal) return false
     const next = makeMove(room.game, legal)
     if (!next) return false
