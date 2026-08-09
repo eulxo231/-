@@ -697,7 +697,14 @@ export function draftOptionsFor(state: {
     ...state.augments.b,
     ...state.rules,
   ])
-  const remaining = DRAFT_CATALOG.filter((id) => !taken.has(id))
+  // Opening cards only appear in the first (pre-game) draft.
+  const isOpeningDraft =
+    (state.picksMade?.w ?? 0) < 1 || (state.picksMade?.b ?? 0) < 1
+  const remaining = DRAFT_CATALOG.filter((id) => {
+    if (taken.has(id)) return false
+    if (!isOpeningDraft && getAugment(id).kind === 'opening') return false
+    return true
+  })
   if (remaining.length <= DRAFT_OFFER_COUNT) return remaining
 
   // Deterministic offer — stable across host/guest; changes each round.

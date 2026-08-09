@@ -1460,6 +1460,11 @@ export function pickDraftCard(
   if (!options.includes(cardId)) return null
 
   const card = getAugment(cardId)
+  const isOpeningDraft =
+    (state.picksMade?.w ?? 0) < 1 || (state.picksMade?.b ?? 0) < 1
+  // Opening cards are only legal during the first draft.
+  if (card.kind === 'opening' && !isOpeningDraft) return null
+
   let board = state.board.map((p) => (p ? { ...p } : null))
   let castling = { ...state.castling }
   let augments = {
@@ -1478,13 +1483,6 @@ export function pickDraftCard(
   } else {
     if (augments[by].includes(cardId)) return null
     augments[by].push(cardId)
-    // Openings gained mid-game resolve immediately if you've already moved.
-    if (card.kind === 'opening' && (state.hasMoved?.[by] ?? false)) {
-      const opened = triggerOpeningCards(by, board, augments, castling)
-      board = opened.board
-      augments = opened.augments
-      castling = opened.castling
-    }
   }
 
   picksMade[by] += 1
