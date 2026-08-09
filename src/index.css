@@ -869,15 +869,16 @@ button {
   line-clamp: 4;
 }
 
-/* Full summary portal tip (see useCardHoverTip) */
+/* Full title + summary portal tip (see useCardHoverTip) */
 .card-hover-tip {
   position: fixed;
   z-index: 10000;
   margin: 0;
   padding: 0.55rem 0.65rem;
   box-sizing: border-box;
-  font-size: 0.78rem;
-  line-height: 1.35;
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
   color: #f4f7f5;
   background: #1a2420;
   border: 1px solid rgba(244, 247, 245, 0.18);
@@ -886,6 +887,19 @@ button {
   pointer-events: none;
   white-space: normal;
   word-wrap: break-word;
+}
+
+.card-hover-tip-title {
+  font-size: 0.82rem;
+  font-weight: 650;
+  line-height: 1.25;
+}
+
+.card-hover-tip-body {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: rgba(244, 247, 245, 0.88);
 }
 
 .draft-card .augment-card-art {

@@ -43,7 +43,10 @@ function CardView({
   const card = getAugment(id)
   const art = getAugmentArt(id)
   const interactive = card.kind === 'active' && usable && onClick
-  const { ref, tipHandlers, tipPortal } = useCardHoverTip(card.summary)
+  const { ref, tipHandlers, tipPortal } = useCardHoverTip(
+    card.name,
+    card.summary,
+  )
 
   return (
     <>

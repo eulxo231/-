@@ -27,7 +27,10 @@ function DraftCard({
 }) {
   const card = getAugment(id)
   const art = getAugmentArt(id)
-  const { ref, tipHandlers, tipPortal } = useCardHoverTip(card.summary)
+  const { ref, tipHandlers, tipPortal } = useCardHoverTip(
+    card.name,
+    card.summary,
+  )
 
   return (
     <>

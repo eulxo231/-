@@ -7,14 +7,18 @@ import {
 } from 'react'
 import { createPortal } from 'react-dom'
 
-type TipState = {
-  text: string
+type TipContent = {
+  title: string
+  body: string
+}
+
+type TipState = TipContent & {
   left: number
   top: number
   width: number
 }
 
-function placeBelow(anchor: DOMRect): Omit<TipState, 'text'> {
+function placeBelow(anchor: DOMRect): Pick<TipState, 'left' | 'top' | 'width'> {
   const width = Math.min(Math.max(anchor.width, 220), 320)
   const margin = 8
   let left = anchor.left + anchor.width / 2 - width / 2
@@ -22,8 +26,8 @@ function placeBelow(anchor: DOMRect): Omit<TipState, 'text'> {
   return { left, top: anchor.bottom + margin, width }
 }
 
-/** Full card description in a fixed portal tip (avoids overflow clipping). */
-export function useCardHoverTip(text: string): {
+/** Full card title + description in a fixed portal tip (avoids overflow clipping). */
+export function useCardHoverTip(title: string, body: string): {
   ref: RefObject<HTMLElement | null>
   tipHandlers: {
     onMouseEnter: () => void
@@ -40,7 +44,7 @@ export function useCardHoverTip(text: string): {
   const show = () => {
     const el = ref.current
     if (!el) return
-    setTip({ text, ...placeBelow(el.getBoundingClientRect()) })
+    setTip({ title, body, ...placeBelow(el.getBoundingClientRect()) })
   }
 
   const hide = () => setTip(null)
@@ -81,7 +85,8 @@ export function useCardHoverTip(text: string): {
           width: tip.width,
         }}
       >
-        {tip.text}
+        <strong className="card-hover-tip-title">{tip.title}</strong>
+        <p className="card-hover-tip-body">{tip.body}</p>
       </div>,
       document.body,
     )
