@@ -190,8 +190,15 @@ export function Board({
         {isCapture && <span className="capture-ring" />}
         {piece && (
           <span
-            className={`piece ${piece.color === 'w' ? 'white' : 'black'}`}
+            className={[
+              'piece',
+              piece.color === 'w' ? 'white' : 'black',
+              piece.bomber ? 'bomber' : '',
+            ]
+              .filter(Boolean)
+              .join(' ')}
             data-turn={piece.color === turn ? 'active' : 'idle'}
+            title={piece.bomber ? 'Suicide Bomber' : undefined}
           >
             {pieceGlyph(piece)}
           </span>

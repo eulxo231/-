@@ -20,6 +20,7 @@ export type AugmentId =
   | 'hopping-bishop'
   | 'twin-knights'
   | 'militia'
+  | 'reckless-charge'
   // Active
   | 'swap'
   | 'recall'
@@ -36,6 +37,8 @@ export type AugmentId =
   | 'recruit'
   | 'teleport'
   | 'castle-now'
+  | 'glacier'
+  | 'suicide-bomber'
   // RULE
   | 'fog'
   | 'mirror'
@@ -262,6 +265,15 @@ export const AUGMENTS: Record<AugmentId, AugmentCard> = {
     summary: 'Your knights may also capture one square diagonally forward.',
     art: 'black',
   },
+  'reckless-charge': {
+    id: 'reckless-charge',
+    name: 'Reckless Charge',
+    kind: 'piece',
+    stars: 3,
+    summary:
+      'When your knight jumps over an orthogonally adjacent enemy, that piece is captured automatically.',
+    art: 'black',
+  },
 
   swap: {
     id: 'swap',
@@ -404,6 +416,26 @@ export const AUGMENTS: Record<AugmentId, AugmentCard> = {
       'Instantly castle with one of your rooks if the path is empty (ignores prior moves). Once.',
     art: 'black',
     target: 'own-rook',
+  },
+  glacier: {
+    id: 'glacier',
+    name: 'Glacier',
+    kind: 'active',
+    stars: 3,
+    summary:
+      "Enemy bishops, rooks, and queens may only move to their maximum range for their next 3 actions. Once.",
+    art: 'black',
+    target: 'none',
+  },
+  'suicide-bomber': {
+    id: 'suicide-bomber',
+    name: 'Suicide Bomber',
+    kind: 'active',
+    stars: 3,
+    summary:
+      'Give one of your pawns a suicide charge. When it is captured, it explodes in a 3×3 area, removing every piece there (including yours). Once.',
+    art: 'black',
+    target: 'own-pawn',
   },
 
   fog: {

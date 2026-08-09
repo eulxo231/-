@@ -248,6 +248,7 @@ export default function App() {
 
       case 'own-pawn': {
         if (piece && piece.color === me && piece.type === 'p') {
+          if (pendingCard === 'suicide-bomber' && piece.bomber) return
           applyCard(pendingCard, { square: sq })
         }
         return

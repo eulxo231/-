@@ -107,6 +107,7 @@ function emptyExtras(): Pick<
   GameState,
   | 'lastMovedTo'
   | 'eclipse'
+  | 'glacier'
   | 'echoSquare'
   | 'echoFor'
   | 'crookedFrom'
@@ -119,6 +120,7 @@ function emptyExtras(): Pick<
   return {
     lastMovedTo: null,
     eclipse: null,
+    glacier: null,
     echoSquare: null,
     echoFor: null,
     crookedFrom: null,
@@ -518,6 +520,7 @@ function snapshotOf(state: GameState): BoardSnapshot {
     hasMoved: { ...state.hasMoved },
     lastMovedTo: state.lastMovedTo,
     eclipse: state.eclipse ? { ...state.eclipse } : null,
+    glacier: state.glacier ? { ...state.glacier } : null,
     echoSquare: state.echoSquare,
     echoFor: state.echoFor,
     crookedFrom: state.crookedFrom,
@@ -554,6 +557,7 @@ export function cloneState(state: GameState): GameState {
     hasMoved: { ...(state.hasMoved ?? { w: false, b: false }) },
     lastMovedTo: state.lastMovedTo ?? null,
     eclipse: state.eclipse ? { ...state.eclipse } : null,
+    glacier: state.glacier ? { ...state.glacier } : null,
     echoSquare: state.echoSquare ?? null,
     echoFor: state.echoFor ?? null,
     crookedFrom: state.crookedFrom ?? null,
@@ -572,6 +576,7 @@ export function cloneState(state: GameState): GameState {
           lastMove: state.prev.lastMove ? { ...state.prev.lastMove } : null,
           hasMoved: { ...state.prev.hasMoved },
           eclipse: state.prev.eclipse ? { ...state.prev.eclipse } : null,
+          glacier: state.prev.glacier ? { ...state.prev.glacier } : null,
           borrowedTimeUsed: { ...state.prev.borrowedTimeUsed },
         }
       : null,
@@ -581,7 +586,9 @@ export function cloneState(state: GameState): GameState {
 export function positionKey(state: GameState): string {
   const pieces = state.board
     .map((p, i) =>
-      p ? `${i}${p.color}${p.type}${p.envoy ? 'E' : ''}` : '',
+      p
+        ? `${i}${p.color}${p.type}${p.envoy ? 'E' : ''}${p.bomber ? 'B' : ''}`
+        : '',
     )
     .filter(Boolean)
     .join(',')
@@ -648,6 +655,10 @@ function applyMoveToBoard(board: (Piece | null)[], move: Move): (Piece | null)[]
     next[capRow * 8 + capCol] = null
   }
 
+  if (move.leapSquare != null) {
+    next[move.leapSquare] = null
+  }
+
   if (move.castle) {
     const row = Math.floor(move.from / 8)
     const rookFrom =
@@ -682,6 +693,7 @@ function moveGenOpts(state: GameState, turn: Color = state.turn): MoveGenOpts {
     rules: state.rules ?? [],
     lastMovedTo: state.lastMovedTo ?? null,
     eclipse: state.eclipse ?? null,
+    glacier: state.glacier ?? null,
     echoSquare: state.echoSquare ?? null,
     echoFor: state.echoFor ?? null,
     crookedFrom: state.crookedFrom ?? null,
@@ -785,6 +797,7 @@ function advanceAfterAction(
   | 'crookedFrom'
   | 'twinFrom'
   | 'eclipse'
+  | 'glacier'
   | 'echoSquare'
   | 'echoFor'
 > {
@@ -810,6 +823,13 @@ function advanceAfterAction(
     eclipse = null
   }
 
+  // Glacier counts down on each action by the affected side.
+  let glacier = state.glacier ? { ...state.glacier } : null
+  if (glacier && state.turn === glacier.against) {
+    glacier.remaining -= 1
+    if (glacier.remaining <= 0) glacier = null
+  }
+
   let echoSquare = state.echoSquare
   let echoFor = state.echoFor
   if (!keepTurn && echoFor != null && turn === echoFor) {
@@ -829,6 +849,7 @@ function advanceAfterAction(
     crookedFrom: keepTurn ? state.crookedFrom : null,
     twinFrom: keepTurn ? state.twinFrom : null,
     eclipse,
+    glacier,
     echoSquare,
     echoFor,
   }
@@ -904,28 +925,69 @@ export function makeMove(state: GameState, move: Move): GameState | null {
       state.epSquare,
       moveGenOpts(state),
     )
-    if (all.some((m) => m.captured) && !legal.captured) return null
+    if (
+      all.some((m) => m.captured || m.leapCaptured) &&
+      !(legal.captured || legal.leapCaptured)
+    ) {
+      return null
+    }
   }
 
   const mover = state.turn
   const firstMove = !(state.hasMoved?.[mover] ?? false)
   const movingPiece = state.board[legal.from]
-  const capturedKing = legal.captured?.type === 'k'
-  const capturedEnvoy = !!legal.captured?.envoy
+  const capturedKing =
+    legal.captured?.type === 'k' || legal.leapCaptured?.type === 'k'
+  const capturedEnvoy =
+    !!legal.captured?.envoy || !!legal.leapCaptured?.envoy
+  const suddenCapture =
+    legal.captured && ['n', 'b', 'r', 'q'].includes(legal.captured.type)
+      ? legal.captured
+      : legal.leapCaptured &&
+          ['n', 'b', 'r', 'q'].includes(legal.leapCaptured.type)
+        ? legal.leapCaptured
+        : null
   const sudden =
     hasRule(rules, 'sudden-death') &&
     state.fullMove >= 20 &&
-    !!legal.captured &&
-    ['n', 'b', 'r', 'q'].includes(legal.captured.type)
+    !!suddenCapture
 
   const prevSnap = snapshotOf(state)
   let nextBoard = applyMoveToBoard(state.board, legal)
+
+  const blastBomberAt = (center: number) => {
+    const cr = Math.floor(center / 8)
+    const cc = center % 8
+    for (let dr = -1; dr <= 1; dr++) {
+      for (let dc = -1; dc <= 1; dc++) {
+        const r = cr + dr
+        const c = cc + dc
+        if (r < 0 || r > 7 || c < 0 || c > 7) continue
+        nextBoard[r * 8 + c] = null
+      }
+    }
+  }
+
+  // Suicide Bomber: captured bomber explodes in a 3×3 (friendly fire).
+  let bomberBlast = false
+  if (legal.captured?.bomber) {
+    bomberBlast = true
+    const center = legal.enPassant
+      ? Math.floor(legal.from / 8) * 8 + (legal.to % 8)
+      : legal.to
+    blastBomberAt(center)
+  }
+  if (legal.leapCaptured?.bomber && legal.leapSquare != null) {
+    bomberBlast = true
+    blastBomberAt(legal.leapSquare)
+  }
 
   // Glass Queen: queen dies when she captures.
   if (
     hasAugment(owned, 'glass-queen') &&
     movingPiece?.type === 'q' &&
-    legal.captured
+    legal.captured &&
+    !bomberBlast
   ) {
     nextBoard[legal.to] = null
   }
@@ -940,7 +1002,10 @@ export function makeMove(state: GameState, move: Move): GameState | null {
     nextBoard[legal.from] = { type: 'p', color: mover }
   }
 
-  const irreversible = !!legal.captured || state.board[legal.from]?.type === 'p'
+  const irreversible =
+    !!legal.captured ||
+    !!legal.leapCaptured ||
+    state.board[legal.from]?.type === 'p'
   let nextCastling = updateCastling(state.castling, legal, state.board)
 
   let epSquare: number | null = null
@@ -1025,15 +1090,17 @@ export function makeMove(state: GameState, move: Move): GameState | null {
     }
     return null
   })()
+  const anyCapture = !!legal.captured || !!legal.leapCaptured
   const kingHuntHit =
-    !!legal.captured &&
+    anyCapture &&
     hasRule(rules, 'king-hunt') &&
     !(state.kingHuntUsed ?? false) &&
     enemyKingSq != null &&
-    isAdjacent(legal.to, enemyKingSq)
+    (isAdjacent(legal.to, enemyKingSq) ||
+      (legal.leapSquare != null && isAdjacent(legal.leapSquare, enemyKingSq)))
 
   if (
-    (legal.captured &&
+    (anyCapture &&
       hasRule(rules, 'shared-pool') &&
       !(state.sharedPoolUsed ?? false)) ||
     capturedEnvoy ||
@@ -1043,7 +1110,7 @@ export function makeMove(state: GameState, move: Move): GameState | null {
       ...stateForClock,
       actionsRemaining: (stateForClock.actionsRemaining ?? 1) + 1,
       sharedPoolUsed:
-        legal.captured && hasRule(rules, 'shared-pool')
+        anyCapture && hasRule(rules, 'shared-pool')
           ? true
           : stateForClock.sharedPoolUsed,
       kingHuntUsed: kingHuntHit ? true : stateForClock.kingHuntUsed,
@@ -1103,6 +1170,32 @@ export function makeMove(state: GameState, move: Move): GameState | null {
     next.result = { winner: state.turn, reason: 'king-captured' }
     return next
   }
+
+  // After a bomber blast, resolve kings removed by the explosion.
+  if (bomberBlast) {
+    let whiteKing = false
+    let blackKing = false
+    for (let i = 0; i < 64; i++) {
+      const p = nextBoard[i]
+      if (p?.type === 'k') {
+        if (p.color === 'w') whiteKing = true
+        else blackKing = true
+      }
+    }
+    if (!whiteKing && !blackKing) {
+      next.result = { winner: 'draw', reason: 'king-captured' }
+      return next
+    }
+    if (!whiteKing) {
+      next.result = { winner: 'b', reason: 'king-captured' }
+      return next
+    }
+    if (!blackKing) {
+      next.result = { winner: 'w', reason: 'king-captured' }
+      return next
+    }
+  }
+
   if (sudden) {
     next.result = { winner: state.turn, reason: 'sudden-death' }
     return next
@@ -1234,6 +1327,23 @@ export function useActiveCard(
       })
     }
 
+    case 'glacier': {
+      augments = consumeCard(augments, color, cardId)
+      return finishCardUse(state, board, augments, true, {
+        glacier: { against: opposite(color), remaining: 3 },
+      })
+    }
+
+    case 'suicide-bomber': {
+      if (square == null) return null
+      const piece = pieceAt(square)
+      if (!piece || piece.color !== color || piece.type !== 'p') return null
+      if (piece.bomber) return null
+      board[square] = { ...piece, bomber: true }
+      augments = consumeCard(augments, color, cardId)
+      return finishCardUse(state, board, augments, true)
+    }
+
     case 'rewind': {
       if (!state.prev) return null
       const snap = state.prev
@@ -1250,6 +1360,7 @@ export function useActiveCard(
         hasMoved: { ...snap.hasMoved },
         lastMovedTo: snap.lastMovedTo,
         eclipse: snap.eclipse ? { ...snap.eclipse } : null,
+        glacier: snap.glacier ? { ...snap.glacier } : null,
         echoSquare: snap.echoSquare,
         echoFor: snap.echoFor,
         crookedFrom: null,
@@ -1547,8 +1658,8 @@ export function getLegalMoves(state: GameState, from: number): Move[] {
       state.epSquare,
       moveGenOpts(state),
     )
-    if (all.some((m) => m.captured)) {
-      return moves.filter((m) => m.captured)
+    if (all.some((m) => m.captured || m.leapCaptured)) {
+      return moves.filter((m) => m.captured || m.leapCaptured)
     }
   }
   return moves

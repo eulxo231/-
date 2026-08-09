@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="title desc">
+  <title id="title">Suicide Bomber</title>
+  <desc id="desc">When this pawn is captured, it explodes in a 3x3 area.</desc>
+  <!--
+    Pieces: Colin M.L. Burnett (Cburnett) chess set
+    Licensed under GPL / BSD / GFDL (Wikipedia / Lichess).
+  -->
+
+  <rect width="240" height="240" fill="#0a0a0a"/>
+
+  <!-- 3×3 blast grid -->
+  <g stroke="#1e2a24" stroke-width="1">
+    <rect x="60" y="60" width="40" height="40" fill="#121816"/>
+    <rect x="100" y="60" width="40" height="40" fill="#1a2420"/>
+    <rect x="140" y="60" width="40" height="40" fill="#121816"/>
+    <rect x="60" y="100" width="40" height="40" fill="#1a2420"/>
+    <rect x="100" y="100" width="40" height="40" fill="#121816"/>
+    <rect x="140" y="100" width="40" height="40" fill="#1a2420"/>
+    <rect x="60" y="140" width="40" height="40" fill="#121816"/>
+    <rect x="100" y="140" width="40" height="40" fill="#1a2420"/>
+    <rect x="140" y="140" width="40" height="40" fill="#121816"/>
+  </g>
+
+  <!-- Blast wash -->
+  <rect x="60" y="60" width="120" height="120" fill="#e85d4c" fill-opacity="0.14" stroke="#e85d4c" stroke-opacity="0.55" stroke-width="2"/>
+
+  <!-- Explosion rays from center -->
+  <g stroke="#e85d4c" stroke-width="2.25" stroke-linecap="round" fill="none">
+    <path d="M120 120 L120 48"/>
+    <path d="M120 120 L120 192"/>
+    <path d="M120 120 L48 120"/>
+    <path d="M120 120 L192 120"/>
+    <path d="M120 120 L66 66"/>
+    <path d="M120 120 L174 66"/>
+    <path d="M120 120 L66 174"/>
+    <path d="M120 120 L174 174"/>
+  </g>
+  <g fill="#e85d4c">
+    <circle cx="120" cy="48" r="2.5"/>
+    <circle cx="120" cy="192" r="2.5"/>
+    <circle cx="48" cy="120" r="2.5"/>
+    <circle cx="192" cy="120" r="2.5"/>
+  </g>
+
+  <!-- Armed pawn in the center -->
+  <g transform="translate(97.5 97.5) scale(1)">
+    <path fill="#fff" stroke="#000" stroke-linecap="round" stroke-width="1.5" d="M22.5 9c-2.21 0-4 1.79-4 4 0 .89.29 1.71.78 2.38C17.33 16.5 16 18.59 16 21c0 2.03.94 3.84 2.41 5.03-3 1.06-7.41 5.55-7.41 13.47h23c0-7.92-4.41-12.41-7.41-13.47 1.47-1.19 2.41-3 2.41-5.03 0-2.41-1.33-4.5-3.28-5.62.49-.67.78-1.49.78-2.38 0-2.21-1.79-4-4-4z"/>
+  </g>
+
+  <!-- Fuse spark on the pawn -->
+  <circle cx="132" cy="104" r="4" fill="#d6a83a"/>
+  <path d="M132 104 C140 96 148 98 152 90" fill="none" stroke="#d6a83a" stroke-width="2" stroke-linecap="round"/>
+</svg>

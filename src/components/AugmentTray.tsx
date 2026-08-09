@@ -18,6 +18,7 @@ const TARGET_HINTS: Partial<Record<AugmentId, string>> = {
   recruit: 'Select an empty square on your second rank to place a pawn.',
   teleport: 'Select an empty square on your back rank to teleport your king.',
   'castle-now': 'Select one of your rooks to castle with instantly.',
+  'suicide-bomber': 'Select one of your pawns to arm with a suicide charge.',
 }
 
 interface AugmentTrayProps {

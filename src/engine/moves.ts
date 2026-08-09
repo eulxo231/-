@@ -51,6 +51,7 @@ export interface MoveGenOpts {
   rules?: readonly AugmentId[]
   lastMovedTo?: number | null
   eclipse?: { square: number; until: Color } | null
+  glacier?: { against: Color; remaining: number } | null
   echoSquare?: number | null
   echoFor?: Color | null
   crookedFrom?: number | null
@@ -148,7 +149,26 @@ function slide(
 }
 
 function moveKey(m: Move): string {
-  return `${m.from}-${m.to}-${m.promotion ?? ''}-${m.enPassant ? 'e' : ''}-${m.castle ?? ''}-${m.doublePawn ? 'd' : ''}-${m.castleRookFrom ?? ''}-${m.crookedStep ? 'c' : ''}-${m.twinStep ? 't' : ''}`
+  return `${m.from}-${m.to}-${m.promotion ?? ''}-${m.enPassant ? 'e' : ''}-${m.castle ?? ''}-${m.doublePawn ? 'd' : ''}-${m.castleRookFrom ?? ''}-${m.crookedStep ? 'c' : ''}-${m.twinStep ? 't' : ''}-${m.leapSquare ?? ''}`
+}
+
+function isCaptureMove(m: Move): boolean {
+  return !!m.captured || !!m.leapCaptured
+}
+
+/** Mid-square on a knight's 2-step orthogonal leg (null if not an L-move). */
+function knightLeapSquare(from: number, to: number): number | null {
+  const fr = Math.floor(from / 8)
+  const fc = from % 8
+  const tr = Math.floor(to / 8)
+  const tc = to % 8
+  const dr = tr - fr
+  const dc = tc - fc
+  const adr = Math.abs(dr)
+  const adc = Math.abs(dc)
+  if (!((adr === 2 && adc === 1) || (adr === 1 && adc === 2))) return null
+  if (adr === 2) return idx(fr + Math.sign(dr), fc)
+  return idx(fr, fc + Math.sign(dc))
 }
 
 function dedupeMoves(moves: Move[]): Move[] {
@@ -159,6 +179,39 @@ function dedupeMoves(moves: Move[]): Move[] {
     seen.add(key)
     return true
   })
+}
+
+/** Keep only the furthest landing square on each ray (Glacier). */
+function keepMaxRangeOnly(from: number, moves: Move[]): Move[] {
+  const fr = Math.floor(from / 8)
+  const fc = from % 8
+  const byDir = new Map<string, Move>()
+  const passthrough: Move[] = []
+
+  for (const m of moves) {
+    if (m.castle || m.enPassant || m.crookedStep || m.twinStep) {
+      passthrough.push(m)
+      continue
+    }
+    const tr = Math.floor(m.to / 8)
+    const tc = m.to % 8
+    const dr = Math.sign(tr - fr)
+    const dc = Math.sign(tc - fc)
+    const key = `${dr},${dc}`
+    const dist = Math.max(Math.abs(tr - fr), Math.abs(tc - fc))
+    const prev = byDir.get(key)
+    if (!prev) {
+      byDir.set(key, m)
+      continue
+    }
+    const prevDist = Math.max(
+      Math.abs(Math.floor(prev.to / 8) - fr),
+      Math.abs((prev.to % 8) - fc),
+    )
+    if (dist > prevDist) byDir.set(key, m)
+  }
+
+  return [...byDir.values(), ...passthrough]
 }
 
 function pawnMoves(
@@ -422,7 +475,7 @@ function filterRuleConstraints(
   let out = moves
 
   if (hasRule(rules, 'fog') && lastMovedTo != null) {
-    out = out.filter((m) => !(m.from === lastMovedTo && m.captured))
+    out = out.filter((m) => !(m.from === lastMovedTo && isCaptureMove(m)))
   }
 
   if (hasRule(rules, 'narrow-board')) {
@@ -469,14 +522,14 @@ function filterRuleConstraints(
   if (hasRule(rules, 'no-quiet') && fullMove > 10) {
     const enemyKing = findKing(board, opposite(turn))
     out = out.filter((m) => {
-      if (m.captured) return true
+      if (isCaptureMove(m)) return true
       if (enemyKing == null) return false
       return isAdjacent(m.to, enemyKing)
     })
   }
 
   if (hasRule(rules, 'quiet-hours') && fullMove % 2 === 1) {
-    out = out.filter((m) => !m.captured)
+    out = out.filter((m) => !isCaptureMove(m))
   }
 
   if (hasRule(rules, 'gravity')) {
@@ -496,8 +549,8 @@ function filterRuleConstraints(
 
 function applyBloodMoon(moves: Move[], rules: readonly AugmentId[]): Move[] {
   if (!hasRule(rules, 'blood-moon')) return moves
-  if (moves.some((m) => m.captured)) {
-    return moves.filter((m) => m.captured)
+  if (moves.some((m) => isCaptureMove(m))) {
+    return moves.filter((m) => isCaptureMove(m))
   }
   return moves
 }
@@ -528,6 +581,7 @@ export function generateMoves(
   const rules = options.rules ?? []
   const lastMovedTo = options.lastMovedTo ?? null
   const eclipse = options.eclipse ?? null
+  const glacier = options.glacier ?? null
   const echoSquare = options.echoSquare ?? null
   const echoFor = options.echoFor ?? null
   const crookedFrom = options.crookedFrom ?? null
@@ -560,15 +614,26 @@ export function generateMoves(
   if (twinFrom === from && hasAugment(owned, 'twin-knights')) {
     const fr = Math.floor(from / 8)
     const fc = from % 8
+    const reckless = hasAugment(owned, 'reckless-charge')
     const steps: Move[] = []
     for (const [dr, dc] of KNIGHT_DELTAS) {
       const r = fr + dr
       const c = fc + dc
       if (!onBoard(r, c)) continue
       const to = idx(r, c)
-      if (!board[to]) {
-        steps.push({ from, to, twinStep: true })
+      if (board[to]) continue
+      const move: Move = { from, to, twinStep: true }
+      if (reckless) {
+        const leap = knightLeapSquare(from, to)
+        if (leap != null) {
+          const mid = board[leap]
+          if (mid && mid.color !== turn) {
+            move.leapSquare = leap
+            move.leapCaptured = mid
+          }
+        }
       }
+      steps.push(move)
     }
     return filterRuleConstraints(board, turn, steps, rules, fullMove, lastMovedTo)
   }
@@ -587,15 +652,26 @@ export function generateMoves(
       moves = []
       const fr = Math.floor(from / 8)
       const fc = from % 8
+      const reckless = hasAugment(owned, 'reckless-charge')
       for (const [dr, dc] of KNIGHT_DELTAS) {
         const r = fr + dr
         const c = fc + dc
         if (!onBoard(r, c)) continue
         const to = idx(r, c)
         const target = board[to]
-        if (!target || target.color !== turn) {
-          moves.push({ from, to, captured: target ?? undefined })
+        if (target && target.color === turn) continue
+        const move: Move = { from, to, captured: target ?? undefined }
+        if (reckless) {
+          const leap = knightLeapSquare(from, to)
+          if (leap != null) {
+            const mid = board[leap]
+            if (mid && mid.color !== turn) {
+              move.leapSquare = leap
+              move.leapCaptured = mid
+            }
+          }
         }
+        moves.push(move)
       }
       if (hasAugment(owned, 'knightmare')) {
         for (const [dr, dc] of ORTHO_DELTAS) {
@@ -676,6 +752,16 @@ export function generateMoves(
     fullMove,
     lastMovedTo,
   )
+
+  // Glacier: affected side's long-range pieces may only travel max range.
+  if (
+    glacier &&
+    glacier.against === turn &&
+    glacier.remaining > 0 &&
+    (piece.type === 'b' || piece.type === 'r' || piece.type === 'q')
+  ) {
+    moves = keepMaxRangeOnly(from, moves)
+  }
 
   return moves
 }

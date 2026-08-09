@@ -15,6 +15,8 @@ export interface Piece {
   color: Color
   /** Embassy envoy pawn — capturing it grants an extra action. */
   envoy?: boolean
+  /** Suicide Bomber — when captured, explodes in a 3×3 (friendly fire). */
+  bomber?: boolean
 }
 
 export interface CastlingRights {
@@ -38,6 +40,9 @@ export interface Move {
   crookedStep?: boolean
   /** Extra quiet knight-hop after Twin Knights. */
   twinStep?: boolean
+  /** Reckless Charge: enemy jumped over on the knight's 2-step orthogonal leg. */
+  leapSquare?: number
+  leapCaptured?: Piece
 }
 
 export type EndReason =
@@ -75,6 +80,8 @@ export interface BoardSnapshot {
   hasMoved: { w: boolean; b: boolean }
   lastMovedTo: number | null
   eclipse: { square: number; until: Color } | null
+  /** Enemy long-range pieces locked to max range for `remaining` of their actions. */
+  glacier: { against: Color; remaining: number } | null
   echoSquare: number | null
   echoFor: Color | null
   crookedFrom: number | null
@@ -108,6 +115,8 @@ export interface GameState {
   lastMovedTo: number | null
   /** Frozen enemy piece until `until`'s turn begins. */
   eclipse: { square: number; until: Color } | null
+  /** Enemy long-range pieces locked to max range for `remaining` of their actions. */
+  glacier: { against: Color; remaining: number } | null
   /** Echo Lane blocker; blocks slides for `echoFor`'s opponent. */
   echoSquare: number | null
   echoFor: Color | null

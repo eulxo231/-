@@ -101,6 +101,9 @@ The main playstyle is the same as chess, but a draft of cards pop up every 5 tur
 ### Pawn Storm
 >Your pawns may always step two forward when the path is clear (no en passant from that).
 
+### Reckless Charge
+>When your knight jumps over an orthogonally adjacent enemy, that piece is captured automatically.
+
 ### Seed Bishop
 >When your bishop captures, spawn a pawn on the square it left if that square is empty.
 
@@ -133,6 +136,9 @@ The main playstyle is the same as chess, but a draft of cards pop up every 5 tur
 ### Eclipse
 >Freeze one enemy non-king piece until the start of your next turn. Once.
 
+### Glacier
+>Enemy bishops, rooks, and queens may only move to their maximum range for their next 3 actions. Once.
+
 ### Poltergeist
 >Force one enemy non-king piece to take one of its legal non-capturing steps (you choose). Once.
 
@@ -150,6 +156,9 @@ The main playstyle is the same as chess, but a draft of cards pop up every 5 tur
 
 ### Smuggle
 >Move one of your non-king pieces to any empty square on your back two ranks. Once.
+
+### Suicide Bomber
+>Give one of your pawns a suicide charge. When it is captured, it explodes in a 3×3 area, removing every piece there (including yours). Once.
 
 ### Swap
 >Swap the positions of two of your non-king pieces. Once.
@@ -205,4 +214,10 @@ The main playstyle is the same as chess, but a draft of cards pop up every 5 tur
 >After your first move: swap your king with your queen, or with a rook if you have no queen.
 
 # 4. Update Note
-(feedback list)
+>(feedback list)
+
+#### version 1.0
+- can't see full explanations of cards (expand when hovered)
+- opening cards didn't pop up on the first card draw
+- putting in a random code says connected
+- Pawn cannot move beyond the 2nd last row

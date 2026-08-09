@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="title desc">
+  <title id="title">Glacier</title>
+  <desc id="desc">Enemy long-range pieces may only move to maximum range for 3 actions.</desc>
+  <!--
+    Pieces: Colin M.L. Burnett (Cburnett) chess set
+    Licensed under GPL / BSD / GFDL (Wikipedia / Lichess).
+  -->
+
+  <rect width="240" height="240" fill="#0a0a0a"/>
+
+  <!-- Diagonal file of squares (queen/bishop ray) -->
+  <g stroke="#1e2a24" stroke-width="1">
+    <rect x="36" y="148" width="44" height="44" fill="#121816"/>
+    <rect x="80" y="104" width="44" height="44" fill="#1a2420"/>
+    <rect x="124" y="60" width="44" height="44" fill="#121816"/>
+    <rect x="168" y="16" width="44" height="44" fill="#1a2420"/>
+  </g>
+
+  <!-- Iced intermediate squares (short moves denied) -->
+  <rect x="80" y="104" width="44" height="44" fill="#7ec8e3" fill-opacity="0.16" stroke="#9ed7ef" stroke-opacity="0.55" stroke-width="1.5"/>
+  <rect x="124" y="60" width="44" height="44" fill="#7ec8e3" fill-opacity="0.16" stroke="#9ed7ef" stroke-opacity="0.55" stroke-width="1.5"/>
+
+  <!-- Max-range destination (allowed) -->
+  <rect x="168" y="16" width="44" height="44" fill="#7ec8e3" fill-opacity="0.28" stroke="#b8e7f7" stroke-width="2"/>
+
+  <!-- Frost crystals on mid squares -->
+  <g fill="#b8e7f7" fill-opacity="0.75">
+    <circle cx="102" cy="126" r="2"/>
+    <circle cx="110" cy="118" r="1.5"/>
+    <circle cx="146" cy="82" r="2"/>
+    <circle cx="154" cy="74" r="1.5"/>
+  </g>
+  <g stroke="#e85d4c" stroke-width="2.25" stroke-linecap="round" opacity="0.8">
+    <path d="M94 118 L110 134"/>
+    <path d="M110 118 L94 134"/>
+    <path d="M138 74 L154 90"/>
+    <path d="M154 74 L138 90"/>
+  </g>
+
+  <defs>
+    <marker id="gl-arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#9ed7ef"/>
+    </marker>
+  </defs>
+
+  <!-- Forced max-range slide -->
+  <path d="M58 170 L190 38" fill="none" stroke="#9ed7ef" stroke-width="3" stroke-linecap="round" marker-end="url(#gl-arrow)"/>
+
+  <!-- Ice shards beside the ray -->
+  <g stroke="#7ec8e3" stroke-width="1.75" stroke-linecap="round" opacity="0.55">
+    <path d="M72 140 L64 128"/>
+    <path d="M88 124 L78 112"/>
+    <path d="M132 80 L124 68"/>
+    <path d="M148 64 L140 52"/>
+  </g>
+
+  <!-- Cburnett white rook on start square -->
+  <g transform="translate(38.5 150.5) scale(0.88)">
+    <g fill="#fff" fill-rule="evenodd" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+      <path stroke-linecap="butt" d="M9 39h27v-3H9zm3-3v-4h21v4zm-1-22V9h4v2h5V9h5v2h5V9h4v5"/>
+      <path d="m34 14-3 3H14l-3-3"/>
+      <path stroke-linecap="butt" stroke-linejoin="miter" d="M31 17v12.5H14V17"/>
+      <path d="m31 29.5 1.5 2.5h-20l1.5-2.5"/>
+      <path fill="none" stroke-linejoin="miter" d="M11 14h23"/>
+    </g>
+  </g>
+</svg>
