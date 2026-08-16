@@ -41,7 +41,7 @@ function picksStillNeeded(state: Pick<GameState, 'picksMade'>): {
 /** One card each for players who still need cards (White first). */
 function draftRoundFor(state: Pick<GameState, 'picksMade'>): Omit<
   DraftState,
-  'offer'
+  'offer' | 'refreshed'
 > | null {
   const need = picksStillNeeded(state)
   const picksLeft = {
