@@ -490,27 +490,6 @@ export default function App() {
         <div className="top-bar-row">
           <div className="brand-cluster">
             <p className="brand">Augment Chess</p>
-            {mode && game && !game.result && !inDraft && (mode === 'local' || onlineReady) && (
-              <p className="turn-badge" aria-live="polite">
-                <span className={`turn-dot ${game.turn}`} />
-                {turnLabel} to move
-                {actionLabel}
-                {mode === 'online' && myColor && game.turn === myColor
-                  ? ' — you'
-                  : ''}
-                {mode === 'online' && myColor && game.turn !== myColor
-                  ? ' — opponent'
-                  : ''}
-              </p>
-            )}
-            {mode && game?.result && (
-              <p className="turn-badge result">Game over</p>
-            )}
-            {mode && inDraft && (mode === 'local' || onlineSession) && game && (
-              <p className="turn-badge" aria-live="polite">
-                Draft — {game.draft?.picker === 'w' ? 'White' : 'Black'} picks
-              </p>
-            )}
           </div>
           {mode && (
             <button type="button" className="ghost menu-back" onClick={backToMenu}>
@@ -554,6 +533,79 @@ export default function App() {
 
           {showBoard && game && (
             <aside className="card-rail">
+              <div className="turn-panel">
+                {game.result ? (
+                  <p className="turn-badge result">Game over</p>
+                ) : inDraft && (mode === 'local' || onlineSession) ? (
+                  <p
+                    key={`draft-${game.draft?.picker ?? 'w'}`}
+                    className="turn-badge turn-badge-pulse"
+                    aria-live="polite"
+                  >
+                    <span className={`turn-dot ${game.draft?.picker ?? 'w'}`} />
+                    Draft — {game.draft?.picker === 'w' ? 'White' : 'Black'} picks
+                  </p>
+                ) : !game.result && (mode === 'local' || onlineReady) ? (
+                  <p
+                    key={`turn-${game.turn}-${game.actionsRemaining ?? 0}`}
+                    className="turn-badge turn-badge-pulse"
+                    aria-live="polite"
+                  >
+                    <span className={`turn-dot ${game.turn}`} />
+                    {turnLabel} to move
+                    {actionLabel}
+                    {mode === 'online' && myColor && game.turn === myColor
+                      ? ' — you'
+                      : ''}
+                    {mode === 'online' && myColor && game.turn !== myColor
+                      ? ' — opponent'
+                      : ''}
+                  </p>
+                ) : null}
+
+                <dl className="meta">
+                  <div>
+                    <dt>Move</dt>
+                    <dd>{game.fullMove}</dd>
+                  </div>
+                  <div>
+                    <dt>Phase</dt>
+                    <dd>{game.inOvertime ? 'Overtime' : 'Main'}</dd>
+                  </div>
+                  {mode === 'online' ? (
+                    <div>
+                      <dt>You</dt>
+                      <dd>
+                        {myColor === 'w'
+                          ? 'White'
+                          : myColor === 'b'
+                            ? 'Black'
+                            : '—'}
+                      </dd>
+                    </div>
+                  ) : (
+                    game.inOvertime && (
+                      <div>
+                        <dt>Idle</dt>
+                        <dd>{game.overtimeIdle}/10</dd>
+                      </div>
+                    )
+                  )}
+                </dl>
+
+                {mode === 'local' && (
+                  <div className="actions">
+                    <button
+                      type="button"
+                      className="ghost"
+                      onClick={() => setFlipped((f) => !f)}
+                    >
+                      Flip board
+                    </button>
+                  </div>
+                )}
+              </div>
+
               <div className="below-board-tools">
                 <button
                   type="button"
@@ -586,7 +638,7 @@ export default function App() {
                         : myColor === 'b'
                           ? 'Your augments · Black'
                           : 'Augments'
-                      : `${game.turn === 'w' ? 'White' : 'Black'} · to move`
+                      : 'Play an effect'
                 }
               />
             </aside>
@@ -611,60 +663,14 @@ export default function App() {
           />
         )}
 
-        {mode && (
-          <footer className="turn-bar">
+        {mode === 'online' && (!online.room || waitingOnline) && (
+          <footer className="turn-bar status-only">
             <div className="status">
-              {mode === 'online' && !online.room && (
-                <p>Create or join a room to play online.</p>
-              )}
+              {!online.room && <p>Create or join a room to play online.</p>}
               {waitingOnline && (
                 <p>Share your code — game starts when both seats fill.</p>
               )}
             </div>
-
-            {game && (
-              <dl className="meta">
-                <div>
-                  <dt>Move</dt>
-                  <dd>{game.fullMove}</dd>
-                </div>
-                <div>
-                  <dt>Phase</dt>
-                  <dd>{game.inOvertime ? 'Overtime' : 'Main'}</dd>
-                </div>
-                {mode === 'online' ? (
-                  <div>
-                    <dt>You</dt>
-                    <dd>
-                      {myColor === 'w'
-                        ? 'White'
-                        : myColor === 'b'
-                          ? 'Black'
-                          : '—'}
-                    </dd>
-                  </div>
-                ) : (
-                  game.inOvertime && (
-                    <div>
-                      <dt>Idle</dt>
-                      <dd>{game.overtimeIdle}/10</dd>
-                    </div>
-                  )
-                )}
-              </dl>
-            )}
-
-            {mode === 'local' && (
-              <div className="actions">
-                <button
-                  type="button"
-                  className="ghost"
-                  onClick={() => setFlipped((f) => !f)}
-                >
-                  Flip board
-                </button>
-              </div>
-            )}
           </footer>
         )}
       </main>

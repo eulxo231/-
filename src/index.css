@@ -193,11 +193,63 @@ button {
   font-weight: 600;
   color: var(--ink);
   white-space: nowrap;
+  max-width: 100%;
+}
+
+.turn-badge-pulse {
+  animation: turn-pulse 0.45s ease both;
+}
+
+@keyframes turn-pulse {
+  from {
+    opacity: 0.35;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .turn-badge .turn-dot {
   width: 0.65rem;
   height: 0.65rem;
+  flex-shrink: 0;
+}
+
+.turn-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--soft);
+}
+
+.turn-panel .turn-badge {
+  align-self: flex-start;
+  white-space: normal;
+}
+
+.turn-panel .meta {
+  grid-template-columns: repeat(auto-fit, minmax(4.5rem, 1fr));
+  gap: 0.55rem;
+}
+
+.turn-panel .meta dd {
+  font-size: 1.15rem;
+}
+
+.turn-panel .actions {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.turn-panel .actions button {
+  min-height: 40px;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.88rem;
 }
 
 .top-bar .lobby.mode-only {
@@ -561,7 +613,7 @@ button {
 
 .below-board-tools {
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
 }
 
 /* Desktop / wide window: board left, RULE + augments right */
@@ -611,6 +663,10 @@ button {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+}
+
+.turn-bar.status-only {
+  margin-top: 0;
 }
 
 .draft-overlay,
