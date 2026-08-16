@@ -34,7 +34,7 @@ function DraftCard({
   )
 
   return (
-    <>
+    <div className="draft-card-wrap">
       <button
         ref={ref as RefObject<HTMLButtonElement>}
         type="button"
@@ -66,7 +66,7 @@ function DraftCard({
         </div>
       </button>
       {tipPortal}
-    </>
+    </div>
   )
 }
 
