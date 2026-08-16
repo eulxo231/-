@@ -20,6 +20,18 @@ const KNIGHT_DELTAS = [
   [2, 1],
 ]
 
+/** Extra knight leaps when Long Stride is on the piece. */
+const KNIGHT_STRIDE_DELTAS = [
+  [-3, -1],
+  [-3, 1],
+  [-1, -3],
+  [-1, 3],
+  [1, -3],
+  [1, 3],
+  [3, -1],
+  [3, 1],
+]
+
 const KING_DELTAS = [
   [-1, -1],
   [-1, 0],
@@ -231,6 +243,7 @@ function pawnMoves(
   const promotions: PieceType[] = ['q', 'r', 'b', 'n']
   const storm = hasAugment(owned, 'pawn-storm')
   const ghost = hasAugment(owned, 'ghost-pawn')
+  const stride = !!board[from]?.stride
 
   const pushPromo = (to: number, captured?: Piece, extra?: Partial<Move>) => {
     if (Math.floor(to / 8) === promoRank) {
@@ -251,7 +264,15 @@ function pawnMoves(
       if (onBoard(twoR, fc) && !board[two]) {
         if (fr === startRank) {
           moves.push({ from, to: two, doublePawn: !storm })
-        } else if (storm) {
+          // Long Stride: one more step from the home rank.
+          if (stride) {
+            const threeR = fr + 3 * dir
+            const three = idx(threeR, fc)
+            if (onBoard(threeR, fc) && !board[three]) {
+              pushPromo(three)
+            }
+          }
+        } else if (storm || stride) {
           moves.push({ from, to: two })
         }
       }
@@ -377,6 +398,7 @@ function kingMoves(
   const moves: Move[] = []
   const fr = Math.floor(from / 8)
   const fc = from % 8
+  const stride = !!board[from]?.stride
 
   for (const [dr, dc] of KING_DELTAS) {
     const r = fr + dr
@@ -386,6 +408,23 @@ function kingMoves(
     const target = board[to]
     if (!target || target.color !== color) {
       moves.push({ from, to, captured: target ?? undefined })
+    }
+  }
+
+  // Long Stride: also step two squares in each king direction if the path is clear.
+  if (stride) {
+    for (const [dr, dc] of KING_DELTAS) {
+      const midR = fr + dr
+      const midC = fc + dc
+      const r = fr + 2 * dr
+      const c = fc + 2 * dc
+      if (!onBoard(midR, midC) || !onBoard(r, c)) continue
+      if (board[idx(midR, midC)]) continue
+      const to = idx(r, c)
+      const target = board[to]
+      if (!target || target.color !== color) {
+        moves.push({ from, to, captured: target ?? undefined })
+      }
     }
   }
 
@@ -653,7 +692,10 @@ export function generateMoves(
       const fr = Math.floor(from / 8)
       const fc = from % 8
       const reckless = hasAugment(owned, 'reckless-charge')
-      for (const [dr, dc] of KNIGHT_DELTAS) {
+      const deltas = piece.stride
+        ? [...KNIGHT_DELTAS, ...KNIGHT_STRIDE_DELTAS]
+        : KNIGHT_DELTAS
+      for (const [dr, dc] of deltas) {
         const r = fr + dr
         const c = fc + dc
         if (!onBoard(r, c)) continue
@@ -703,12 +745,16 @@ export function generateMoves(
     case 'b':
       moves = slide(board, from, turn, BISHOP_DIRS, {
         passFriendlyOnce: hasAugment(owned, 'slippery-bishop'),
-        hopAnyOnce: hasAugment(owned, 'hopping-bishop'),
+        hopAnyOnce:
+          hasAugment(owned, 'hopping-bishop') || !!piece.stride,
         blockSquare: echoBlocks,
       })
       break
     case 'r':
-      moves = slide(board, from, turn, ROOK_DIRS, { blockSquare: echoBlocks })
+      moves = slide(board, from, turn, ROOK_DIRS, {
+        hopAnyOnce: !!piece.stride,
+        blockSquare: echoBlocks,
+      })
       break
     case 'q':
       moves = slide(board, from, turn, [...BISHOP_DIRS, ...ROOK_DIRS], {

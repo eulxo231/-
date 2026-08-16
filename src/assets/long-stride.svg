@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="title desc">
+  <title id="title">Long Stride</title>
+  <desc id="desc">One of your pieces gains one extra square of reach.</desc>
+  <!--
+    Pieces: Colin M.L. Burnett (Cburnett) chess set
+    Licensed under GPL / BSD / GFDL (Wikipedia / Lichess).
+  -->
+
+  <rect width="240" height="240" fill="#0a0a0a"/>
+
+  <!-- File of squares showing an extra step -->
+  <g stroke="#1e2a24" stroke-width="1">
+    <rect x="36" y="148" width="44" height="44" fill="#121816"/>
+    <rect x="80" y="104" width="44" height="44" fill="#1a2420"/>
+    <rect x="124" y="60" width="44" height="44" fill="#121816"/>
+    <rect x="168" y="16" width="44" height="44" fill="#1a2420"/>
+  </g>
+
+  <!-- Normal reach -->
+  <rect x="80" y="104" width="44" height="44" fill="#2a8c62" fill-opacity="0.14" stroke="#3ecf8e" stroke-opacity="0.35" stroke-width="1.5"/>
+  <!-- Extra stride square -->
+  <rect x="168" y="16" width="44" height="44" fill="#2a8c62" fill-opacity="0.3" stroke="#3ecf8e" stroke-width="2"/>
+
+  <defs>
+    <marker id="ls-arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#3ecf8e"/>
+    </marker>
+  </defs>
+
+  <path d="M58 170 L190 38" fill="none" stroke="#3ecf8e" stroke-width="3" stroke-linecap="round" marker-end="url(#ls-arrow)"/>
+  <!-- +1 tick near the last square -->
+  <g fill="#3ecf8e" font-family="Sora, sans-serif" font-size="18" font-weight="700">
+    <text x="188" y="78">+1</text>
+  </g>
+
+  <!-- White bishop at start -->
+  <g transform="translate(37.5 149) scale(0.95)">
+    <g fill="none" fill-rule="evenodd" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <g fill="#fff" stroke-linecap="butt">
+        <path d="M9 36c3.39-.97 10.11.43 13.5-2 3.39 2.43 10.11 1.03 13.5 2 0 0 1.65.54 3 2-.68.97-1.65.99-3 .5-3.39-1.03-10.11.42-13.5-1-3.39 1.42-10.11.03-13.5 1-1.35.49-2.32.47-3-.5 1.35-1.46 3-2 3-2z"/>
+        <path d="M15 32c2.5 2.5 12.5 2.5 15 0 .5-1.5 0-2 0-2 0-2.5-2.5-4-2.5-4 5.5-1.5 6-11.5-5-15.5-11 4-10.5 14-5 15.5 0 0-2.5 1.5-2.5 4 0 0-.5.5 0 2z"/>
+        <path d="M25 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 1 1 5 0z"/>
+      </g>
+      <path d="M17.5 26h10M15 30h15m-7.5-14.5v5M20 18h5" stroke="#000" stroke-linejoin="miter"/>
+    </g>
+  </g>
+</svg>

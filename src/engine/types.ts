@@ -17,6 +17,8 @@ export interface Piece {
   envoy?: boolean
   /** Suicide Bomber — when captured, explodes in a 3×3 (friendly fire). */
   bomber?: boolean
+  /** Long Stride — this piece may move one square farther than usual. */
+  stride?: boolean
 }
 
 export interface CastlingRights {

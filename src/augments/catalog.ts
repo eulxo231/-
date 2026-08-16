@@ -39,6 +39,8 @@ export type AugmentId =
   | 'castle-now'
   | 'glacier'
   | 'suicide-bomber'
+  | 'upheaval'
+  | 'long-stride'
   // RULE
   | 'fog'
   | 'mirror'
@@ -78,6 +80,7 @@ export type ActiveTarget =
   | 'own-pawn'
   | 'own-queen'
   | 'own-rook'
+  | 'own-non-queen'
   | 'enemy-non-king'
   | 'empty'
   | 'empty-second-rank'
@@ -436,6 +439,26 @@ export const AUGMENTS: Record<AugmentId, AugmentCard> = {
       'Give one of your pawns a suicide charge. When it is captured, it explodes in a 3×3 area, removing every piece there (including yours). Once.',
     art: 'black',
     target: 'own-pawn',
+  },
+  upheaval: {
+    id: 'upheaval',
+    name: 'Upheaval',
+    kind: 'active',
+    stars: 4,
+    summary:
+      'Randomly shuffle the positions of every piece on the board (yours and theirs). Once.',
+    art: 'black',
+    target: 'none',
+  },
+  'long-stride': {
+    id: 'long-stride',
+    name: 'Long Stride',
+    kind: 'active',
+    stars: 3,
+    summary:
+      'Choose one of your pieces (not a queen). It may move one square farther than usual. Once.',
+    art: 'black',
+    target: 'own-non-queen',
   },
 
   fog: {

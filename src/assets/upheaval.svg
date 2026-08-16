@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="title desc">
+  <title id="title">Upheaval</title>
+  <desc id="desc">All pieces on the board swap into random positions.</desc>
+  <!--
+    Pieces: Colin M.L. Burnett (Cburnett) chess set
+    Licensed under GPL / BSD / GFDL (Wikipedia / Lichess).
+  -->
+
+  <rect width="240" height="240" fill="#0a0a0a"/>
+
+  <!-- Scattered board squares -->
+  <g stroke="#1e2a24" stroke-width="1">
+    <rect x="28" y="28" width="44" height="44" fill="#121816"/>
+    <rect x="96" y="36" width="44" height="44" fill="#1a2420"/>
+    <rect x="168" y="28" width="44" height="44" fill="#121816"/>
+    <rect x="36" y="100" width="44" height="44" fill="#1a2420"/>
+    <rect x="160" y="108" width="44" height="44" fill="#121816"/>
+    <rect x="28" y="168" width="44" height="44" fill="#121816"/>
+    <rect x="100" y="160" width="44" height="44" fill="#1a2420"/>
+    <rect x="168" y="168" width="44" height="44" fill="#121816"/>
+  </g>
+
+  <!-- Chaos glow on mid squares -->
+  <rect x="96" y="36" width="44" height="44" fill="#2a8c62" fill-opacity="0.2" stroke="#3ecf8e" stroke-opacity="0.45" stroke-width="1.5"/>
+  <rect x="36" y="100" width="44" height="44" fill="#2a8c62" fill-opacity="0.18" stroke="#3ecf8e" stroke-opacity="0.4" stroke-width="1.5"/>
+  <rect x="160" y="108" width="44" height="44" fill="#e85d4c" fill-opacity="0.16" stroke="#e85d4c" stroke-opacity="0.4" stroke-width="1.5"/>
+  <rect x="100" y="160" width="44" height="44" fill="#e85d4c" fill-opacity="0.16" stroke="#e85d4c" stroke-opacity="0.4" stroke-width="1.5"/>
+
+  <defs>
+    <marker id="uh-arrow" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="#3ecf8e"/>
+    </marker>
+  </defs>
+
+  <!-- Swirl exchange paths -->
+  <path d="M50 50 C 90 10, 150 20, 190 50" fill="none" stroke="#3ecf8e" stroke-width="2.5" stroke-linecap="round" opacity="0.85" marker-end="url(#uh-arrow)"/>
+  <path d="M190 190 C 150 230, 90 220, 50 190" fill="none" stroke="#e85d4c" stroke-width="2.5" stroke-linecap="round" opacity="0.85" marker-end="url(#uh-arrow)"/>
+  <path d="M58 122 C 100 80, 140 160, 182 130" fill="none" stroke="#d6a83a" stroke-width="2.25" stroke-linecap="round" opacity="0.75"/>
+  <path d="M182 130 C 140 160, 100 80, 58 122" fill="none" stroke="#d6a83a" stroke-width="2.25" stroke-linecap="round" stroke-dasharray="4 5" opacity="0.45"/>
+
+  <!-- White knight (top-left-ish) -->
+  <g transform="translate(97.5 37.5) scale(0.95)">
+    <g fill="none" fill-rule="evenodd" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+      <path fill="#fff" d="M22 10c10.5 1 16.5 8 16 29H15c0-9 10-6.5 8-21"/>
+      <path fill="#fff" d="M24 18c.38 2.91-5.55 7.37-8 9-3 2-2.82 4.34-5 4-1.042-.94 1.41-3.04 0-3-1 0 .19 1.23-1 2-1 0-4.003 1-4-4 0-2 6-12 6-12s1.89-1.9 2-3.5c-.73-.994-.5-2-.5-3 1-1 3 2.5 3 2.5h2s.78-1.992 2.5-3c1 0 1 3 1 3"/>
+      <path fill="#000" d="M9.5 25.5a.5.5 0 1 1-1 0 .5.5 0 1 1 1 0m5.433-9.75a.5 1.5 30 1 1-.866-.5.5 1.5 30 1 1 .866.5"/>
+    </g>
+  </g>
+
+  <!-- Black pawn (mid-right) -->
+  <g transform="translate(167 112) scale(0.85)">
+    <path d="M22.5 9c-2.21 0-4 1.79-4 4 0 .89.29 1.71.78 2.38C17.33 16.5 16 18.59 16 21c0 2.03.94 3.84 2.41 5.03C15.41 27.09 11 31.58 11 39.5H34c0-7.92-4.41-12.41-7.41-13.47C28.06 24.84 29 23.03 29 21c0-2.41-1.33-4.5-3.28-5.62.49-.67.78-1.49.78-2.38 0-2.21-1.79-4-4-4z" fill="#000" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+  </g>
+
+  <!-- White rook (bottom) -->
+  <g transform="translate(101.5 162) scale(0.9)">
+    <g fill="#fff" fill-rule="evenodd" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M9 39h27v-3H9v3zM12 36v-4h3v-2h3v2h6v-2h3v2h3v-2h3v2h3v4H12z" stroke-linecap="butt"/>
+      <path d="M12 31.5V25.5h21v6H12z" stroke-linecap="butt"/>
+      <path d="M12 25.5V15h3v3h3v-3h3v3h3v-3h3v3h3v-3h3v10.5H12z" stroke-linecap="butt"/>
+      <path d="M12 15V9.5h3.5V12h3V9.5h6V12h3V9.5H31V15H12z" stroke-linecap="butt"/>
+      <path d="M12 31.5h21" fill="none" stroke-linejoin="miter"/>
+      <path d="M12 25.5h21" fill="none" stroke-linejoin="miter"/>
+    </g>
+  </g>
+</svg>

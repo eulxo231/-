@@ -598,7 +598,7 @@ export function positionKey(state: GameState): string {
   const pieces = state.board
     .map((p, i) =>
       p
-        ? `${i}${p.color}${p.type}${p.envoy ? 'E' : ''}${p.bomber ? 'B' : ''}`
+        ? `${i}${p.color}${p.type}${p.envoy ? 'E' : ''}${p.bomber ? 'B' : ''}${p.stride ? 'S' : ''}`
         : '',
     )
     .filter(Boolean)
@@ -1345,12 +1345,52 @@ export function useActiveCard(
       })
     }
 
+    case 'upheaval': {
+      const pieces: Piece[] = []
+      const squares: number[] = []
+      for (let sq = 0; sq < 64; sq++) {
+        const p = board[sq]
+        if (!p) continue
+        pieces.push({ ...p })
+        squares.push(sq)
+        board[sq] = null
+      }
+      for (let i = squares.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1))
+        ;[squares[i], squares[j]] = [squares[j], squares[i]]
+      }
+      for (let i = 0; i < pieces.length; i++) {
+        board[squares[i]] = pieces[i]
+      }
+      augments = consumeCard(augments, color, cardId)
+      return finishCardUse(state, board, augments, true, {
+        castling: { wK: false, wQ: false, bK: false, bQ: false },
+        epSquare: null,
+        lastMovedTo: null,
+        eclipse: null,
+        echoSquare: null,
+        echoFor: null,
+        crookedFrom: null,
+        twinFrom: null,
+      })
+    }
+
     case 'suicide-bomber': {
       if (square == null) return null
       const piece = pieceAt(square)
       if (!piece || piece.color !== color || piece.type !== 'p') return null
       if (piece.bomber) return null
       board[square] = { ...piece, bomber: true }
+      augments = consumeCard(augments, color, cardId)
+      return finishCardUse(state, board, augments, true)
+    }
+
+    case 'long-stride': {
+      if (square == null) return null
+      const piece = pieceAt(square)
+      if (!piece || piece.color !== color || piece.type === 'q') return null
+      if (piece.stride) return null
+      board[square] = { ...piece, stride: true }
       augments = consumeCard(augments, color, cardId)
       return finishCardUse(state, board, augments, true)
     }

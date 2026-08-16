@@ -21,6 +21,7 @@ import hoppingBishop from '../assets/hopping-bishop.svg'
 import ironRook from '../assets/iron-rook.svg'
 import knightmare from '../assets/knightmare.svg'
 import longcastle from '../assets/longcastle.svg'
+import longStride from '../assets/long-stride.svg'
 import militia from '../assets/militia.svg'
 import mirror from '../assets/mirror.svg'
 import narrowBoard from '../assets/narrow-board.svg'
@@ -42,6 +43,7 @@ import swap from '../assets/swap.svg'
 import teleport from '../assets/teleport.svg'
 import timeSkip from '../assets/time-skip.svg'
 import twinKnights from '../assets/twin-knights.svg'
+import upheaval from '../assets/upheaval.svg'
 
 const ART: Partial<Record<AugmentId, string>> = {
   'omni-pawn': omniPawn,
@@ -86,6 +88,8 @@ const ART: Partial<Record<AugmentId, string>> = {
   teleport,
   'castle-now': castleNow,
   'suicide-bomber': suicideBomber,
+  upheaval,
+  'long-stride': longStride,
 }
 
 export function getAugmentArt(id: AugmentId): string | undefined {

@@ -254,6 +254,18 @@ export default function App() {
         return
       }
 
+      case 'own-non-queen': {
+        if (
+          piece &&
+          piece.color === me &&
+          piece.type !== 'q' &&
+          !(pendingCard === 'long-stride' && piece.stride)
+        ) {
+          applyCard(pendingCard, { square: sq })
+        }
+        return
+      }
+
       case 'own-queen': {
         if (piece && piece.color === me && piece.type === 'q') {
           applyCard(pendingCard, { square: sq })

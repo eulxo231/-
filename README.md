@@ -139,6 +139,9 @@ The main playstyle is the same as chess, but a draft of cards pop up every 5 tur
 ### Glacier
 >Enemy bishops, rooks, and queens may only move to their maximum range for their next 3 actions. Once.
 
+### Long Stride
+>Choose one of your pieces (not a queen). It may move one square farther than usual. Once.
+
 ### Poltergeist
 >Force one enemy non-king piece to take one of its legal non-capturing steps (you choose). Once.
 
@@ -168,6 +171,9 @@ The main playstyle is the same as chess, but a draft of cards pop up every 5 tur
 
 ### Time Skip
 >Gain an extra full action budget this turn. Once.
+
+### Upheaval
+>Randomly shuffle the positions of every piece on the board (yours and theirs). Once.
 
 ### Opening
 

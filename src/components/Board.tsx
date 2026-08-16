@@ -194,11 +194,18 @@ export function Board({
               'piece',
               piece.color === 'w' ? 'white' : 'black',
               piece.bomber ? 'bomber' : '',
+              piece.stride ? 'stride' : '',
             ]
               .filter(Boolean)
               .join(' ')}
             data-turn={piece.color === turn ? 'active' : 'idle'}
-            title={piece.bomber ? 'Suicide Bomber' : undefined}
+            title={
+              piece.bomber
+                ? 'Suicide Bomber'
+                : piece.stride
+                  ? 'Long Stride'
+                  : undefined
+            }
           >
             {pieceGlyph(piece)}
           </span>

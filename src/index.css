@@ -1269,6 +1269,21 @@ button {
   pointer-events: none;
 }
 
+.piece.stride {
+  overflow: visible;
+  filter: drop-shadow(0 0 0.16em rgba(62, 207, 142, 0.75));
+}
+
+.piece.stride::before {
+  content: '';
+  position: absolute;
+  inset: 12%;
+  border: 2px dashed #3ecf8e;
+  border-radius: 50%;
+  opacity: 0.85;
+  pointer-events: none;
+}
+
 .piece.white {
   color: var(--piece-w);
   font-weight: 700;
