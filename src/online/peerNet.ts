@@ -5,6 +5,7 @@ import {
   getLegalMoves,
   makeMove,
   pickDraftCard,
+  refreshDraftOffer,
   useActiveCard,
   type UseCardOpts,
 } from '../engine/game'
@@ -244,6 +245,16 @@ export function connectPeer(handlers: PeerHandlers) {
     return true
   }
 
+  function applyRefreshDraft(as: Color) {
+    if (!room || !ready) return false
+    if (room.game.phase !== 'draft') return false
+    const next = refreshDraftOffer(room.game, as)
+    if (!next) return false
+    room.game = next
+    broadcastState('state')
+    return true
+  }
+
   function onHostMessage(msg: WireMessage) {
     if (!msg || msg.peer === peerId || !room || !peerId || !code) return
 
@@ -290,6 +301,12 @@ export function connectPeer(handlers: PeerHandlers) {
       case 'pick_card': {
         if (!applyPick(msg.card, 'b')) {
           reject(msg.peer, 'Illegal draft pick.')
+        }
+        break
+      }
+      case 'refresh_draft': {
+        if (!applyRefreshDraft('b')) {
+          reject(msg.peer, 'Cannot refresh draft.')
         }
         break
       }
@@ -516,6 +533,15 @@ export function connectPeer(handlers: PeerHandlers) {
       }
       if (!peerId) return
       publish({ type: 'pick_card', peer: peerId, card })
+    },
+
+    refreshDraft() {
+      if (role === 'host') {
+        applyRefreshDraft('w')
+        return
+      }
+      if (!peerId) return
+      publish({ type: 'refresh_draft', peer: peerId })
     },
 
     rematch() {

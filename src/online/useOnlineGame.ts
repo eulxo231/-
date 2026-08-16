@@ -104,6 +104,11 @@ export function useOnlineGame() {
     [ensureNet],
   )
 
+  const sendRefreshDraft = useCallback(() => {
+    setError(null)
+    ensureNet().refreshDraft()
+  }, [ensureNet])
+
   const rematch = useCallback(() => {
     setError(null)
     ensureNet().rematch()
@@ -122,6 +127,7 @@ export function useOnlineGame() {
     sendMove,
     sendUseCard,
     sendPickCard,
+    sendRefreshDraft,
     rematch,
   }
 }

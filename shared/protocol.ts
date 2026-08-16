@@ -52,6 +52,7 @@ export type WireMessage =
       promotion?: PieceType
     }
   | { type: 'pick_card'; peer: string; card: AugmentId }
+  | { type: 'refresh_draft'; peer: string }
   | { type: 'rematch_vote'; peer: string }
   | { type: 'leave'; peer: string; role: 'host' | 'guest' }
   | { type: 'peer_gone'; peer: string; role: 'host' | 'guest' }

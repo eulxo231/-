@@ -14,6 +14,7 @@ interface DraftPanelProps {
   /** Whose picks the local UI can submit (null = spectating). */
   controller: Color | null
   onPick: (card: AugmentId) => void
+  onRefresh: () => void
 }
 
 function DraftCard({
@@ -69,7 +70,12 @@ function DraftCard({
   )
 }
 
-export function DraftPanel({ game, controller, onPick }: DraftPanelProps) {
+export function DraftPanel({
+  game,
+  controller,
+  onPick,
+  onRefresh,
+}: DraftPanelProps) {
   if (game.phase !== 'draft' || !game.draft) return null
 
   const picker = game.draft.picker
@@ -92,13 +98,24 @@ export function DraftPanel({ game, controller, onPick }: DraftPanelProps) {
         aria-label={`${side} card draft`}
       >
         <div className="draft-panel-head">
-          <h2 id="draft-title">{opening ? 'Opening draft' : 'Draft'}</h2>
-          <p>
-            {side} picks 1 card
-            {canPick ? ' — your turn' : ' — waiting'}
-            {' · '}
-            {made}/{DRAFT_PICKS_TOTAL} cards
-          </p>
+          <div className="draft-panel-head-text">
+            <h2 id="draft-title">{opening ? 'Opening draft' : 'Draft'}</h2>
+            <p>
+              {side} picks 1 card
+              {canPick ? ' — your turn' : ' — waiting'}
+              {' · '}
+              {made}/{DRAFT_PICKS_TOTAL} cards
+            </p>
+          </div>
+          <button
+            type="button"
+            className="draft-refresh"
+            disabled={!canPick}
+            onClick={onRefresh}
+            aria-label="Refresh draft cards"
+          >
+            Refresh
+          </button>
         </div>
 
         <div className="draft-options">

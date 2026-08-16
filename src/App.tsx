@@ -13,6 +13,7 @@ import {
   makeMove,
   pickDraftCard,
   poltergeistTargets,
+  refreshDraftOffer,
   resultLabel,
   smuggleTargets,
   useActiveCard,
@@ -202,6 +203,19 @@ export default function App() {
     const picker = game.draft?.picker
     if (!picker) return
     const next = pickDraftCard(game, picker, card)
+    if (!next) return
+    setLocalGame(next)
+  }
+
+  const onDraftRefresh = () => {
+    if (mode === 'online') {
+      online.sendRefreshDraft()
+      return
+    }
+    if (!game) return
+    const picker = game.draft?.picker
+    if (!picker) return
+    const next = refreshDraftOffer(game, picker)
     if (!next) return
     setLocalGame(next)
   }
@@ -694,6 +708,7 @@ export default function App() {
           game={game}
           controller={draftController ?? null}
           onPick={onDraftPick}
+          onRefresh={onDraftRefresh}
         />
       )}
 

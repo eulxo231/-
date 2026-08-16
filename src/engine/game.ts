@@ -1705,6 +1705,25 @@ export function pickDraftCard(
   }
 }
 
+/** Reroll the face-up draft offer for the current picker. */
+export function refreshDraftOffer(
+  state: GameState,
+  by: Color,
+): GameState | null {
+  if (state.phase !== 'draft' || !state.draft) return null
+  if (state.draft.picker !== by) return null
+  const offer = rollDraftOffer(state, { exclude: state.draft.offer ?? [] })
+  if (offer.length === 0) return null
+  return {
+    ...cloneState(state),
+    draft: {
+      picker: state.draft.picker,
+      picksLeft: { ...state.draft.picksLeft },
+      offer,
+    },
+  }
+}
+
 export function getLegalMoves(state: GameState, from: number): Move[] {
   if (state.result || state.phase !== 'playing') return []
   const moves = generateMoves(

@@ -739,7 +739,7 @@ export const DRAFT_PICKS_TOTAL = 3
 export const DRAFT_EVERY_MOVES = 5
 
 /** How many face-up options each draft pick shows. */
-export const DRAFT_OFFER_COUNT = 6
+export const DRAFT_OFFER_COUNT = 3
 
 function remainingDraftPool(state: {
   augments: { w: AugmentId[]; b: AugmentId[] }
@@ -762,14 +762,20 @@ function remainingDraftPool(state: {
 }
 
 /** Random face-up offer for a draft pick (store on `draft.offer` so online stays synced). */
-export function rollDraftOffer(state: {
-  augments: { w: AugmentId[]; b: AugmentId[] }
-  rules: AugmentId[]
-  picksMade?: { w: number; b: number }
-}): AugmentId[] {
+export function rollDraftOffer(
+  state: {
+    augments: { w: AugmentId[]; b: AugmentId[] }
+    rules: AugmentId[]
+    picksMade?: { w: number; b: number }
+  },
+  opts?: { exclude?: readonly AugmentId[] },
+): AugmentId[] {
   const remaining = remainingDraftPool(state)
   if (remaining.length <= DRAFT_OFFER_COUNT) return remaining
-  const shuffled = [...remaining]
+  const exclude = new Set(opts?.exclude ?? [])
+  let pool = remaining.filter((id) => !exclude.has(id))
+  if (pool.length < DRAFT_OFFER_COUNT) pool = remaining
+  const shuffled = [...pool]
   for (let i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1))
     ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
