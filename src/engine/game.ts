@@ -6,6 +6,7 @@ import {
   getAugment,
   hasAugment,
   hasRule,
+  rollDraftOffer,
   type AugmentId,
 } from '../augments/catalog'
 import { generateAllMoves, generateMoves, isAdjacent, type MoveGenOpts } from './moves'
@@ -38,7 +39,10 @@ function picksStillNeeded(state: Pick<GameState, 'picksMade'>): {
 }
 
 /** One card each for players who still need cards (White first). */
-function draftRoundFor(state: Pick<GameState, 'picksMade'>): DraftState | null {
+function draftRoundFor(state: Pick<GameState, 'picksMade'>): Omit<
+  DraftState,
+  'offer'
+> | null {
   const need = picksStillNeeded(state)
   const picksLeft = {
     w: need.w > 0 ? 1 : 0,
@@ -55,6 +59,11 @@ function initialDraft(): DraftState {
   return {
     picker: 'w',
     picksLeft: { w: DRAFT_PICKS_AT_START, b: DRAFT_PICKS_AT_START },
+    offer: rollDraftOffer({
+      augments: { w: [], b: [] },
+      rules: [],
+      picksMade: { w: 0, b: 0 },
+    }),
   }
 }
 
@@ -69,13 +78,14 @@ function maybeEnterDraft(prev: GameState, next: GameState): GameState {
     prev.fullMove % DRAFT_EVERY_MOVES === 0 &&
     next.fullMove === prev.fullMove + 1
   if (!blackFinishedFullMove) return next
-  const draft = draftRoundFor(next)
-  if (!draft) return next
-  if (draftOptionsFor(next).length === 0) return next
+  const base = draftRoundFor(next)
+  if (!base) return next
+  const offer = rollDraftOffer(next)
+  if (offer.length === 0) return next
   return {
     ...next,
     phase: 'draft',
-    draft,
+    draft: { ...base, offer },
   }
 }
 
@@ -548,6 +558,7 @@ export function cloneState(state: GameState): GameState {
       ? {
           picker: state.draft.picker,
           picksLeft: { ...state.draft.picksLeft },
+          offer: [...(state.draft.offer ?? [])],
         }
       : null,
     picksMade: {
@@ -1607,17 +1618,31 @@ export function pickDraftCard(
   const other = opposite(by)
   let picker: Color = by
   let phase: GameState['phase'] = 'draft'
-  let draft: DraftState | null = { picker, picksLeft }
+  let draft: DraftState | null = null
+
+  const afterPick = {
+    augments,
+    rules,
+    picksMade,
+  }
 
   if (picksLeft.w <= 0 && picksLeft.b <= 0) {
     phase = 'playing'
     draft = null
   } else if (picksLeft[by] > 0) {
     picker = by
-    draft = { picker, picksLeft }
+    draft = {
+      picker,
+      picksLeft,
+      offer: rollDraftOffer(afterPick),
+    }
   } else if (picksLeft[other] > 0) {
     picker = other
-    draft = { picker, picksLeft }
+    draft = {
+      picker,
+      picksLeft,
+      offer: rollDraftOffer(afterPick),
+    }
   } else {
     phase = 'playing'
     draft = null

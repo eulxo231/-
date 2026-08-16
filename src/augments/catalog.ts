@@ -718,10 +718,9 @@ export const DRAFT_EVERY_MOVES = 5
 /** How many face-up options each draft pick shows. */
 export const DRAFT_OFFER_COUNT = 6
 
-export function draftOptionsFor(state: {
+function remainingDraftPool(state: {
   augments: { w: AugmentId[]; b: AugmentId[] }
   rules: AugmentId[]
-  fullMove?: number
   picksMade?: { w: number; b: number }
 }): AugmentId[] {
   const taken = new Set<AugmentId>([
@@ -732,26 +731,41 @@ export function draftOptionsFor(state: {
   // Opening cards only appear in the first (pre-game) draft.
   const isOpeningDraft =
     (state.picksMade?.w ?? 0) < 1 || (state.picksMade?.b ?? 0) < 1
-  const remaining = DRAFT_CATALOG.filter((id) => {
+  return DRAFT_CATALOG.filter((id) => {
     if (taken.has(id)) return false
     if (!isOpeningDraft && getAugment(id).kind === 'opening') return false
     return true
   })
-  if (remaining.length <= DRAFT_OFFER_COUNT) return remaining
+}
 
-  // Deterministic offer — stable across host/guest; changes each round.
-  const picks = state.picksMade
-  const seed =
-    [...taken].join('|').length +
-    remaining.length * 17 +
-    (state.fullMove ?? 1) * 41 +
-    ((picks?.w ?? 0) + (picks?.b ?? 0)) * 13
+/** Random face-up offer for a draft pick (store on `draft.offer` so online stays synced). */
+export function rollDraftOffer(state: {
+  augments: { w: AugmentId[]; b: AugmentId[] }
+  rules: AugmentId[]
+  picksMade?: { w: number; b: number }
+}): AugmentId[] {
+  const remaining = remainingDraftPool(state)
+  if (remaining.length <= DRAFT_OFFER_COUNT) return remaining
   const shuffled = [...remaining]
-  let s = seed + 1
   for (let i = shuffled.length - 1; i > 0; i--) {
-    s = (s * 1103515245 + 12345) & 0x7fffffff
-    const j = s % (i + 1)
+    const j = Math.floor(Math.random() * (i + 1))
     ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
   }
   return shuffled.slice(0, DRAFT_OFFER_COUNT)
+}
+
+export function draftOptionsFor(state: {
+  augments: { w: AugmentId[]; b: AugmentId[] }
+  rules: AugmentId[]
+  fullMove?: number
+  picksMade?: { w: number; b: number }
+  draft?: { offer?: AugmentId[] } | null
+}): AugmentId[] {
+  const remaining = remainingDraftPool(state)
+  const offer = state.draft?.offer
+  if (offer && offer.length > 0) {
+    return offer.filter((id) => remaining.includes(id))
+  }
+  // No stored offer (legacy / incomplete state): roll fresh.
+  return rollDraftOffer(state)
 }

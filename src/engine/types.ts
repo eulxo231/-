@@ -66,6 +66,8 @@ export interface AnnotationArrow {
 export interface DraftState {
   picker: Color
   picksLeft: { w: number; b: number }
+  /** Face-up options for the current pick (rolled when the pick opens). */
+  offer: AugmentId[]
 }
 
 /** Snapshot used by Rewind. */
