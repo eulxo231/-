@@ -19,7 +19,11 @@ type TipState = TipContent & {
 }
 
 function placeBelow(anchor: DOMRect): Pick<TipState, 'left' | 'top' | 'width'> {
-  const width = Math.min(Math.max(anchor.width, 220), 320)
+  const desktop = window.matchMedia('(min-width: 700px)').matches
+  const width = Math.min(
+    Math.max(anchor.width, desktop ? 280 : 220),
+    desktop ? 420 : 320,
+  )
   const margin = 8
   let left = anchor.left + anchor.width / 2 - width / 2
   left = Math.max(margin, Math.min(left, window.innerWidth - width - margin))
