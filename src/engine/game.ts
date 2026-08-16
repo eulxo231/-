@@ -64,6 +64,7 @@ function initialDraft(): DraftState {
       rules: [],
       picksMade: { w: 0, b: 0 },
     }),
+    refreshed: false,
   }
 }
 
@@ -85,7 +86,7 @@ function maybeEnterDraft(prev: GameState, next: GameState): GameState {
   return {
     ...next,
     phase: 'draft',
-    draft: { ...base, offer },
+    draft: { ...base, offer, refreshed: false },
   }
 }
 
@@ -559,6 +560,7 @@ export function cloneState(state: GameState): GameState {
           picker: state.draft.picker,
           picksLeft: { ...state.draft.picksLeft },
           offer: [...(state.draft.offer ?? [])],
+          refreshed: !!state.draft.refreshed,
         }
       : null,
     picksMade: {
@@ -1675,6 +1677,7 @@ export function pickDraftCard(
       picker,
       picksLeft,
       offer: rollDraftOffer(afterPick),
+      refreshed: false,
     }
   } else if (picksLeft[other] > 0) {
     picker = other
@@ -1682,6 +1685,7 @@ export function pickDraftCard(
       picker,
       picksLeft,
       offer: rollDraftOffer(afterPick),
+      refreshed: false,
     }
   } else {
     phase = 'playing'
@@ -1705,13 +1709,14 @@ export function pickDraftCard(
   }
 }
 
-/** Reroll the face-up draft offer for the current picker. */
+/** Reroll the face-up draft offer for the current picker (once per pick). */
 export function refreshDraftOffer(
   state: GameState,
   by: Color,
 ): GameState | null {
   if (state.phase !== 'draft' || !state.draft) return null
   if (state.draft.picker !== by) return null
+  if (state.draft.refreshed) return null
   const offer = rollDraftOffer(state, { exclude: state.draft.offer ?? [] })
   if (offer.length === 0) return null
   return {
@@ -1720,6 +1725,7 @@ export function refreshDraftOffer(
       picker: state.draft.picker,
       picksLeft: { ...state.draft.picksLeft },
       offer,
+      refreshed: true,
     },
   }
 }

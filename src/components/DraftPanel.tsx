@@ -107,15 +107,29 @@ export function DraftPanel({
               {made}/{DRAFT_PICKS_TOTAL} cards
             </p>
           </div>
-          <button
-            type="button"
-            className="draft-refresh"
-            disabled={!canPick}
-            onClick={onRefresh}
-            aria-label="Refresh draft cards"
-          >
-            Refresh
-          </button>
+          <div className="draft-refresh-wrap">
+            <button
+              type="button"
+              className={`draft-refresh${game.draft.refreshed ? ' used' : ''}`}
+              disabled={!canPick || !!game.draft.refreshed}
+              onClick={onRefresh}
+              aria-label={
+                game.draft.refreshed
+                  ? 'Refresh already used'
+                  : 'Refresh draft cards once'
+              }
+              title={
+                game.draft.refreshed
+                  ? 'Refresh already used for this pick'
+                  : 'Reroll these 3 cards (once)'
+              }
+            >
+              {game.draft.refreshed ? 'Refreshed' : 'Refresh · 1'}
+            </button>
+            <span className="draft-refresh-hint">
+              {game.draft.refreshed ? 'Used for this pick' : 'Once per pick'}
+            </span>
+          </div>
         </div>
 
         <div className="draft-options">

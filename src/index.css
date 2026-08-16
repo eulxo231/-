@@ -839,8 +839,15 @@ button {
   font-size: 0.88rem;
 }
 
-.draft-refresh {
+.draft-refresh-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.2rem;
   flex-shrink: 0;
+}
+
+.draft-refresh {
   border: 1px solid var(--line);
   border-radius: 4px;
   background: var(--soft);
@@ -858,8 +865,19 @@ button {
 }
 
 .draft-refresh:disabled {
-  opacity: 0.45;
+  opacity: 0.55;
   cursor: not-allowed;
+}
+
+.draft-refresh.used {
+  color: var(--muted);
+  border-style: dashed;
+}
+
+.draft-refresh-hint {
+  font-size: 0.68rem;
+  letter-spacing: 0.02em;
+  color: var(--muted);
 }
 
 .draft-sides {

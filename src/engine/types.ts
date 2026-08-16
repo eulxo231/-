@@ -70,6 +70,8 @@ export interface DraftState {
   picksLeft: { w: number; b: number }
   /** Face-up options for the current pick (rolled when the pick opens). */
   offer: AugmentId[]
+  /** Whether the current picker already used their one refresh. */
+  refreshed: boolean
 }
 
 /** Snapshot used by Rewind. */

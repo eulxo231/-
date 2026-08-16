@@ -25,7 +25,7 @@ const RULES = [
   {
     title: 'Augments',
     items: [
-      'At the start, each player drafts 1 card from 3 face-up options (refresh for a new set). After every 5 full moves (10 turns), each drafts 1 more until both have 3.',
+      'At the start, each player drafts 1 card from 3 face-up options (one refresh per pick). After every 5 full moves (10 turns), each drafts 1 more until both have 3.',
       'Piece and active cards go to your tray; RULE cards affect both sides; opening cards only appear in the first draft and resolve after your first move.',
       'Online rooms use a 4-character code; the host validates every move.',
     ],
