@@ -80,13 +80,16 @@ export function DraftPanel({ game, controller, onPick }: DraftPanelProps) {
   const opening = !(game.hasMoved?.w || game.hasMoved?.b) && !game.lastMove
 
   return (
-    <div className="draft-overlay" role="presentation">
+    <div
+      className={`draft-overlay draft-side-${picker}`}
+      role="presentation"
+    >
       <section
-        className="draft-modal"
+        className={`draft-modal draft-side-${picker}`}
         role="dialog"
         aria-modal="true"
         aria-labelledby="draft-title"
-        aria-label="Card draft"
+        aria-label={`${side} card draft`}
       >
         <div className="draft-panel-head">
           <h2 id="draft-title">{opening ? 'Opening draft' : 'Draft'}</h2>

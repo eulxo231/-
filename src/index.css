@@ -549,6 +549,66 @@ button {
   animation: pop 0.22s ease both;
 }
 
+.draft-overlay.draft-side-w {
+  background: rgba(232, 239, 233, 0.55);
+}
+
+.draft-overlay.draft-side-b {
+  background: rgba(12, 16, 14, 0.62);
+}
+
+.draft-modal.draft-side-w {
+  background: #f7faf8;
+  border-color: #c5d4cb;
+  color: var(--ink);
+}
+
+.draft-modal.draft-side-w .draft-panel-head h2 {
+  color: var(--accent-deep);
+}
+
+.draft-modal.draft-side-w .draft-panel-head p {
+  color: var(--muted);
+}
+
+.draft-modal.draft-side-b {
+  background: #151a17;
+  border-color: #2c3832;
+  color: #e8efe9;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+}
+
+.draft-modal.draft-side-b .draft-panel-head h2 {
+  color: #f4f8f5;
+}
+
+.draft-modal.draft-side-b .draft-panel-head p {
+  color: #9aada3;
+}
+
+.draft-modal.draft-side-b .draft-card {
+  background: #1c2420;
+  border-color: #314039;
+  color: #e8efe9;
+}
+
+.draft-modal.draft-side-b .draft-card .augment-card-body p,
+.draft-modal.draft-side-b .draft-card .augment-kind {
+  color: #9aada3;
+}
+
+.draft-modal.draft-side-b .draft-card .augment-card-body h3 {
+  color: #f4f8f5;
+}
+
+.draft-modal.draft-side-b .draft-card:not([aria-disabled='true']):hover {
+  outline-color: #3fa87c;
+}
+
+.draft-modal.draft-side-w .draft-card {
+  background: #f7faf8;
+}
+
 .mode-select-modal,
 .game-over-modal {
   width: min(22rem, 100%);
