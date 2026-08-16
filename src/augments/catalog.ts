@@ -667,7 +667,7 @@ export const AUGMENTS: Record<AugmentId, AugmentCard> = {
     kind: 'opening',
     stars: 4,
     summary:
-      'After your first move: replace your king with a queen and place the king on a random empty back-rank square.',
+      'After your first move: replace your king with a queen and place the king on a random empty back-rank square (or in your half if the back rank is full).',
     art: 'black',
   },
   'fianchetto-both': {

@@ -366,16 +366,27 @@ function applyOpening(
       }
       if (kingSq >= 0) {
         next[kingSq] = { type: 'q', color }
-        const empties: number[] = []
+
+        // Prefer empty back-rank squares. After a normal first move the back
+        // rank is often still full, so fall back to your half, then anywhere.
+        const candidates: number[] = []
         for (let file = 0; file < 8; file++) {
           const sq = back * 8 + file
-          if (!next[sq]) empties.push(sq)
+          if (!next[sq]) candidates.push(sq)
         }
-        if (empties.length) {
-          const pick = seededShuffle(empties, kingSq + 7)[0]
+        if (candidates.length === 0) {
+          for (let sq = halfStart; sq < halfEnd; sq++) {
+            if (!next[sq]) candidates.push(sq)
+          }
+        }
+        if (candidates.length === 0) {
+          for (let sq = 0; sq < 64; sq++) {
+            if (!next[sq]) candidates.push(sq)
+          }
+        }
+        if (candidates.length > 0) {
+          const pick = seededShuffle(candidates, kingSq + 7)[0]
           next[pick] = { type: 'k', color }
-        } else {
-          next[kingSq] = { type: 'k', color }
         }
       }
       clearCastling()

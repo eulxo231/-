@@ -184,7 +184,7 @@ The main playstyle is the same as chess, but a draft of cards pop up every 5 tur
 >After your first move: remove your knights; place pawns on c and f of your third rank if empty.
 
 ### Cuckoo
->After your first move: replace your king with a queen and place the king on a random empty back-rank square.
+>After your first move: replace your king with a queen and place the king on a random empty back-rank square (or in your half if the back rank is full).
 
 ### Embassy
 >After your first move: place an envoy pawn in the center. Whoever captures it gains an extra action.
