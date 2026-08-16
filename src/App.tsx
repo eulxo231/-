@@ -464,8 +464,28 @@ export default function App() {
       ? { from: promoteCardSq, to: promoteCardSq }
       : pendingPromotion
 
+  /** Page theme follows draft picker, else side to move. */
+  const sideTheme: 'w' | 'b' | null =
+    game && !game.result
+      ? inDraft
+        ? (game.draft?.picker ?? 'w')
+        : game.turn
+      : null
+
+  useEffect(() => {
+    const root = document.documentElement
+    if (sideTheme === 'w' || sideTheme === 'b') {
+      root.dataset.side = sideTheme
+    } else {
+      delete root.dataset.side
+    }
+    return () => {
+      delete root.dataset.side
+    }
+  }, [sideTheme])
+
   return (
-    <div className="app">
+    <div className={`app${sideTheme ? ` side-${sideTheme}` : ''}`}>
       <header className="top-bar">
         <div className="top-bar-row">
           <div className="brand-cluster">
